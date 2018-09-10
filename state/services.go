@@ -21,9 +21,9 @@ type Mempool interface {
 	Unlock()
 
 	Size() int
-	CheckTx(types.Tx, func(*abci.Response)) error
+	CheckTx(types.Tx, func(*abci.Response)) (error, string)
 	Reap(int) types.Txs
-	Update(height int64, txs types.Txs) error
+	Update(height int64, txs types.TxBuckets) error
 	Flush()
 	FlushAppConn() error
 
@@ -35,16 +35,16 @@ type Mempool interface {
 type MockMempool struct {
 }
 
-func (m MockMempool) Lock()                                              {}
-func (m MockMempool) Unlock()                                            {}
-func (m MockMempool) Size() int                                          { return 0 }
-func (m MockMempool) CheckTx(tx types.Tx, cb func(*abci.Response)) error { return nil }
-func (m MockMempool) Reap(n int) types.Txs                               { return types.Txs{} }
-func (m MockMempool) Update(height int64, txs types.Txs) error           { return nil }
-func (m MockMempool) Flush()                                             {}
-func (m MockMempool) FlushAppConn() error                                { return nil }
-func (m MockMempool) TxsAvailable() <-chan int64                         { return make(chan int64) }
-func (m MockMempool) EnableTxsAvailable()                                {}
+func (m MockMempool) Lock()                                                            {}
+func (m MockMempool) Unlock()                                                          {}
+func (m MockMempool) Size() int                                                        { return 0 }
+func (m MockMempool) CheckTx(tx types.Tx, cb func(*abci.Response)) (error, string) { return nil, "" }
+func (m MockMempool) Reap(n int) types.Txs                                             { return types.Txs{} }
+func (m MockMempool) Update(height int64, txs types.TxBuckets) error                   { return nil }
+func (m MockMempool) Flush()                                                           {}
+func (m MockMempool) FlushAppConn() error                                              { return nil }
+func (m MockMempool) TxsAvailable() <-chan int64                                       { return make(chan int64) }
+func (m MockMempool) EnableTxsAvailable()                                              {}
 
 //------------------------------------------------------
 // blockstore

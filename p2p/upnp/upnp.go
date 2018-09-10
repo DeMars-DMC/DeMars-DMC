@@ -53,7 +53,7 @@ func Discover() (nat NAT, err error) {
 		"M-SEARCH * HTTP/1.1\r\n" +
 			"HOST: 239.255.255.250:1900\r\n" +
 			"ST: ssdp:all\r\n" +
-			"MAN: \"ssdp:discover\"\r\n" +
+			"MAN: \"ssdp:kademlia\"\r\n" +
 			"MX: 2\r\n\r\n")
 	message := buf.Bytes()
 	answerBytes := make([]byte, 1024)

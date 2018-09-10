@@ -15,8 +15,12 @@ type AppConnConsensus interface {
 	InitChainSync(types.RequestInitChain) (*types.ResponseInitChain, error)
 
 	BeginBlockSync(types.RequestBeginBlock) (*types.ResponseBeginBlock, error)
-	DeliverTxAsync(tx []byte) *abcicli.ReqRes
+
+	// Pass the height of the current block
+	DeliverTxAsync(tx []byte, height int64) *abcicli.ReqRes
+	DeliverBucketedTxSync(tx []byte, height int64, bucketID string) (*types.ResponseDeliverTx, error)
 	EndBlockSync(types.RequestEndBlock) (*types.ResponseEndBlock, error)
+	GetValidatorSetSync(height int64) (*types.ResponseGetValidatorSet, error)
 	CommitSync() (*types.ResponseCommit, error)
 }
 
@@ -24,7 +28,8 @@ type AppConnMempool interface {
 	SetResponseCallback(abcicli.Callback)
 	Error() error
 
-	CheckTxAsync(tx []byte) *abcicli.ReqRes
+	// Pass the height of the current block
+	CheckTxAsync(tx []byte, height int64) *abcicli.ReqRes
 
 	FlushAsync() *abcicli.ReqRes
 	FlushSync() error
@@ -69,12 +74,22 @@ func (app *appConnConsensus) BeginBlockSync(req types.RequestBeginBlock) (*types
 	return app.appConn.BeginBlockSync(req)
 }
 
-func (app *appConnConsensus) DeliverTxAsync(tx []byte) *abcicli.ReqRes {
-	return app.appConn.DeliverTxAsync(tx)
+// Pass the height of the current block
+func (app *appConnConsensus) DeliverTxAsync(tx []byte, height int64) *abcicli.ReqRes {
+	return app.appConn.DeliverTxAsync(tx, height)
+}
+
+// Pass the height of the current block and the bucket ID
+func (app *appConnConsensus) DeliverBucketedTxSync(tx []byte, height int64, bucketID string) (*types.ResponseDeliverTx, error) {
+	return app.appConn.DeliverBucketedTxSync(tx, height, bucketID)
 }
 
 func (app *appConnConsensus) EndBlockSync(req types.RequestEndBlock) (*types.ResponseEndBlock, error) {
 	return app.appConn.EndBlockSync(req)
+}
+
+func (app *appConnConsensus) GetValidatorSetSync(height int64) (*types.ResponseGetValidatorSet, error) {
+	return app.appConn.GetValidatorSetSync(height)
 }
 
 func (app *appConnConsensus) CommitSync() (*types.ResponseCommit, error) {
@@ -110,8 +125,9 @@ func (app *appConnMempool) FlushSync() error {
 	return app.appConn.FlushSync()
 }
 
-func (app *appConnMempool) CheckTxAsync(tx []byte) *abcicli.ReqRes {
-	return app.appConn.CheckTxAsync(tx)
+// Pass the height of the current block
+func (app *appConnMempool) CheckTxAsync(tx []byte, height int64) *abcicli.ReqRes {
+	return app.appConn.CheckTxAsync(tx, height)
 }
 
 //------------------------------------------------

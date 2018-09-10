@@ -29,7 +29,7 @@ func init() {
 }
 
 type PeerMessage struct {
-	PeerID  ID
+	PeerID  NodeID
 	Bytes   []byte
 	Counter int
 }
@@ -221,14 +221,14 @@ func TestConnIDFilter(t *testing.T) {
 
 	c1, c2 := conn.NetPipe()
 
-	s1.SetIDFilter(func(id ID) error {
+	s1.SetIDFilter(func(id NodeID) error {
 		if id == s2.nodeInfo.ID {
 			return fmt.Errorf("Error: pipe is blacklisted")
 		}
 		return nil
 	})
 
-	s2.SetIDFilter(func(id ID) error {
+	s2.SetIDFilter(func(id NodeID) error {
 		if id == s1.nodeInfo.ID {
 			return fmt.Errorf("Error: pipe is blacklisted")
 		}

@@ -2,6 +2,7 @@ package consensus
 
 import (
 	"bytes"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"reflect"
@@ -10,9 +11,11 @@ import (
 	"time"
 
 	fail "github.com/ebuchman/fail-test"
+	"github.com/tendermint/go-wire/data"
 	cmn "github.com/tendermint/tendermint/libs/common"
 	"github.com/tendermint/tendermint/libs/log"
 
+	abci "github.com/tendermint/tendermint/abci/types"
 	cfg "github.com/tendermint/tendermint/config"
 	cstypes "github.com/tendermint/tendermint/consensus/types"
 	tmevents "github.com/tendermint/tendermint/libs/events"
@@ -47,7 +50,7 @@ var (
 // msgs from the reactor which may update the state
 type msgInfo struct {
 	Msg    ConsensusMessage `json:"msg"`
-	PeerID p2p.ID           `json:"peer_key"`
+	PeerID p2p.NodeID       `json:"peer_key"`
 }
 
 // internally generated messages which may update the state
@@ -130,7 +133,6 @@ func NewConsensusState(
 	blockExec *sm.BlockExecutor,
 	blockStore sm.BlockStore,
 	mempool sm.Mempool,
-	evpool sm.EvidencePool,
 	options ...CSOption,
 ) *ConsensusState {
 	cs := &ConsensusState{
@@ -144,7 +146,6 @@ func NewConsensusState(
 		done:             make(chan struct{}),
 		doWALCatchup:     true,
 		wal:              nilWAL{},
-		evpool:           evpool,
 		evsw:             tmevents.NewEventSwitch(),
 		metrics:          NopMetrics(),
 	}
@@ -352,9 +353,9 @@ func (cs *ConsensusState) OpenWAL(walFile string) (WAL, error) {
 // TODO: should these return anything or let callers just use events?
 
 // AddVote inputs a vote.
-func (cs *ConsensusState) AddVote(vote *types.Vote, peerID p2p.ID) (added bool, err error) {
-	if peerID == "" {
-		cs.internalMsgQueue <- msgInfo{&VoteMessage{vote}, ""}
+func (cs *ConsensusState) AddVote(vote *types.Vote, peerID p2p.NodeID) (added bool, err error) {
+	if &peerID.ID == nil {
+		cs.internalMsgQueue <- msgInfo{&VoteMessage{vote}, p2p.NodeID{}}
 	} else {
 		cs.peerMsgQueue <- msgInfo{&VoteMessage{vote}, peerID}
 	}
@@ -364,10 +365,10 @@ func (cs *ConsensusState) AddVote(vote *types.Vote, peerID p2p.ID) (added bool, 
 }
 
 // SetProposal inputs a proposal.
-func (cs *ConsensusState) SetProposal(proposal *types.Proposal, peerID p2p.ID) error {
+func (cs *ConsensusState) SetProposal(proposal *types.Proposal, peerID p2p.NodeID) error {
 
-	if peerID == "" {
-		cs.internalMsgQueue <- msgInfo{&ProposalMessage{proposal}, ""}
+	if &peerID.ID == nil {
+		cs.internalMsgQueue <- msgInfo{&ProposalMessage{proposal}, p2p.NodeID{}}
 	} else {
 		cs.peerMsgQueue <- msgInfo{&ProposalMessage{proposal}, peerID}
 	}
@@ -377,10 +378,10 @@ func (cs *ConsensusState) SetProposal(proposal *types.Proposal, peerID p2p.ID) e
 }
 
 // AddProposalBlockPart inputs a part of the proposal block.
-func (cs *ConsensusState) AddProposalBlockPart(height int64, round int, part *types.Part, peerID p2p.ID) error {
+func (cs *ConsensusState) AddProposalBlockPart(height int64, round int, part *types.Part, peerID p2p.NodeID) error {
 
-	if peerID == "" {
-		cs.internalMsgQueue <- msgInfo{&BlockPartMessage{height, round, part}, ""}
+	if &peerID.ID == nil {
+		cs.internalMsgQueue <- msgInfo{&BlockPartMessage{height, round, part}, p2p.NodeID{}}
 	} else {
 		cs.peerMsgQueue <- msgInfo{&BlockPartMessage{height, round, part}, peerID}
 	}
@@ -390,7 +391,7 @@ func (cs *ConsensusState) AddProposalBlockPart(height int64, round int, part *ty
 }
 
 // SetProposalAndBlock inputs the proposal and all block parts.
-func (cs *ConsensusState) SetProposalAndBlock(proposal *types.Proposal, block *types.Block, parts *types.PartSet, peerID p2p.ID) error {
+func (cs *ConsensusState) SetProposalAndBlock(proposal *types.Proposal, block *types.Block, parts *types.PartSet, peerID p2p.NodeID) error {
 	if err := cs.SetProposal(proposal, peerID); err != nil {
 		return err
 	}
@@ -880,10 +881,10 @@ func (cs *ConsensusState) defaultDecideProposal(height int64, round int) {
 		*/
 
 		// send proposal and block parts on internal msg queue
-		cs.sendInternalMessage(msgInfo{&ProposalMessage{proposal}, ""})
+		cs.sendInternalMessage(msgInfo{&ProposalMessage{proposal}, p2p.NodeID{}})
 		for i := 0; i < blockParts.Total(); i++ {
 			part := blockParts.GetPart(i)
-			cs.sendInternalMessage(msgInfo{&BlockPartMessage{cs.Height, cs.Round, part}, ""})
+			cs.sendInternalMessage(msgInfo{&BlockPartMessage{cs.Height, cs.Round, part}, p2p.NodeID{}})
 		}
 		cs.Logger.Info("Signed proposal", "height", height, "round", round, "proposal", proposal)
 		cs.Logger.Debug(cmn.Fmt("Signed proposal block: %v", block))
@@ -914,6 +915,7 @@ func (cs *ConsensusState) isProposalComplete() bool {
 // Returns nil block upon error.
 // NOTE: keep it side-effect free for clarity.
 func (cs *ConsensusState) createProposalBlock() (block *types.Block, blockParts *types.PartSet) {
+	cs.Logger.Debug("Creating proposal block")
 	var commit *types.Commit
 	if cs.Height == 1 {
 		// We're creating a proposal for the first block.
@@ -928,12 +930,48 @@ func (cs *ConsensusState) createProposalBlock() (block *types.Block, blockParts 
 		return
 	}
 
-	// Mempool validated transactions
-	txs := cs.mempool.Reap(cs.state.ConsensusParams.BlockSize.MaxTxs)
-	block, parts := cs.state.MakeBlock(cs.Height, txs, commit)
-	evidence := cs.evpool.PendingEvidence()
-	block.AddEvidence(evidence)
-	return block, parts
+	var utxoTxs types.Txs
+	i := 0
+
+	// We are proposing a UTXO block
+	// Need the utxo struct for marshalling the data in json format
+	// Transactions are usually created by the user, but for UTXO blocks, we create them where
+	// They are stored in a byte array
+	type TxUTXO struct {
+		//Tx map[*data.Bytes]int64 `json:"tx"`
+		Address data.Bytes `json:"address"` // Hash of the PubKey
+		Balance uint64     `json:"coins"`   //
+	}
+
+	if cs.Height%100 == 1 {
+		cs.Logger.Debug("Need to propose UTXO block")
+		abciResponses := sm.ABCIResponses{GetValidatorSet: &abci.ResponseGetValidatorSet{}}
+
+		abciResponses.GetValidatorSet, _ = cs.blockExec.GetProxyApp().GetValidatorSetSync(-1 * cs.Height)
+
+		cs.Logger.Debug("GetValidatorSet returned")
+		balances := abciResponses.GetValidatorSet.ValidatorSet
+		cs.Logger.Debug(fmt.Sprintf("Got %d accounts", len(balances)))
+		for _, bal := range balances {
+			tx := TxUTXO{
+				Address: []byte(bal.Address),
+				Balance: uint64(bal.Power),
+			}
+
+			utxoTxs[i], _ = json.Marshal(tx)
+			i++
+		}
+		cs.Logger.Debug("Making block from txs")
+		block, parts := cs.state.MakeBlock(cs.Height, utxoTxs, commit)
+		return block, parts
+	} else {
+		// Mempool validated transactions
+		cs.Logger.Debug("Reaping txs")
+		txs := cs.mempool.Reap(cs.state.ConsensusParams.BlockSize.MaxTxs)
+		block, parts := cs.state.MakeBlock(cs.Height, txs, commit)
+		return block, parts
+	}
+
 }
 
 // Enter: `timeoutPropose` after entering Propose.
@@ -1290,6 +1328,7 @@ func (cs *ConsensusState) finalizeCommit(height int64) {
 	// Execute and commit the block, update and save the state, and update the mempool.
 	// NOTE The block.AppHash wont reflect these txs until the next block.
 	var err error
+	cs.Logger.Info("Applying Block")
 	stateCopy, err = cs.blockExec.ApplyBlock(stateCopy, types.BlockID{block.Hash(), blockParts.Header()}, block)
 	if err != nil {
 		cs.Logger.Error("Error on ApplyBlock. Did the application crash? Please restart tendermint", "err", err)
@@ -1327,8 +1366,8 @@ func (cs *ConsensusState) recordMetrics(height int64, block *types.Block) {
 	missingValidatorsPower := int64(0)
 	for i, val := range cs.Validators.Validators {
 		var vote *types.Vote
-		if i < len(block.LastCommit.Precommits) {
-			vote = block.LastCommit.Precommits[i]
+		if i < len(block.Commit.Precommits) {
+			vote = block.Commit.Precommits[i]
 		}
 		if vote == nil {
 			missingValidators++
@@ -1337,14 +1376,6 @@ func (cs *ConsensusState) recordMetrics(height int64, block *types.Block) {
 	}
 	cs.metrics.MissingValidators.Set(float64(missingValidators))
 	cs.metrics.MissingValidatorsPower.Set(float64(missingValidatorsPower))
-	cs.metrics.ByzantineValidators.Set(float64(len(block.Evidence.Evidence)))
-	byzantineValidatorsPower := int64(0)
-	for _, ev := range block.Evidence.Evidence {
-		if _, val := cs.Validators.GetByAddress(ev.Address()); val != nil {
-			byzantineValidatorsPower += val.VotingPower
-		}
-	}
-	cs.metrics.ByzantineValidatorsPower.Set(float64(byzantineValidatorsPower))
 
 	if height > 1 {
 		lastBlockMeta := cs.blockStore.LoadBlockMeta(height - 1)
@@ -1396,7 +1427,7 @@ func (cs *ConsensusState) defaultSetProposal(proposal *types.Proposal) error {
 
 // NOTE: block is not necessarily valid.
 // Asynchronously triggers either enterPrevote (before we timeout of propose) or tryFinalizeCommit, once we have the full block.
-func (cs *ConsensusState) addProposalBlockPart(msg *BlockPartMessage, peerID p2p.ID) (added bool, err error) {
+func (cs *ConsensusState) addProposalBlockPart(msg *BlockPartMessage, peerID p2p.NodeID) (added bool, err error) {
 	height, round, part := msg.Height, msg.Round, msg.Part
 
 	// Blocks might be reused, so round mismatch is OK
@@ -1458,7 +1489,7 @@ func (cs *ConsensusState) addProposalBlockPart(msg *BlockPartMessage, peerID p2p
 }
 
 // Attempt to add the vote. if its a duplicate signature, dupeout the validator
-func (cs *ConsensusState) tryAddVote(vote *types.Vote, peerID p2p.ID) error {
+func (cs *ConsensusState) tryAddVote(vote *types.Vote, peerID p2p.NodeID) error {
 	_, err := cs.addVote(vote, peerID)
 	if err != nil {
 		// If the vote height is off, we'll just ignore it,
@@ -1485,7 +1516,7 @@ func (cs *ConsensusState) tryAddVote(vote *types.Vote, peerID p2p.ID) error {
 
 //-----------------------------------------------------------------------------
 
-func (cs *ConsensusState) addVote(vote *types.Vote, peerID p2p.ID) (added bool, err error) {
+func (cs *ConsensusState) addVote(vote *types.Vote, peerID p2p.NodeID) (added bool, err error) {
 	cs.Logger.Debug("addVote", "voteHeight", vote.Height, "voteType", vote.Type, "valIndex", vote.ValidatorIndex, "csHeight", cs.Height)
 
 	// A precommit for the previous height?
@@ -1647,7 +1678,7 @@ func (cs *ConsensusState) signAddVote(type_ byte, hash []byte, header types.Part
 	}
 	vote, err := cs.signVote(type_, hash, header)
 	if err == nil {
-		cs.sendInternalMessage(msgInfo{&VoteMessage{vote}, ""})
+		cs.sendInternalMessage(msgInfo{&VoteMessage{vote}, p2p.NodeID{}})
 		cs.Logger.Info("Signed and pushed vote", "height", cs.Height, "round", cs.Round, "vote", vote, "err", err)
 		return vote
 	}

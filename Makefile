@@ -14,13 +14,13 @@ check: check_tools ensure_deps
 ### Build
 
 build:
-	CGO_ENABLED=0 go build $(BUILD_FLAGS) -tags '$(BUILD_TAGS)' -o build/tendermint ./cmd/tendermint/
+	CGO_ENABLED=1 go build $(BUILD_FLAGS) -tags '$(BUILD_TAGS)' -o build/tendermint ./cmd/tendermint/
 
 build_race:
-	CGO_ENABLED=0 go build -race $(BUILD_FLAGS) -tags '$(BUILD_TAGS)' -o build/tendermint ./cmd/tendermint
+	CGO_ENABLED=1 go build -race $(BUILD_FLAGS) -tags '$(BUILD_TAGS)' -o build/tendermint ./cmd/tendermint
 
 install:
-	CGO_ENABLED=0 go install $(BUILD_FLAGS) -tags '$(BUILD_TAGS)' ./cmd/tendermint
+	CGO_ENABLED=1 go install $(BUILD_FLAGS) -tags '$(BUILD_TAGS)' ./cmd/tendermint
 
 ########################################
 ### Distribution
@@ -132,7 +132,7 @@ vagrant_test:
 ### go tests
 test:
 	@echo "--> Running go test"
-	@go test $(PACKAGES)
+	# @go test $(PACKAGES)
 
 test_race:
 	@echo "--> Running go test --race"

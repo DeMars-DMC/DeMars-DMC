@@ -57,8 +57,9 @@ func Commit(client abcicli.Client, hashExp []byte) error {
 	return nil
 }
 
-func DeliverTx(client abcicli.Client, txBytes []byte, codeExp uint32, dataExp []byte) error {
-	res, _ := client.DeliverTxSync(txBytes)
+// Pass the height of the current block
+func DeliverTx(client abcicli.Client, txBytes []byte, height int64, codeExp uint32, dataExp []byte) error {
+	res, _ := client.DeliverTxSync(txBytes, height)
 	code, data, log := res.Code, res.Data, res.Log
 	if code != codeExp {
 		fmt.Println("Failed test: DeliverTx")
@@ -76,8 +77,9 @@ func DeliverTx(client abcicli.Client, txBytes []byte, codeExp uint32, dataExp []
 	return nil
 }
 
-func CheckTx(client abcicli.Client, txBytes []byte, codeExp uint32, dataExp []byte) error {
-	res, _ := client.CheckTxSync(txBytes)
+// Pass the height of the current block
+func CheckTx(client abcicli.Client, txBytes []byte, height int64, codeExp uint32, dataExp []byte) error {
+	res, _ := client.CheckTxSync(txBytes, height)
 	code, data, log := res.Code, res.Data, res.Log
 	if code != codeExp {
 		fmt.Println("Failed test: CheckTx")

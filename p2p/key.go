@@ -2,20 +2,18 @@ package p2p
 
 import (
 	"bytes"
-	"encoding/hex"
 	"fmt"
 	"io/ioutil"
 
-	crypto "github.com/tendermint/tendermint/crypto"
+	"github.com/tendermint/tendermint/crypto"
 	cmn "github.com/tendermint/tendermint/libs/common"
 )
 
 // ID is a hex-encoded crypto.Address
 type ID string
 
-// IDByteLength is the length of a crypto.Address. Currently only 20.
-// TODO: support other length addresses ?
-const IDByteLength = 20
+// IDByteLength is the length of a crypto.Address.
+const IDByteLength = 64
 
 //------------------------------------------------------------------------------
 // Persistent peer ID
@@ -27,8 +25,8 @@ type NodeKey struct {
 	PrivKey crypto.PrivKey `json:"priv_key"` // our priv key
 }
 
-// ID returns the peer's canonical ID - the hash of its public key.
-func (nodeKey *NodeKey) ID() ID {
+// ID returns the peer's canonical ID
+func (nodeKey *NodeKey) ID() NodeID {
 	return PubKeyToID(nodeKey.PubKey())
 }
 
@@ -39,8 +37,10 @@ func (nodeKey *NodeKey) PubKey() crypto.PubKey {
 
 // PubKeyToID returns the ID corresponding to the given PubKey.
 // It's the hex-encoding of the pubKey.Address().
-func PubKeyToID(pubKey crypto.PubKey) ID {
-	return ID(hex.EncodeToString(pubKey.Address()))
+func PubKeyToID(pubKey crypto.PubKey) NodeID {
+	var id [64]byte
+	copy(id[:64], pubKey.Bytes()[:])
+	return NodeID{id}
 }
 
 // LoadOrGenNodeKey attempts to load the NodeKey from the given filePath.

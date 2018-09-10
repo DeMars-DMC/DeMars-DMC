@@ -63,7 +63,8 @@ func TestNoBlockResponse(t *testing.T) {
 	defer bcr.Stop()
 
 	// Add some peers in
-	peer := newbcrTestPeer(p2p.ID(cmn.RandStr(12)))
+	id, _ := p2p.HexID(cmn.RandStr(12))
+	peer := newbcrTestPeer(id)
 	bcr.AddPeer(peer)
 
 	chID := byte(0x01)
@@ -163,13 +164,13 @@ func makeBlock(height int64, state sm.State) *types.Block {
 // The Test peer
 type bcrTestPeer struct {
 	cmn.BaseService
-	id p2p.ID
+	id p2p.NodeID
 	ch chan interface{}
 }
 
 var _ p2p.Peer = (*bcrTestPeer)(nil)
 
-func newbcrTestPeer(id p2p.ID) *bcrTestPeer {
+func newbcrTestPeer(id p2p.NodeID) *bcrTestPeer {
 	bcr := &bcrTestPeer{
 		id: id,
 		ch: make(chan interface{}, 2),
@@ -200,7 +201,7 @@ func (tp *bcrTestPeer) TrySend(chID byte, msgBytes []byte) bool {
 func (tp *bcrTestPeer) Send(chID byte, msgBytes []byte) bool { return tp.TrySend(chID, msgBytes) }
 func (tp *bcrTestPeer) NodeInfo() p2p.NodeInfo               { return p2p.NodeInfo{} }
 func (tp *bcrTestPeer) Status() p2p.ConnectionStatus         { return p2p.ConnectionStatus{} }
-func (tp *bcrTestPeer) ID() p2p.ID                           { return tp.id }
+func (tp *bcrTestPeer) ID() p2p.NodeID                           { return tp.id }
 func (tp *bcrTestPeer) IsOutbound() bool                     { return false }
 func (tp *bcrTestPeer) IsPersistent() bool                   { return true }
 func (tp *bcrTestPeer) Get(s string) interface{}             { return s }

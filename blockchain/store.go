@@ -3,6 +3,7 @@ package blockchain
 import (
 	"fmt"
 	"sync"
+	"strconv"
 
 	cmn "github.com/tendermint/tendermint/libs/common"
 	dbm "github.com/tendermint/tendermint/libs/db"
@@ -72,6 +73,28 @@ func (bs *BlockStore) LoadBlock(height int64) *types.Block {
 	return block
 }
 
+// LoadBucket returns the bucket with the given height.
+// If no bucket is found for that height, it returns nil.
+func (bs *BlockStore) LoadBucket(height int64, bucketID string) *types.TxBucket {
+	var bucket = new(types.TxBucket)
+
+	bucketKey := strconv.FormatInt(height, 10) + " " + bucketID
+	buf := bs.db.Get([]byte(bucketKey))
+	err := cdc.UnmarshalBinary(buf, bucket)
+	if err != nil {
+		panic(cmn.ErrorWrap(err, "Error reading bucket"))
+	}
+	return bucket
+}
+
+// SaveBucket saves the bucket with the given height.
+func (bs *BlockStore) SaveBucket(height int64, bucketID string, bucket* types.TxBucket) {
+	bucketKey :=strconv.FormatInt(height, 10) + " " + bucketID 
+	bucketSerialised, _ := cdc.MarshalBinaryBare(bucket)
+	bs.db.Set([]byte(bucketKey), bucketSerialised)
+	return
+}
+
 // LoadBlockPart returns the Part at the given index
 // from the block at the given height.
 // If no part is found for the given height and index, it returns nil.
@@ -105,8 +128,7 @@ func (bs *BlockStore) LoadBlockMeta(height int64) *types.BlockMeta {
 
 // LoadBlockCommit returns the Commit for the given height.
 // This commit consists of the +2/3 and other Precommit-votes for block at `height`,
-// and it comes from the block.LastCommit for `height+1`.
-// If no commit is found for the given height, it returns nil.
+// and it comes from block.Commit
 func (bs *BlockStore) LoadBlockCommit(height int64) *types.Commit {
 	var commit = new(types.Commit)
 	bz := bs.db.Get(calcBlockCommitKey(height))
@@ -166,7 +188,7 @@ func (bs *BlockStore) SaveBlock(block *types.Block, blockParts *types.PartSet, s
 	}
 
 	// Save block commit (duplicate and separate from the Block)
-	blockCommitBytes := cdc.MustMarshalBinaryBare(block.LastCommit)
+	blockCommitBytes := cdc.MustMarshalBinaryBare(block.Commit)
 	bs.db.Set(calcBlockCommitKey(height-1), blockCommitBytes)
 
 	// Save seen commit (seen +2/3 precommits for block)

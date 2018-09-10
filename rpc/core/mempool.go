@@ -49,7 +49,7 @@ import (
 // |-----------+------+---------+----------+-----------------|
 // | tx        | Tx   | nil     | true     | The transaction |
 func BroadcastTxAsync(tx types.Tx) (*ctypes.ResultBroadcastTx, error) {
-	err := mempool.CheckTx(tx, nil)
+	err, _ := mempool.CheckTx(tx, nil)
 	if err != nil {
 		return nil, fmt.Errorf("Error broadcasting transaction: %v", err)
 	}
@@ -90,7 +90,7 @@ func BroadcastTxAsync(tx types.Tx) (*ctypes.ResultBroadcastTx, error) {
 // | tx        | Tx   | nil     | true     | The transaction |
 func BroadcastTxSync(tx types.Tx) (*ctypes.ResultBroadcastTx, error) {
 	resCh := make(chan *abci.Response, 1)
-	err := mempool.CheckTx(tx, func(res *abci.Response) {
+	err, _ := mempool.CheckTx(tx, func(res *abci.Response) {
 		resCh <- res
 	})
 	if err != nil {
@@ -165,7 +165,7 @@ func BroadcastTxCommit(tx types.Tx) (*ctypes.ResultBroadcastTxCommit, error) {
 
 	// broadcast the tx and register checktx callback
 	checkTxResCh := make(chan *abci.Response, 1)
-	err = mempool.CheckTx(tx, func(res *abci.Response) {
+	err, _ = mempool.CheckTx(tx, func(res *abci.Response) {
 		checkTxResCh <- res
 	})
 	if err != nil {

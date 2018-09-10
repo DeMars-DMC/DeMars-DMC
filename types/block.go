@@ -11,6 +11,7 @@ import (
 	"github.com/tendermint/tendermint/crypto/merkle"
 	"github.com/tendermint/tendermint/crypto/tmhash"
 	cmn "github.com/tendermint/tendermint/libs/common"
+	"crypto/sha256"
 )
 
 // Block defines the atomic unit of a Tendermint blockchain.
@@ -19,8 +20,7 @@ type Block struct {
 	mtx        sync.Mutex
 	*Header    `json:"header"`
 	*Data      `json:"data"`
-	Evidence   EvidenceData `json:"evidence"`
-	LastCommit *Commit      `json:"last_commit"`
+	Commit *Commit      `json:"commit"`
 }
 
 // MakeBlock returns a new block with an empty header, except what can be computed from itself.
@@ -32,18 +32,13 @@ func MakeBlock(height int64, txs []Tx, commit *Commit) *Block {
 			Time:   time.Now(),
 			NumTxs: int64(len(txs)),
 		},
-		LastCommit: commit,
+		Commit: commit,
 		Data: &Data{
-			Txs: txs,
+			TxBuckets: ,
 		},
 	}
 	block.fillHeader()
 	return block
-}
-
-// AddEvidence appends the given evidence to the block
-func (b *Block) AddEvidence(evidence []Evidence) {
-	b.Evidence.Evidence = append(b.Evidence.Evidence, evidence...)
 }
 
 // ValidateBasic performs basic validation that doesn't involve state data.
@@ -55,37 +50,25 @@ func (b *Block) ValidateBasic() error {
 	b.mtx.Lock()
 	defer b.mtx.Unlock()
 
-	newTxs := int64(len(b.Data.Txs))
+	newTxs := b.Data.TotalTxsInBuckets()
 	if b.NumTxs != newTxs {
 		return fmt.Errorf("Wrong Block.Header.NumTxs. Expected %v, got %v", newTxs, b.NumTxs)
 	}
-	if !bytes.Equal(b.LastCommitHash, b.LastCommit.Hash()) {
-		return fmt.Errorf("Wrong Block.Header.LastCommitHash.  Expected %v, got %v", b.LastCommitHash, b.LastCommit.Hash())
-	}
 	if b.Header.Height != 1 {
-		if err := b.LastCommit.ValidateBasic(); err != nil {
+		if err := b.Commit.ValidateBasic(); err != nil {
 			return err
 		}
 	}
 	if !bytes.Equal(b.DataHash, b.Data.Hash()) {
 		return fmt.Errorf("Wrong Block.Header.DataHash.  Expected %v, got %v", b.DataHash, b.Data.Hash())
 	}
-	if !bytes.Equal(b.EvidenceHash, b.Evidence.Hash()) {
-		return errors.New(cmn.Fmt("Wrong Block.Header.EvidenceHash.  Expected %v, got %v", b.EvidenceHash, b.Evidence.Hash()))
-	}
 	return nil
 }
 
 // fillHeader fills in any remaining header fields that are a function of the block data
 func (b *Block) fillHeader() {
-	if b.LastCommitHash == nil {
-		b.LastCommitHash = b.LastCommit.Hash()
-	}
 	if b.DataHash == nil {
 		b.DataHash = b.Data.Hash()
-	}
-	if b.EvidenceHash == nil {
-		b.EvidenceHash = b.Evidence.Hash()
 	}
 }
 
@@ -98,7 +81,7 @@ func (b *Block) Hash() cmn.HexBytes {
 	b.mtx.Lock()
 	defer b.mtx.Unlock()
 
-	if b == nil || b.Header == nil || b.Data == nil || b.LastCommit == nil {
+	if b == nil || b.Header == nil || b.Data == nil || b.Commit == nil {
 		return nil
 	}
 	b.fillHeader()
@@ -162,8 +145,6 @@ func (b *Block) StringIndented(indent string) string {
 %s}#%v`,
 		indent, b.Header.StringIndented(indent+"  "),
 		indent, b.Data.StringIndented(indent+"  "),
-		indent, b.Evidence.StringIndented(indent+"  "),
-		indent, b.LastCommit.StringIndented(indent+"  "),
 		indent, b.Hash())
 }
 
@@ -190,9 +171,9 @@ type Header struct {
 	// prev block info
 	LastBlockID BlockID `json:"last_block_id"`
 	TotalTxs    int64   `json:"total_txs"`
+	LastBucketHashes *LastBucketHashes `json:"last_bucket_hashes"`
 
 	// hashes of block data
-	LastCommitHash cmn.HexBytes `json:"last_commit_hash"` // commit from validators from the last block
 	DataHash       cmn.HexBytes `json:"data_hash"`        // transactions
 
 	// hashes from the app output from the prev block
@@ -200,9 +181,6 @@ type Header struct {
 	ConsensusHash   cmn.HexBytes `json:"consensus_hash"`    // consensus params for current block
 	AppHash         cmn.HexBytes `json:"app_hash"`          // state after txs from the previous block
 	LastResultsHash cmn.HexBytes `json:"last_results_hash"` // root hash of all results from the txs from the previous block
-
-	// consensus info
-	EvidenceHash cmn.HexBytes `json:"evidence_hash"` // evidence included in the block
 }
 
 // Hash returns the hash of the header.
@@ -220,13 +198,11 @@ func (h *Header) Hash() cmn.HexBytes {
 		"NumTxs":      aminoHasher(h.NumTxs),
 		"TotalTxs":    aminoHasher(h.TotalTxs),
 		"LastBlockID": aminoHasher(h.LastBlockID),
-		"LastCommit":  aminoHasher(h.LastCommitHash),
 		"Data":        aminoHasher(h.DataHash),
 		"Validators":  aminoHasher(h.ValidatorsHash),
 		"App":         aminoHasher(h.AppHash),
 		"Consensus":   aminoHasher(h.ConsensusHash),
 		"Results":     aminoHasher(h.LastResultsHash),
-		"Evidence":    aminoHasher(h.EvidenceHash),
 	})
 }
 
@@ -242,13 +218,11 @@ func (h *Header) StringIndented(indent string) string {
 %s  NumTxs:         %v
 %s  TotalTxs:       %v
 %s  LastBlockID:    %v
-%s  LastCommit:     %v
 %s  Data:           %v
 %s  Validators:     %v
 %s  App:            %v
 %s  Consensus:       %v
 %s  Results:        %v
-%s  Evidence:       %v
 %s}#%v`,
 		indent, h.ChainID,
 		indent, h.Height,
@@ -256,13 +230,11 @@ func (h *Header) StringIndented(indent string) string {
 		indent, h.NumTxs,
 		indent, h.TotalTxs,
 		indent, h.LastBlockID,
-		indent, h.LastCommitHash,
 		indent, h.DataHash,
 		indent, h.ValidatorsHash,
 		indent, h.AppHash,
 		indent, h.ConsensusHash,
 		indent, h.LastResultsHash,
-		indent, h.EvidenceHash,
 		indent, h.Hash())
 }
 
@@ -436,10 +408,41 @@ type Data struct {
 	// Txs that will be applied by state @ block.Height+1.
 	// NOTE: not all txs here are valid.  We're just agreeing on the order first.
 	// This means that block.AppHash does not include these txs.
-	Txs Txs `json:"txs"`
+	TxBuckets TxBuckets `json:"txBuckets"`
 
 	// Volatile
 	hash cmn.HexBytes
+}
+
+// Txs is a slice of Tx.
+type TxBuckets []TxBucket
+
+func (buckets TxBuckets) Hash() cmn.HexBytes {
+	startingHash := sha256.Sum256(make([]byte, 1))
+	var combinedHash []byte
+
+	for i := 0; i < len(buckets); i++ {
+		bucket := buckets[i]
+		hashTx := bucket.Txs.Hash()
+		if i == 0 {
+			combinedHash = startingHash[:]
+		} else {
+			combinedHash = merkle.SimpleHashFromTwoHashes(combinedHash[:], hashTx)
+		}
+	}
+	return combinedHash
+}
+
+// Txs is a slice of Tx.
+type TxBucket struct {
+	BucketId string `json: bucket_id`
+	Txs Txs `json: "txs"`
+}
+
+type BucketHash cmn.HexBytes
+
+type LastBucketHashes struct {
+	BucketHashes map[string]BucketHash `json: bucket_hashes`
 }
 
 // Hash returns the hash of the data
@@ -448,7 +451,7 @@ func (data *Data) Hash() cmn.HexBytes {
 		return (Txs{}).Hash()
 	}
 	if data.hash == nil {
-		data.hash = data.Txs.Hash() // NOTE: leaves of merkle tree are TxIDs
+		data.hash = data.TxBuckets.Hash() // NOTE: leaves of merkle tree are TxIDs
 	}
 	return data.hash
 }
@@ -458,58 +461,38 @@ func (data *Data) StringIndented(indent string) string {
 	if data == nil {
 		return "nil-Data"
 	}
-	txStrings := make([]string, cmn.MinInt(len(data.Txs), 21))
-	for i, tx := range data.Txs {
-		if i == 20 {
-			txStrings[i] = fmt.Sprintf("... (%v total)", len(data.Txs))
-			break
+
+	TxBuckets := data.TxBuckets
+	txStrings := make([]string, cmn.MinInt64(data.TotalTxsInBuckets(), 21))
+
+	for _, TxBucket := range TxBuckets {
+		for i, tx := range TxBucket.Txs {
+			if i == 20 {
+				txStrings[i] = fmt.Sprintf("... (%v total)", len(TxBucket.Txs))
+				break
+			}
+			txStrings[i] = fmt.Sprintf("%X (%d bytes)", tx.Hash(), len(tx))
 		}
-		txStrings[i] = fmt.Sprintf("%X (%d bytes)", tx.Hash(), len(tx))
 	}
+
 	return fmt.Sprintf(`Data{
 %s  %v
 %s}#%v`,
 		indent, strings.Join(txStrings, "\n"+indent+"  "),
 		indent, data.hash)
 }
-
-//-----------------------------------------------------------------------------
-
-// EvidenceData contains any evidence of malicious wrong-doing by validators
-type EvidenceData struct {
-	Evidence EvidenceList `json:"evidence"`
-
-	// Volatile
-	hash cmn.HexBytes
-}
-
-// Hash returns the hash of the data.
-func (data *EvidenceData) Hash() cmn.HexBytes {
-	if data.hash == nil {
-		data.hash = data.Evidence.Hash()
-	}
-	return data.hash
-}
-
-// StringIndented returns a string representation of the evidence.
-func (data *EvidenceData) StringIndented(indent string) string {
+// TotalTxsInBuckets returns the total number of transactions in all the buckets in this block
+func (data *Data) TotalTxsInBuckets() int64 {
 	if data == nil {
-		return "nil-Evidence"
+		return 0
 	}
-	evStrings := make([]string, cmn.MinInt(len(data.Evidence), 21))
-	for i, ev := range data.Evidence {
-		if i == 20 {
-			evStrings[i] = fmt.Sprintf("... (%v total)", len(data.Evidence))
-			break
-		}
-		evStrings[i] = fmt.Sprintf("Evidence:%v", ev)
+
+	totalTxs := int64(0)
+	for _, TxBucket := range data.TxBuckets {
+		totalTxs += int64(len(TxBucket.Txs))
 	}
-	return fmt.Sprintf(`EvidenceData{
-%s  %v
-%s}#%v`,
-		indent, strings.Join(evStrings, "\n"+indent+"  "),
-		indent, data.hash)
-	return ""
+
+	return totalTxs
 }
 
 //--------------------------------------------------------------------------------

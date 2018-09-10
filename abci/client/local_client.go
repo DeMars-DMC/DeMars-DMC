@@ -71,22 +71,32 @@ func (app *localClient) SetOptionAsync(req types.RequestSetOption) *ReqRes {
 	)
 }
 
-func (app *localClient) DeliverTxAsync(tx []byte) *ReqRes {
+func (app *localClient) DeliverTxAsync(tx []byte, height int64) *ReqRes {
 	app.mtx.Lock()
-	res := app.Application.DeliverTx(tx)
+	res := app.Application.DeliverTx(tx, height)
 	app.mtx.Unlock()
 	return app.callback(
-		types.ToRequestDeliverTx(tx),
+		types.ToRequestDeliverTx(tx, height, ""),
 		types.ToResponseDeliverTx(res),
 	)
 }
 
-func (app *localClient) CheckTxAsync(tx []byte) *ReqRes {
+func (app *localClient) DeliverBucketedTxAsync(tx []byte, height int64, bucketID string) *ReqRes {
 	app.mtx.Lock()
-	res := app.Application.CheckTx(tx)
+	res := app.Application.DeliverBucketedTx(tx, height, bucketID)
 	app.mtx.Unlock()
 	return app.callback(
-		types.ToRequestCheckTx(tx),
+		types.ToRequestDeliverTx(tx, height, bucketID),
+		types.ToResponseDeliverTx(res),
+	)
+}
+
+func (app *localClient) CheckTxAsync(tx []byte, height int64) *ReqRes {
+	app.mtx.Lock()
+	res := app.Application.CheckTx(tx, height)
+	app.mtx.Unlock()
+	return app.callback(
+		types.ToRequestCheckTx(tx, height),
 		types.ToResponseCheckTx(res),
 	)
 }
@@ -149,7 +159,7 @@ func (app *localClient) FlushSync() error {
 }
 
 func (app *localClient) EchoSync(msg string) (*types.ResponseEcho, error) {
-	return &types.ResponseEcho{msg}, nil
+	return &types.ResponseEcho{Message: msg}, nil
 }
 
 func (app *localClient) InfoSync(req types.RequestInfo) (*types.ResponseInfo, error) {
@@ -166,16 +176,23 @@ func (app *localClient) SetOptionSync(req types.RequestSetOption) (*types.Respon
 	return &res, nil
 }
 
-func (app *localClient) DeliverTxSync(tx []byte) (*types.ResponseDeliverTx, error) {
+func (app *localClient) DeliverTxSync(tx []byte, height int64) (*types.ResponseDeliverTx, error) {
 	app.mtx.Lock()
-	res := app.Application.DeliverTx(tx)
+	res := app.Application.DeliverTx(tx, height)
 	app.mtx.Unlock()
 	return &res, nil
 }
 
-func (app *localClient) CheckTxSync(tx []byte) (*types.ResponseCheckTx, error) {
+func (app *localClient) DeliverBucketedTxSync(tx []byte, height int64, bucketID string) (*types.ResponseDeliverTx, error) {
 	app.mtx.Lock()
-	res := app.Application.CheckTx(tx)
+	res := app.Application.DeliverBucketedTx(tx, height, bucketID)
+	app.mtx.Unlock()
+	return &res, nil
+}
+
+func (app *localClient) CheckTxSync(tx []byte, height int64) (*types.ResponseCheckTx, error) {
+	app.mtx.Lock()
+	res := app.Application.CheckTx(tx, height)
 	app.mtx.Unlock()
 	return &res, nil
 }
@@ -204,6 +221,13 @@ func (app *localClient) InitChainSync(req types.RequestInitChain) (*types.Respon
 func (app *localClient) BeginBlockSync(req types.RequestBeginBlock) (*types.ResponseBeginBlock, error) {
 	app.mtx.Lock()
 	res := app.Application.BeginBlock(req)
+	app.mtx.Unlock()
+	return &res, nil
+}
+
+func (app *localClient) GetValidatorSetSync(height int64) (*types.ResponseGetValidatorSet, error) {
+	app.mtx.Lock()
+	res := app.Application.GetValidatorSet(height)
 	app.mtx.Unlock()
 	return &res, nil
 }

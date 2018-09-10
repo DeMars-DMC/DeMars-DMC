@@ -87,7 +87,7 @@ func ABCIQuery(path string, data cmn.HexBytes, height int64, trusted bool) (*cty
 // }
 // ```
 func ABCIInfo() (*ctypes.ResultABCIInfo, error) {
-	resInfo, err := proxyAppQuery.InfoSync(abci.RequestInfo{version.Version})
+	resInfo, err := proxyAppQuery.InfoSync(abci.RequestInfo{Version: version.Version})
 	if err != nil {
 		return nil, err
 	}

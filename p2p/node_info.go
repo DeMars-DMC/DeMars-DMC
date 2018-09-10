@@ -21,7 +21,7 @@ func MaxNodeInfoSize() int {
 type NodeInfo struct {
 	// Authenticate
 	// TODO: replace with NetAddress
-	ID         ID     `json:"id"`          // authenticated identifier
+	ID         NodeID     `json:"id"`          // authenticated identifier
 	ListenAddr string `json:"listen_addr"` // accepting incoming
 
 	// Check compatibility.
@@ -153,6 +153,10 @@ func (info NodeInfo) NetAddress() *NetAddress {
 func (info NodeInfo) String() string {
 	return fmt.Sprintf("NodeInfo{id: %v, moniker: %v, network: %v [listen %v], version: %v (%v)}",
 		info.ID, info.Moniker, info.Network, info.ListenAddr, info.Version, info.Other)
+}
+
+func (info NodeInfo) SegmentID() string {
+	return info.ID.getHexID()[:2]
 }
 
 func splitVersion(version string) (string, string, string, error) {

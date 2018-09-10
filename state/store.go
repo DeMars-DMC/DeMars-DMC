@@ -99,6 +99,7 @@ func saveState(db dbm.DB, state State, key []byte) {
 type ABCIResponses struct {
 	DeliverTx []*abci.ResponseDeliverTx
 	EndBlock  *abci.ResponseEndBlock
+	GetValidatorSet  *abci.ResponseGetValidatorSet
 }
 
 // NewABCIResponses returns a new ABCIResponses

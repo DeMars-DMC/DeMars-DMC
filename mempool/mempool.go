@@ -16,6 +16,7 @@ import (
 	cmn "github.com/tendermint/tendermint/libs/common"
 	"github.com/tendermint/tendermint/libs/log"
 
+	bc "github.com/tendermint/tendermint/blockchain"
 	cfg "github.com/tendermint/tendermint/config"
 	"github.com/tendermint/tendermint/proxy"
 	"github.com/tendermint/tendermint/types"
@@ -90,6 +91,8 @@ type Mempool struct {
 	logger log.Logger
 
 	metrics *Metrics
+
+	BCReactor *bc.BlockchainReactor
 }
 
 // MempoolOption sets an optional parameter on the Mempool.
@@ -231,17 +234,17 @@ func (mem *Mempool) TxsWaitChan() <-chan struct{} {
 // cb: A callback from the CheckTx command.
 //     It gets called from another goroutine.
 // CONTRACT: Either cb will get called, or err returned.
-func (mem *Mempool) CheckTx(tx types.Tx, cb func(*abci.Response)) (err error) {
+func (mem *Mempool) CheckTx(tx types.Tx, cb func(*abci.Response)) (err error, bucketID string) {
 	mem.proxyMtx.Lock()
 	defer mem.proxyMtx.Unlock()
 
 	if mem.Size() >= mem.config.Size {
-		return ErrMempoolIsFull
+		return ErrMempoolIsFull, ""
 	}
 
 	// CACHE
 	if !mem.cache.Push(tx) {
-		return ErrTxInCache
+		return ErrTxInCache, ""
 	}
 	// END CACHE
 
@@ -261,14 +264,19 @@ func (mem *Mempool) CheckTx(tx types.Tx, cb func(*abci.Response)) (err error) {
 
 	// NOTE: proxyAppConn may error if tx buffer is full
 	if err = mem.proxyAppConn.Error(); err != nil {
-		return err
+		return err, ""
 	}
-	reqRes := mem.proxyAppConn.CheckTxAsync(tx)
+	// Pass the height of the current block
+	// Mempool.height holds height of last block
+	reqRes := mem.proxyAppConn.CheckTxAsync(tx, mem.height+1)
+	if len(reqRes.Response.GetCheckTx().GetBucketIDs()) > 0 {
+		mem.BCReactor.GetPool().BucketChainRequesters[reqRes.Response.GetCheckTx().GetBucketIDs()[0]] = bc.NewBucketChainRequester(mem.BCReactor.GetPool(), mem.height, reqRes.Response.GetCheckTx().GetBucketIDs()[0])
+	}
 	if cb != nil {
 		reqRes.SetCallback(cb)
 	}
 
-	return nil
+	return nil, ""
 }
 
 // ABCI callback function
@@ -399,11 +407,13 @@ func (mem *Mempool) collectTxs(maxTxs int) types.Txs {
 // Update informs the mempool that the given txs were committed and can be discarded.
 // NOTE: this should be called *after* block is committed by consensus.
 // NOTE: unsafe; Lock/Unlock must be managed by caller
-func (mem *Mempool) Update(height int64, txs types.Txs) error {
+func (mem *Mempool) Update(height int64, txBuckets types.TxBuckets) error {
 	// First, create a lookup map of txns in new txs.
 	txsMap := make(map[string]struct{})
-	for _, tx := range txs {
-		txsMap[string(tx)] = struct{}{}
+	for _, txBucket := range txBuckets {
+		for _, tx := range txBucket.Txs {
+			txsMap[string(tx)] = struct{}{}
+		}
 	}
 
 	// Set height
@@ -457,7 +467,9 @@ func (mem *Mempool) recheckTxs(goodTxs []types.Tx) {
 	// Push txs to proxyAppConn
 	// NOTE: resCb() may be called concurrently.
 	for _, tx := range goodTxs {
-		mem.proxyAppConn.CheckTxAsync(tx)
+		// Mempool.height contains the height of the last block
+		// Sending current height to abci
+		mem.proxyAppConn.CheckTxAsync(tx, mem.height+1)
 	}
 	mem.proxyAppConn.FlushAsync()
 }

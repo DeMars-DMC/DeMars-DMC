@@ -1,6 +1,7 @@
 package types // nolint: goimports
 
 import (
+	"github.com/tendermint/go-wire/data"
 	context "golang.org/x/net/context"
 )
 
@@ -15,14 +16,18 @@ type Application interface {
 	Query(RequestQuery) ResponseQuery             // Query for state
 
 	// Mempool Connection
-	CheckTx(tx []byte) ResponseCheckTx // Validate a tx for the mempool
+	CheckTx(tx []byte, height int64) ResponseCheckTx // Validate a tx for the mempool
 
 	// Consensus Connection
-	InitChain(RequestInitChain) ResponseInitChain    // Initialize blockchain with validators and other info from TendermintCore
-	BeginBlock(RequestBeginBlock) ResponseBeginBlock // Signals the beginning of a block
-	DeliverTx(tx []byte) ResponseDeliverTx           // Deliver a tx for full processing
-	EndBlock(RequestEndBlock) ResponseEndBlock       // Signals the end of a block, returns changes to the validator set
-	Commit() ResponseCommit                          // Commit the state and return the application Merkle root hash
+	InitChain(RequestInitChain) ResponseInitChain                                 // Initialize blockchain with validators and other info from TendermintCore
+	BeginBlock(RequestBeginBlock) ResponseBeginBlock                              // Signals the beginning of a block
+	DeliverTx(tx []byte, height int64) ResponseDeliverTx                          // Deliver a tx for full processing
+	DeliverBucketedTx(tx []byte, height int64, bucketID string) ResponseDeliverTx // Deliver a tx for full processing
+	EndBlock(RequestEndBlock) ResponseEndBlock                                    // Signals the end of a block, returns changes to the validator set
+	Commit() ResponseCommit                                                       // Commit the state and return the application Merkle root hash
+	GetValidatorSet(height int64) ResponseGetValidatorSet
+
+	SetInitAccount(data.Bytes, uint64)
 }
 
 //-------------------------------------------------------
@@ -45,16 +50,24 @@ func (BaseApplication) SetOption(req RequestSetOption) ResponseSetOption {
 	return ResponseSetOption{}
 }
 
-func (BaseApplication) DeliverTx(tx []byte) ResponseDeliverTx {
+func (BaseApplication) DeliverTx(tx []byte, height int64) ResponseDeliverTx {
 	return ResponseDeliverTx{Code: CodeTypeOK}
 }
 
-func (BaseApplication) CheckTx(tx []byte) ResponseCheckTx {
+func (BaseApplication) DeliverBucketedTx(tx []byte, height int64, bucketID string) ResponseDeliverTx {
+	return ResponseDeliverTx{Code: CodeTypeOK}
+}
+
+func (BaseApplication) CheckTx(tx []byte, height int64) ResponseCheckTx {
 	return ResponseCheckTx{Code: CodeTypeOK}
 }
 
 func (BaseApplication) Commit() ResponseCommit {
 	return ResponseCommit{}
+}
+
+func (BaseApplication) GetValidatorSet(height int64) ResponseGetValidatorSet {
+	return ResponseGetValidatorSet{}
 }
 
 func (BaseApplication) Query(req RequestQuery) ResponseQuery {
@@ -73,6 +86,9 @@ func (BaseApplication) EndBlock(req RequestEndBlock) ResponseEndBlock {
 	return ResponseEndBlock{}
 }
 
+func (BaseApplication) SetInitAccount(address data.Bytes, balance uint64) {
+}
+
 //-------------------------------------------------------
 
 // GRPCApplication is a GRPC wrapper for Application
@@ -85,7 +101,7 @@ func NewGRPCApplication(app Application) *GRPCApplication {
 }
 
 func (app *GRPCApplication) Echo(ctx context.Context, req *RequestEcho) (*ResponseEcho, error) {
-	return &ResponseEcho{req.Message}, nil
+	return &ResponseEcho{Message: req.Message}, nil
 }
 
 func (app *GRPCApplication) Flush(ctx context.Context, req *RequestFlush) (*ResponseFlush, error) {
@@ -103,12 +119,17 @@ func (app *GRPCApplication) SetOption(ctx context.Context, req *RequestSetOption
 }
 
 func (app *GRPCApplication) DeliverTx(ctx context.Context, req *RequestDeliverTx) (*ResponseDeliverTx, error) {
-	res := app.app.DeliverTx(req.Tx)
+	res := app.app.DeliverTx(req.Tx, req.Height)
+	return &res, nil
+}
+
+func (app *GRPCApplication) DeliverBucketedTx(ctx context.Context, req *RequestDeliverTx) (*ResponseDeliverTx, error) {
+	res := app.app.DeliverBucketedTx(req.Tx, req.Height, req.BucketID)
 	return &res, nil
 }
 
 func (app *GRPCApplication) CheckTx(ctx context.Context, req *RequestCheckTx) (*ResponseCheckTx, error) {
-	res := app.app.CheckTx(req.Tx)
+	res := app.app.CheckTx(req.Tx, req.Height)
 	return &res, nil
 }
 
@@ -134,5 +155,10 @@ func (app *GRPCApplication) BeginBlock(ctx context.Context, req *RequestBeginBlo
 
 func (app *GRPCApplication) EndBlock(ctx context.Context, req *RequestEndBlock) (*ResponseEndBlock, error) {
 	res := app.app.EndBlock(*req)
+	return &res, nil
+}
+
+func (app *GRPCApplication) GetValidatorSet(ctx context.Context, req *RequestGetValidatorSet) (*ResponseGetValidatorSet, error) {
+	res := app.app.GetValidatorSet(req.Height)
 	return &res, nil
 }
