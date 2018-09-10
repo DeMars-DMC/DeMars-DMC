@@ -10,6 +10,7 @@ import (
 	"github.com/tendermint/tendermint/crypto"
 	"github.com/tendermint/tendermint/p2p"
 	ctypes "github.com/tendermint/tendermint/rpc/core/types"
+	"encoding/hex"
 )
 
 func BenchmarkEncodeStatusWire(b *testing.B) {
@@ -99,7 +100,8 @@ func BenchmarkEncodeNodeInfoBinary(b *testing.B) {
 func BenchmarkEncodeNodeInfoProto(b *testing.B) {
 	b.StopTimer()
 	nodeKey := p2p.NodeKey{PrivKey: crypto.GenPrivKeyEd25519()}
-	nodeID := string(nodeKey.ID())
+	id := nodeKey.ID().ID
+	nodeID := hex.EncodeToString(id[:])
 	someName := "SOMENAME"
 	someAddr := "SOMEADDR"
 	someVer := "SOMEVER"

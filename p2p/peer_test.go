@@ -108,7 +108,7 @@ func (rp *remotePeer) Addr() *NetAddress {
 	return rp.addr
 }
 
-func (rp *remotePeer) ID() ID {
+func (rp *remotePeer) ID() NodeID {
 	return PubKeyToID(rp.PrivKey.PubKey())
 }
 

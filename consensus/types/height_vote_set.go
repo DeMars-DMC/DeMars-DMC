@@ -9,6 +9,7 @@ import (
 	"github.com/tendermint/tendermint/p2p"
 	"github.com/tendermint/tendermint/types"
 	cmn "github.com/tendermint/tendermint/libs/common"
+	"encoding/hex"
 )
 
 type RoundVoteSet struct {
@@ -42,7 +43,7 @@ type HeightVoteSet struct {
 	mtx               sync.Mutex
 	round             int                  // max tracked round
 	roundVoteSets     map[int]RoundVoteSet // keys: [0...round]
-	peerCatchupRounds map[p2p.ID][]int     // keys: peer.ID; values: at most 2 rounds
+	peerCatchupRounds map[p2p.NodeID][]int     // keys: peer.ID; values: at most 2 rounds
 }
 
 func NewHeightVoteSet(chainID string, height int64, valSet *types.ValidatorSet) *HeightVoteSet {
@@ -60,7 +61,7 @@ func (hvs *HeightVoteSet) Reset(height int64, valSet *types.ValidatorSet) {
 	hvs.height = height
 	hvs.valSet = valSet
 	hvs.roundVoteSets = make(map[int]RoundVoteSet)
-	hvs.peerCatchupRounds = make(map[p2p.ID][]int)
+	hvs.peerCatchupRounds = make(map[p2p.NodeID][]int)
 
 	hvs.addRound(0)
 	hvs.round = 0
@@ -109,7 +110,7 @@ func (hvs *HeightVoteSet) addRound(round int) {
 
 // Duplicate votes return added=false, err=nil.
 // By convention, peerID is "" if origin is self.
-func (hvs *HeightVoteSet) AddVote(vote *types.Vote, peerID p2p.ID) (added bool, err error) {
+func (hvs *HeightVoteSet) AddVote(vote *types.Vote, peerID p2p.NodeID) (added bool, err error) {
 	hvs.mtx.Lock()
 	defer hvs.mtx.Unlock()
 	if !types.IsVoteTypeValid(vote.Type) {
@@ -178,7 +179,7 @@ func (hvs *HeightVoteSet) getVoteSet(round int, type_ byte) *types.VoteSet {
 // NOTE: if there are too many peers, or too much peer churn,
 // this can cause memory issues.
 // TODO: implement ability to remove peers too
-func (hvs *HeightVoteSet) SetPeerMaj23(round int, type_ byte, peerID p2p.ID, blockID types.BlockID) error {
+func (hvs *HeightVoteSet) SetPeerMaj23(round int, type_ byte, peerID p2p.NodeID, blockID types.BlockID) error {
 	hvs.mtx.Lock()
 	defer hvs.mtx.Unlock()
 	if !types.IsVoteTypeValid(type_) {
@@ -188,7 +189,7 @@ func (hvs *HeightVoteSet) SetPeerMaj23(round int, type_ byte, peerID p2p.ID, blo
 	if voteSet == nil {
 		return nil // something we don't know about yet
 	}
-	return voteSet.SetPeerMaj23(types.P2PID(peerID), blockID)
+	return voteSet.SetPeerMaj23(types.P2PID(hex.EncodeToString(peerID.ID[:])), blockID)
 }
 
 //---------------------------------------------------------

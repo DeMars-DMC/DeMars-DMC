@@ -144,11 +144,15 @@ func (valSet *ValidatorSet) GetProposer() (proposer *Validator) {
 	return valSet.Proposer.Copy()
 }
 
+// Proposer is validator with lowest address for now TODO
 func (valSet *ValidatorSet) findProposer() *Validator {
 	var proposer *Validator
+
 	for _, val := range valSet.Validators {
-		if proposer == nil || !bytes.Equal(val.Address, proposer.Address) {
-			proposer = proposer.CompareAccum(val)
+		if proposer == nil {
+			proposer = val
+		} else if bytes.Compare(val.Address, proposer.Address) == -1 {
+				proposer = val
 		}
 	}
 	return proposer

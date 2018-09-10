@@ -216,7 +216,7 @@ func getUPNPExternalAddress(externalPort, internalPort int, logger log.Logger) *
 	logger.Info("Getting UPNP external address")
 	nat, err := upnp.Discover()
 	if err != nil {
-		logger.Info("Could not perform UPNP discover", "err", err)
+		logger.Info("Could not perform UPNP kademlia", "err", err)
 		return nil
 	}
 

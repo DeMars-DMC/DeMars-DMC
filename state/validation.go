@@ -37,7 +37,7 @@ func validateBlock(stateDB dbm.DB, state State, block *types.Block) error {
 	if !block.LastBlockID.Equals(state.LastBlockID) {
 		return fmt.Errorf("Wrong Block.Header.LastBlockID.  Expected %v, got %v", state.LastBlockID, block.LastBlockID)
 	}
-	newTxs := int64(len(block.Data.Txs))
+	newTxs := int64(block.Data.TotalTxsInBuckets())
 	if block.TotalTxs != state.LastBlockTotalTx+newTxs {
 		return fmt.Errorf("Wrong Block.Header.TotalTxs. Expected %v, got %v", state.LastBlockTotalTx+newTxs, block.TotalTxs)
 	}
@@ -58,27 +58,18 @@ func validateBlock(stateDB dbm.DB, state State, block *types.Block) error {
 
 	// Validate block LastCommit.
 	if block.Height == 1 {
-		if len(block.LastCommit.Precommits) != 0 {
-			return errors.New("Block at height 1 (first block) should have no LastCommit precommits")
+		if len(block.Commit.Precommits) != 0 {
+			return errors.New("Block at height 1 (first block) should have no Commit precommits")
 		}
 	} else {
-		if len(block.LastCommit.Precommits) != state.LastValidators.Size() {
+		if len(block.Commit.Precommits) != state.LastValidators.Size() {
 			return fmt.Errorf("Invalid block commit size. Expected %v, got %v",
-				state.LastValidators.Size(), len(block.LastCommit.Precommits))
+				state.LastValidators.Size(), len(block.Commit.Precommits))
 		}
 		err := state.LastValidators.VerifyCommit(
-			state.ChainID, state.LastBlockID, block.Height-1, block.LastCommit)
+			state.ChainID, state.LastBlockID, block.Height-1, block.Commit)
 		if err != nil {
 			return err
-		}
-	}
-
-	// TODO: Each check requires loading an old validator set.
-	// We should cap the amount of evidence per block
-	// to prevent potential proposer DoS.
-	for _, ev := range block.Evidence.Evidence {
-		if err := VerifyEvidence(stateDB, state, ev); err != nil {
-			return types.NewEvidenceInvalidErr(ev, err)
 		}
 	}
 

@@ -47,7 +47,7 @@ func TestValidateBlock(t *testing.T) {
 
 	// tamper with data
 	block = MakeBlock(h, txs, commit)
-	block.Data.Txs[0] = Tx("something else")
+	block.Data.TxBuckets[0].Txs[0] = Tx("something else")
 	block.Data.hash = nil // clear hash or change wont be noticed
 	err = block.ValidateBasic()
 	require.Error(t, err)

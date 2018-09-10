@@ -8,7 +8,7 @@ GOTOOLS_CHECK = gox dep gometalinter.v2 protoc protoc-gen-gogo
 PACKAGES=$(shell go list ./... | grep -v '/vendor/')
 INCLUDE = -I=. -I=${GOPATH}/src -I=${GOPATH}/src/github.com/gogo/protobuf/protobuf
 
-all: check get_vendor_deps protoc build test install metalinter
+all: check get_vendor_deps protoc build install #test metalinter
 
 check: check_tools
 

@@ -43,7 +43,7 @@ const (
 	minRecvRate = 7680
 
 	// Maximum difference between current and new block's height.
-	maxDiffBetweenCurrentAndReceivedBlockHeight = 100
+	maxDiffBetweenCurrentAndReceivedBlockHeight = 1000
 )
 
 var peerTimeout = 15 * time.Second // not const so we can override with tests
@@ -66,13 +66,21 @@ type BlockPool struct {
 	mtx sync.Mutex
 	// block requests
 	requesters map[int64]*bpRequester
+
+	// bucket chain requesters by bucket ID
+	BucketChainRequesters map[string]*bucketChainRequester
+
+	// UTXO bucket requester by bucket ID
+	utxoBucketRequesters map[string]*bucketRequester
+
 	height     int64 // the lowest key in requesters.
 	// peers
-	peers         map[p2p.ID]*bpPeer
+	peers         map[p2p.NodeID]*bpPeer
 	maxPeerHeight int64
 
 	// atomic
 	numPending int32 // number of requests pending assignment or block response
+	maxRequesterHeight int64
 
 	requestsCh chan<- BlockRequest
 	errorsCh   chan<- peerError
@@ -80,9 +88,11 @@ type BlockPool struct {
 
 func NewBlockPool(start int64, requestsCh chan<- BlockRequest, errorsCh chan<- peerError) *BlockPool {
 	bp := &BlockPool{
-		peers: make(map[p2p.ID]*bpPeer),
+		peers: make(map[p2p.NodeID]*bpPeer),
 
 		requesters: make(map[int64]*bpRequester),
+		BucketChainRequesters: make(map[string]*bucketChainRequester),
+		utxoBucketRequesters: make(map[string]*bucketRequester),
 		height:     start,
 		numPending: 0,
 
@@ -158,6 +168,7 @@ func (pool *BlockPool) GetStatus() (height int64, numPending int32, lenRequester
 }
 
 // TODO: relax conditions, prevent abuse.
+// Catching means that we have the jump block right before the latest UTXO block
 func (pool *BlockPool) IsCaughtUp() bool {
 	pool.mtx.Lock()
 	defer pool.mtx.Unlock()
@@ -170,29 +181,24 @@ func (pool *BlockPool) IsCaughtUp() bool {
 
 	// some conditions to determine if we're caught up
 	receivedBlockOrTimedOut := (pool.height > 0 || time.Since(pool.startTime) > 5*time.Second)
-	ourChainIsLongestAmongPeers := pool.maxPeerHeight == 0 || pool.height >= pool.maxPeerHeight
+	ourChainIsLongestAmongPeers := pool.maxPeerHeight == 0 || pool.height / 100 >= pool.maxPeerHeight / 100
 	isCaughtUp := receivedBlockOrTimedOut && ourChainIsLongestAmongPeers
 	return isCaughtUp
 }
 
-// We need to see the second block's Commit to validate the first block.
-// So we peek two blocks at a time.
 // The caller will verify the commit.
-func (pool *BlockPool) PeekTwoBlocks() (first *types.Block, second *types.Block) {
+func (pool *BlockPool) PeekBlock() (block *types.Block) {
 	pool.mtx.Lock()
 	defer pool.mtx.Unlock()
 
 	if r := pool.requesters[pool.height]; r != nil {
-		first = r.getBlock()
-	}
-	if r := pool.requesters[pool.height+1]; r != nil {
-		second = r.getBlock()
+		block = r.getBlock()
 	}
 	return
 }
 
-// Pop the first block at pool.height
-// It must have been validated by 'second'.Commit from PeekTwoBlocks().
+// Pop the block at pool.height
+// It must have been validated by Commit from PeekBlock().
 func (pool *BlockPool) PopRequest() {
 	pool.mtx.Lock()
 	defer pool.mtx.Unlock()
@@ -214,7 +220,7 @@ func (pool *BlockPool) PopRequest() {
 // Invalidates the block at pool.height,
 // Remove the peer and redo request from others.
 // Returns the ID of the removed peer.
-func (pool *BlockPool) RedoRequest(height int64) p2p.ID {
+func (pool *BlockPool) RedoRequest(height int64) p2p.NodeID {
 	pool.mtx.Lock()
 	defer pool.mtx.Unlock()
 
@@ -229,14 +235,55 @@ func (pool *BlockPool) RedoRequest(height int64) p2p.ID {
 	return request.peerID
 }
 
+func (pool *BlockPool) AddBucket(peerID p2p.NodeID, bucket *types.TxBucket, height int64, commit *types.Commit, store *BlockStore) {
+	if pool.utxoBucketRequesters[bucket.BucketId] != nil {
+		// UTXO request
+		pool.validateUTXOBucket(bucket, height, commit)
+		store.SaveBucket(height, bucket.BucketId, bucket)
+		pool.utxoBucketRequesters[bucket.BucketId].gotBlockCh <- struct{}{}
+		pool.utxoBucketRequesters[bucket.BucketId] = nil
+	} else if pool.BucketChainRequesters[bucket.BucketId] != nil {
+		pool.BucketChainRequesters[bucket.BucketId].Buckets[height] = bucket
+
+		// This will signal the chain requester to verify if it has all the buckets it needs
+		pool.BucketChainRequesters[bucket.BucketId].gotBlockCh <- struct{}{}
+	} else {
+		// discard it
+	}
+	return
+}
+
+func (pool *BlockPool) validateUTXOBucket(bucket *types.TxBucket, height int64, commit *types.Commit) {
+	// TODO Verify certificates against previous jump block
+	return
+}
+
+func (pool *BlockPool) validateBucket(bucket *types.TxBucket, height int64, commit *types.Commit) {
+	// TODO Verify hash of bucket against bucket in subsequent block (check block or bucket in blockstore)
+	return
+}
+
 // TODO: ensure that blocks come in order for each peer.
-func (pool *BlockPool) AddBlock(peerID p2p.ID, block *types.Block, blockSize int) {
+func (pool *BlockPool) AddBlock(peerID p2p.NodeID, block *types.Block, blockSize int, segmentID int64) bool {
 	pool.mtx.Lock()
 	defer pool.mtx.Unlock()
 
 	requester := pool.requesters[block.Height]
 	if requester == nil {
 		pool.Logger.Info("peer sent us a block we didn't expect", "peer", peerID, "curHeight", pool.height, "blockHeight", block.Height)
+
+		// Signal to us belonging to the current proposer region
+		if (block.Height > pool.height) {
+			// FIXME: we need a better way to determine segment election
+			if (segmentID % 100 == (block.Height % 100) + 1) {
+				// At this point we have been informed we are in the proposer zone
+				// We need to download a trusted bucket from the last UTXO for the proposer
+				// segment which proposed the last block
+				return true
+			}
+		}
+
+		// Potentially this is a signal that we are in the next proposer region
 		diff := pool.height - block.Height
 		if diff < 0 {
 			diff *= -1
@@ -244,7 +291,7 @@ func (pool *BlockPool) AddBlock(peerID p2p.ID, block *types.Block, blockSize int
 		if diff > maxDiffBetweenCurrentAndReceivedBlockHeight {
 			pool.sendError(errors.New("peer sent us a block we didn't expect with a height too far ahead/behind"), peerID)
 		}
-		return
+		return false
 	}
 
 	if requester.setBlock(block, peerID) {
@@ -256,6 +303,7 @@ func (pool *BlockPool) AddBlock(peerID p2p.ID, block *types.Block, blockSize int
 	} else {
 		// Bad peer?
 	}
+	return false
 }
 
 // MaxPeerHeight returns the highest height reported by a peer.
@@ -266,7 +314,7 @@ func (pool *BlockPool) MaxPeerHeight() int64 {
 }
 
 // Sets the peer's alleged blockchain height.
-func (pool *BlockPool) SetPeerHeight(peerID p2p.ID, height int64) {
+func (pool *BlockPool) SetPeerHeight(peerID p2p.NodeID, height int64) {
 	pool.mtx.Lock()
 	defer pool.mtx.Unlock()
 
@@ -284,14 +332,14 @@ func (pool *BlockPool) SetPeerHeight(peerID p2p.ID, height int64) {
 	}
 }
 
-func (pool *BlockPool) RemovePeer(peerID p2p.ID) {
+func (pool *BlockPool) RemovePeer(peerID p2p.NodeID) {
 	pool.mtx.Lock()
 	defer pool.mtx.Unlock()
 
 	pool.removePeer(peerID)
 }
 
-func (pool *BlockPool) removePeer(peerID p2p.ID) {
+func (pool *BlockPool) removePeer(peerID p2p.NodeID) {
 	for _, requester := range pool.requesters {
 		if requester.getPeerID() == peerID {
 			requester.redo()
@@ -323,13 +371,49 @@ func (pool *BlockPool) pickIncrAvailablePeer(minHeight int64) *bpPeer {
 	return nil
 }
 
+// Pick an available peer with at least the given minHeight.
+// If no peers are available, returns nil.
+func (pool *BlockPool) PickIncrAvailablePeerInSegment(minHeight int64, targetSegment string) *bpPeer {
+	pool.mtx.Lock()
+	defer pool.mtx.Unlock()
+
+	for _, peer := range pool.peers {
+		if peer.didTimeout {
+			pool.removePeer(peer.id)
+			continue
+		}
+		if peer.numPending >= maxPendingRequestsPerPeer {
+			continue
+		}
+		if peer.height < minHeight {
+			continue
+		}
+		if (peer.id.SegmentID() != targetSegment) {
+			continue
+		}
+		peer.incrPending()
+		return peer
+	}
+	return nil
+}
+
 func (pool *BlockPool) makeNextRequester() {
 	pool.mtx.Lock()
 	defer pool.mtx.Unlock()
 
-	nextHeight := pool.height + pool.requestersLen()
+	goalHeight := pool.maxPeerHeight
+	currentHeight := pool.maxRequesterHeight
+	
+	nextHeight := int64(0)
+	if (currentHeight % 1000 < goalHeight % 1000) {
+		nextHeight = ((currentHeight % 1000) + 1) * 1000
+	} else if (currentHeight % 100 < goalHeight % 100) {
+		nextHeight = ((currentHeight % 100) + 1) * 100
+	} else {
+		nextHeight = currentHeight + 1
+	}
+
 	request := newBPRequester(pool, nextHeight)
-	// request.SetLogger(pool.Logger.With("height", nextHeight))
 
 	pool.requesters[nextHeight] = request
 	atomic.AddInt32(&pool.numPending, 1)
@@ -340,23 +424,45 @@ func (pool *BlockPool) makeNextRequester() {
 	}
 }
 
+func (pool *BlockPool) requestUTXOBucket(height int64, bucketID string) {
+	if pool.utxoBucketRequesters[bucketID] == nil {
+		newBucketRequester(pool, height, bucketID)
+	}
+}
+
 func (pool *BlockPool) requestersLen() int64 {
 	return int64(len(pool.requesters))
 }
 
-func (pool *BlockPool) sendRequest(height int64, peerID p2p.ID) {
+func (pool *BlockPool) sendRequest(height int64, peerID p2p.NodeID) {
 	if !pool.IsRunning() {
 		return
 	}
-	pool.requestsCh <- BlockRequest{height, peerID}
+	pool.requestsCh <- BlockRequest{height, peerID, nil}
 }
 
-func (pool *BlockPool) sendError(err error, peerID p2p.ID) {
+func (pool *BlockPool) sendRequestBucket(height int64, peerID p2p.NodeID, bucketID string) {
+	if !pool.IsRunning() {
+		return
+	}
+	pool.requestsCh <- BlockRequest{height, peerID, &bucketID}
+}
+
+func (pool *BlockPool) sendError(err error, peerID p2p.NodeID) {
 	if !pool.IsRunning() {
 		return
 	}
 	pool.errorsCh <- peerError{err, peerID}
 }
+
+func (pool *BlockPool) SubmitBucketChainRequest(bucketID string, height int64) {
+	if pool.BucketChainRequesters[bucketID] != nil {
+		// We already have a request for this bucket chain in progress
+		return
+	}
+	pool.BucketChainRequesters[bucketID] = NewBucketChainRequester(pool, height, bucketID)
+}
+
 
 // unused by tendermint; left for debugging purposes
 func (pool *BlockPool) debug() string {
@@ -380,7 +486,7 @@ func (pool *BlockPool) debug() string {
 
 type bpPeer struct {
 	pool        *BlockPool
-	id          p2p.ID
+	id          p2p.NodeID
 	recvMonitor *flow.Monitor
 
 	height     int64
@@ -391,7 +497,7 @@ type bpPeer struct {
 	logger log.Logger
 }
 
-func newBPPeer(pool *BlockPool, peerID p2p.ID, height int64) *bpPeer {
+func newBPPeer(pool *BlockPool, peerID p2p.NodeID, height int64) *bpPeer {
 	peer := &bpPeer{
 		pool:       pool,
 		id:         peerID,
@@ -458,7 +564,7 @@ type bpRequester struct {
 	redoCh     chan struct{}
 
 	mtx    sync.Mutex
-	peerID p2p.ID
+	peerID p2p.NodeID
 	block  *types.Block
 }
 
@@ -469,7 +575,7 @@ func newBPRequester(pool *BlockPool, height int64) *bpRequester {
 		gotBlockCh: make(chan struct{}, 1),
 		redoCh:     make(chan struct{}, 1),
 
-		peerID: "",
+		peerID: p2p.NodeID{},
 		block:  nil,
 	}
 	bpr.BaseService = *cmn.NewBaseService(nil, "bpRequester", bpr)
@@ -482,7 +588,7 @@ func (bpr *bpRequester) OnStart() error {
 }
 
 // Returns true if the peer matches and block doesn't already exist.
-func (bpr *bpRequester) setBlock(block *types.Block, peerID p2p.ID) bool {
+func (bpr *bpRequester) setBlock(block *types.Block, peerID p2p.NodeID) bool {
 	bpr.mtx.Lock()
 	if bpr.block != nil || bpr.peerID != peerID {
 		bpr.mtx.Unlock()
@@ -504,7 +610,7 @@ func (bpr *bpRequester) getBlock() *types.Block {
 	return bpr.block
 }
 
-func (bpr *bpRequester) getPeerID() p2p.ID {
+func (bpr *bpRequester) getPeerID() p2p.NodeID {
 	bpr.mtx.Lock()
 	defer bpr.mtx.Unlock()
 	return bpr.peerID
@@ -519,7 +625,7 @@ func (bpr *bpRequester) reset() {
 		atomic.AddInt32(&bpr.pool.numPending, 1)
 	}
 
-	bpr.peerID = ""
+	bpr.peerID = p2p.NodeID{}
 	bpr.block = nil
 }
 
@@ -559,7 +665,6 @@ OUTER_LOOP:
 
 		// Send request and wait.
 		bpr.pool.sendRequest(bpr.height, peer.id)
-	WAIT_LOOP:
 		for {
 			select {
 			case <-bpr.pool.Quit():
@@ -572,8 +677,7 @@ OUTER_LOOP:
 				continue OUTER_LOOP
 			case <-bpr.gotBlockCh:
 				// We got a block!
-				// Continue the for-loop and wait til Quit.
-				continue WAIT_LOOP
+				return
 			}
 		}
 	}
@@ -583,5 +687,296 @@ OUTER_LOOP:
 
 type BlockRequest struct {
 	Height int64
-	PeerID p2p.ID
+	PeerID p2p.NodeID
+	BucketID *string
 }
+
+
+//-------------------------------------
+
+type bucketRequester struct {
+	cmn.BaseService
+	pool       *BlockPool
+	height     int64
+	bucketID    string
+	gotBlockCh chan struct{}
+	redoCh     chan struct{}
+
+	mtx    sync.Mutex
+	peerID p2p.NodeID
+	block  *types.Block
+}
+
+func newBucketRequester(pool *BlockPool, height int64, bucketID string) *bucketRequester {
+	bpr := &bucketRequester{
+		pool:       pool,
+		height:     height,
+		bucketID:   bucketID,
+		gotBlockCh: make(chan struct{}, 1),
+		redoCh:     make(chan struct{}, 1),
+
+		peerID: p2p.NodeID{},
+		block:  nil,
+	}
+	bpr.BaseService = *cmn.NewBaseService(nil, "Bucket", bpr)
+	return bpr
+}
+
+func (bpr *bucketRequester) OnStart() error {
+	go bpr.requestRoutine()
+	return nil
+}
+
+// Returns true if the peer matches and block doesn't already exist.
+func (bpr *bucketRequester) setBlock(block *types.Block, peerID p2p.NodeID) bool {
+	bpr.mtx.Lock()
+	if bpr.block != nil || bpr.peerID != peerID {
+		bpr.mtx.Unlock()
+		return false
+	}
+	bpr.block = block
+	bpr.mtx.Unlock()
+
+	select {
+	case bpr.gotBlockCh <- struct{}{}:
+	default:
+	}
+	return true
+}
+
+func (bpr *bucketRequester) getBlock() *types.Block {
+	bpr.mtx.Lock()
+	defer bpr.mtx.Unlock()
+	return bpr.block
+}
+
+func (bpr *bucketRequester) getPeerID() p2p.NodeID {
+	bpr.mtx.Lock()
+	defer bpr.mtx.Unlock()
+	return bpr.peerID
+}
+
+// This is called from the requestRoutine, upon redo().
+func (bpr *bucketRequester) reset() {
+	bpr.mtx.Lock()
+	defer bpr.mtx.Unlock()
+
+	if bpr.block != nil {
+		atomic.AddInt32(&bpr.pool.numPending, 1)
+	}
+
+	bpr.peerID = p2p.NodeID{}
+	bpr.block = nil
+}
+
+// Tells bucketChainRequester to pick another peer and try again.
+// NOTE: Nonblocking, and does nothing if another redo
+// was already requested.
+func (bpr *bucketRequester) redo() {
+	select {
+	case bpr.redoCh <- struct{}{}:
+	default:
+	}
+}
+
+// Responsible for making more requests as necessary
+// Returns only when a block is found (e.g. AddBlock() is called)
+func (bpr *bucketRequester) requestRoutine() {
+OUTER_LOOP:
+	for {
+		// Pick a peer to send request to.
+		var peer *bpPeer
+	PICK_PEER_LOOP:
+		for {
+			if !bpr.IsRunning() || !bpr.pool.IsRunning() {
+				return
+			}
+			// Peers in segments contain corresponding buckets
+			peer = bpr.pool.PickIncrAvailablePeerInSegment(bpr.height, bpr.bucketID)
+			if peer == nil {
+				//log.Info("No peers available", "height", height)
+				time.Sleep(requestIntervalMS * time.Millisecond)
+				continue PICK_PEER_LOOP
+			}
+			break PICK_PEER_LOOP
+		}
+		bpr.mtx.Lock()
+		bpr.peerID = peer.id
+		bpr.mtx.Unlock()
+
+		// Send request and wait.
+		bpr.pool.sendRequestBucket(bpr.height, peer.id, bpr.bucketID)
+		for {
+			select {
+			case <-bpr.pool.Quit():
+				bpr.Stop()
+				return
+			case <-bpr.Quit():
+				return
+			case <-bpr.redoCh:
+				bpr.reset()
+				continue OUTER_LOOP
+			case <-bpr.gotBlockCh:
+				// We got a block!
+				return
+			}
+		}
+	}
+}
+
+//-------------------------------------
+
+type bucketChainRequester struct {
+	cmn.BaseService
+	pool       *BlockPool
+	Height     int64
+	bucketID    string
+	gotBlockCh chan struct{}
+	redoCh     chan struct{}
+
+	Buckets map[int64] *types.TxBucket
+
+	mtx    sync.Mutex
+	peerID p2p.NodeID
+	block  *types.Block
+
+	GotAllBuckets bool
+}
+
+func NewBucketChainRequester(pool *BlockPool, height int64, bucketID string) *bucketChainRequester {
+	bpr := &bucketChainRequester{
+		pool:       pool,
+		Height:     height,
+		bucketID:   bucketID,
+		gotBlockCh: make(chan struct{}, 1),
+		redoCh:     make(chan struct{}, 1),
+
+		Buckets: 	make(map[int64]*types.TxBucket),
+
+		peerID: p2p.NodeID{},
+		block:  nil,
+		GotAllBuckets: false,
+	}
+	bpr.BaseService = *cmn.NewBaseService(nil, "BucketChain", bpr)
+	return bpr
+}
+
+func (bpr *bucketChainRequester) OnStart() error {
+	go bpr.requestRoutine()
+	return nil
+}
+
+// Returns true if the peer matches and block doesn't already exist.
+func (bpr *bucketChainRequester) setBlock(block *types.Block, peerID p2p.NodeID) bool {
+	bpr.mtx.Lock()
+	if bpr.block != nil || bpr.peerID != peerID {
+		bpr.mtx.Unlock()
+		return false
+	}
+	bpr.block = block
+	bpr.mtx.Unlock()
+
+	select {
+	case bpr.gotBlockCh <- struct{}{}:
+	default:
+	}
+	return true
+}
+
+func (bpr *bucketChainRequester) getBlock() *types.Block {
+	bpr.mtx.Lock()
+	defer bpr.mtx.Unlock()
+	return bpr.block
+}
+
+func (bpr *bucketChainRequester) getPeerID() p2p.NodeID {
+	bpr.mtx.Lock()
+	defer bpr.mtx.Unlock()
+	return bpr.peerID
+}
+
+// This is called from the requestRoutine, upon redo().
+func (bpr *bucketChainRequester) reset() {
+	bpr.mtx.Lock()
+	defer bpr.mtx.Unlock()
+
+	if bpr.block != nil {
+		atomic.AddInt32(&bpr.pool.numPending, 1)
+	}
+
+	bpr.peerID = p2p.NodeID{}
+	bpr.block = nil
+}
+
+// Tells bucketChainRequester to pick another peer and try again.
+// NOTE: Nonblocking, and does nothing if another redo
+// was already requested.
+func (bpr *bucketChainRequester) redo() {
+	select {
+	case bpr.redoCh <- struct{}{}:
+	default:
+	}
+}
+
+// Responsible for making more requests as necessary
+// Returns only when a block is found (e.g. AddBlock() is called)
+func (bpr *bucketChainRequester) requestRoutine() {
+OUTER_LOOP:
+	for {
+		UTXOHeight := ((bpr.Height / 100) * 100) + 1
+
+		for i := UTXOHeight; i < bpr.Height; i++ {
+			// Pick a peer to send request to.
+			var peer *bpPeer
+		PICK_PEER_LOOP:
+			for {
+				if !bpr.IsRunning() || !bpr.pool.IsRunning() {
+					return
+				}
+				// Peers in segments contain corresponding buckets
+				peer = bpr.pool.PickIncrAvailablePeerInSegment(i, bpr.bucketID)
+				if peer == nil {
+					//log.Info("No peers available", "height", height)
+					time.Sleep(requestIntervalMS * time.Millisecond)
+					continue PICK_PEER_LOOP
+				}
+				break PICK_PEER_LOOP
+			}
+			bpr.mtx.Lock()
+			bpr.peerID = peer.id
+			bpr.mtx.Unlock()
+
+			// Send request and wait.
+			bpr.pool.sendRequestBucket(bpr.Height, peer.id, bpr.bucketID)
+		}
+
+	WAIT_LOOP:
+		for {
+			select {
+			case <-bpr.pool.Quit():
+				bpr.Stop()
+				return
+			case <-bpr.Quit():
+				return
+			case <-bpr.redoCh:
+				bpr.reset()
+				continue OUTER_LOOP
+			case <-bpr.gotBlockCh:
+				// We got a bucket
+				// Check whether we have all buckets
+				for i := ((bpr.Height/100 * 100) + 1); i < bpr.Height; i++ {
+					bucket :=  bpr.Buckets[i]
+					if bucket == nil {
+						// we don't have all the buckets
+						continue WAIT_LOOP
+					}
+				}
+				// We have all the buckets
+				bpr.GotAllBuckets = true
+				return
+			}
+		}
+	}
+}
+
+//-------------------------------------

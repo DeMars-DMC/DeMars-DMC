@@ -8,7 +8,7 @@ import (
 // ErrSwitchDuplicatePeerID to be raised when a peer is connecting with a known
 // ID.
 type ErrSwitchDuplicatePeerID struct {
-	ID ID
+	ID NodeID
 }
 
 func (e ErrSwitchDuplicatePeerID) Error() string {
@@ -36,7 +36,7 @@ func (e ErrSwitchConnectToSelf) Error() string {
 
 type ErrSwitchAuthenticationFailure struct {
 	Dialed *NetAddress
-	Got    ID
+	Got    NodeID
 }
 
 func (e ErrSwitchAuthenticationFailure) Error() string {

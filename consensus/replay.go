@@ -6,12 +6,9 @@ import (
 	"hash/crc32"
 	"io"
 	"reflect"
-	//"strconv"
-	//"strings"
 	"time"
 
 	abci "github.com/tendermint/tendermint/abci/types"
-	//auto "github.com/tendermint/tendermint/libs/autofile"
 	cmn "github.com/tendermint/tendermint/libs/common"
 	dbm "github.com/tendermint/tendermint/libs/db"
 	"github.com/tendermint/tendermint/libs/log"
@@ -66,8 +63,8 @@ func (cs *ConsensusState) readReplayMessage(msg *TimedWALMessage, newStepCh chan
 		}
 	case msgInfo:
 		peerID := m.PeerID
-		if peerID == "" {
-			peerID = "local"
+		if &peerID.ID == nil {
+			//peerID = "local" FIXME
 		}
 		switch msg := m.Msg.(type) {
 		case *ProposalMessage:
@@ -227,7 +224,7 @@ func (h *Handshaker) NBlocks() int {
 func (h *Handshaker) Handshake(proxyApp proxy.AppConns) error {
 
 	// Handshake is done via ABCI Info on the query conn.
-	res, err := proxyApp.Query().InfoSync(abci.RequestInfo{version.Version})
+	res, err := proxyApp.Query().InfoSync(abci.RequestInfo{Version: version.Version})
 	if err != nil {
 		return fmt.Errorf("Error calling Info: %v", err)
 	}
@@ -408,7 +405,7 @@ func (h *Handshaker) replayBlock(state sm.State, height int64, proxyApp proxy.Ap
 	block := h.store.LoadBlock(height)
 	meta := h.store.LoadBlockMeta(height)
 
-	blockExec := sm.NewBlockExecutor(h.stateDB, h.logger, proxyApp, sm.MockMempool{}, sm.MockEvidencePool{})
+	blockExec := sm.NewBlockExecutor(h.stateDB, h.logger, proxyApp, sm.MockMempool{})
 
 	var err error
 	state, err = blockExec.ApplyBlock(state, meta.BlockID, block)
@@ -453,7 +450,7 @@ type mockProxyApp struct {
 	abciResponses *sm.ABCIResponses
 }
 
-func (mock *mockProxyApp) DeliverTx(tx []byte) abci.ResponseDeliverTx {
+func (mock *mockProxyApp) DeliverTx(tx []byte, height int64) abci.ResponseDeliverTx {
 	r := mock.abciResponses.DeliverTx[mock.txCount]
 	mock.txCount++
 	return *r

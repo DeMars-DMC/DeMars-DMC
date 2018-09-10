@@ -1,3 +1,5 @@
+Gopkg.lock
+**/Gopkg.lock
 *.swp
 *.swo
 .bak
@@ -16,14 +18,14 @@ coverage.txt
 docs/_build
 docs/tools
 *.log
-abci-cli
-abci/types/types.pb.go
 
 scripts/wal2json/wal2json
 scripts/cutWALUntil/cutWALUntil
 
 .idea/
 *.iml
+
+.vscode/
 
 libs/pubsub/query/fuzz_test/output
 shunit2

@@ -28,8 +28,8 @@ type Client interface {
 	EchoAsync(msg string) *ReqRes
 	InfoAsync(types.RequestInfo) *ReqRes
 	SetOptionAsync(types.RequestSetOption) *ReqRes
-	DeliverTxAsync(tx []byte) *ReqRes
-	CheckTxAsync(tx []byte) *ReqRes
+	DeliverTxAsync(tx []byte, height int64) *ReqRes
+	CheckTxAsync(tx []byte, height int64) *ReqRes
 	QueryAsync(types.RequestQuery) *ReqRes
 	CommitAsync() *ReqRes
 	InitChainAsync(types.RequestInitChain) *ReqRes
@@ -40,8 +40,10 @@ type Client interface {
 	EchoSync(msg string) (*types.ResponseEcho, error)
 	InfoSync(types.RequestInfo) (*types.ResponseInfo, error)
 	SetOptionSync(types.RequestSetOption) (*types.ResponseSetOption, error)
-	DeliverTxSync(tx []byte) (*types.ResponseDeliverTx, error)
-	CheckTxSync(tx []byte) (*types.ResponseCheckTx, error)
+	DeliverTxSync(tx []byte, height int64) (*types.ResponseDeliverTx, error)
+	DeliverBucketedTxSync(tx []byte, height int64, bucketID string) (*types.ResponseDeliverTx, error)
+	CheckTxSync(tx []byte, height int64) (*types.ResponseCheckTx, error)
+	GetValidatorSetSync(height int64) (*types.ResponseGetValidatorSet, error)
 	QuerySync(types.RequestQuery) (*types.ResponseQuery, error)
 	CommitSync() (*types.ResponseCommit, error)
 	InitChainSync(types.RequestInitChain) (*types.ResponseInitChain, error)

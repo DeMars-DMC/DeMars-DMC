@@ -14,7 +14,7 @@ func BenchmarkRoundStateDeepCopy(b *testing.B) {
 	b.StopTimer()
 
 	// Random validators
-	nval, ntxs := 100, 100
+	nval, ntxs, ntxbs := 100, 100, 10
 	vset, _ := types.RandValidatorSet(nval, 1)
 	precommits := make([]*types.Vote, nval)
 	blockID := types.BlockID{
@@ -32,10 +32,21 @@ func BenchmarkRoundStateDeepCopy(b *testing.B) {
 			Signature:        sig,
 		}
 	}
-	txs := make([]types.Tx, ntxs)
-	for i := 0; i < ntxs; i++ {
-		txs[i] = cmn.RandBytes(100)
+
+	txbs := make([]types.TxBucket, ntxbs)
+	for i := 0; i < ntxbs; i++ {
+		txs := make([]types.Tx, ntxs)
+		for j := 0; j < ntxs; j++ {
+			txs[j] = cmn.RandBytes(100)
+		}
+
+		txbs[i] = types.TxBucket{
+			Txs: txs,
+			BucketId: cmn.RandStr(5),
+		}
+
 	}
+
 	// Random block
 	block := &types.Block{
 		Header: &types.Header{
@@ -51,7 +62,7 @@ func BenchmarkRoundStateDeepCopy(b *testing.B) {
 			EvidenceHash:    cmn.RandBytes(20),
 		},
 		Data: &types.Data{
-			Txs: txs,
+			TxsBuckets: txs,
 		},
 		Evidence: types.EvidenceData{},
 		LastCommit: &types.Commit{

@@ -5,10 +5,10 @@ import (
 
 	fail "github.com/ebuchman/fail-test"
 	abci "github.com/tendermint/tendermint/abci/types"
-	"github.com/tendermint/tendermint/proxy"
-	"github.com/tendermint/tendermint/types"
 	dbm "github.com/tendermint/tendermint/libs/db"
 	"github.com/tendermint/tendermint/libs/log"
+	"github.com/tendermint/tendermint/proxy"
+	"github.com/tendermint/tendermint/types"
 )
 
 //-----------------------------------------------------------------------------
@@ -29,21 +29,23 @@ type BlockExecutor struct {
 
 	// update these with block results after commit
 	mempool Mempool
-	evpool  EvidencePool
 
 	logger log.Logger
+}
+
+func (blockexec BlockExecutor) GetProxyApp() proxy.AppConnConsensus {
+	return blockexec.proxyApp
 }
 
 // NewBlockExecutor returns a new BlockExecutor with a NopEventBus.
 // Call SetEventBus to provide one.
 func NewBlockExecutor(db dbm.DB, logger log.Logger, proxyApp proxy.AppConnConsensus,
-	mempool Mempool, evpool EvidencePool) *BlockExecutor {
+	mempool Mempool) *BlockExecutor {
 	return &BlockExecutor{
 		db:       db,
 		proxyApp: proxyApp,
 		eventBus: types.NopEventBus{},
 		mempool:  mempool,
-		evpool:   evpool,
 		logger:   logger,
 	}
 }
@@ -62,17 +64,50 @@ func (blockExec *BlockExecutor) ValidateBlock(state State, block *types.Block) e
 	return validateBlock(blockExec.db, state, block)
 }
 
+// TODO This makes an EndBlock call for now but this should be replaced with an update validators call
+func (blockExec *BlockExecutor) UpdateValidatorsSet(state State) error {
+	abciResponses := ABCIResponses{}
+	var err error
+	abciResponses.EndBlock, err = blockExec.proxyApp.EndBlockSync(abci.RequestEndBlock{})
+	if err != nil {
+		return err
+	}
+
+	// copy the valset so we can apply changes from EndBlock
+	// and update s.LastValidators and s.Validators
+	prevValSet := state.Validators.Copy()
+	nextValSet := prevValSet.Copy()
+	err = updateValidators(nextValSet, abciResponses.EndBlock.ValidatorUpdates)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (blockExec *BlockExecutor) ApplyBucket(height int64, txBucket *types.TxBucket) error {
+	// Run txs of bucket
+	for _, tx := range txBucket.Txs {
+		blockExec.proxyApp.DeliverBucketedTxSync(tx, height, txBucket.BucketId)
+		if err := blockExec.proxyApp.Error(); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
 // ApplyBlock validates the block against the state, executes it against the app,
 // fires the relevant events, commits the app, and saves the new state and responses.
 // It's the only function that needs to be called
 // from outside this package to process and commit an entire block.
 // It takes a blockID to avoid recomputing the parts hash.
 func (blockExec *BlockExecutor) ApplyBlock(state State, blockID types.BlockID, block *types.Block) (State, error) {
-
+	blockExec.logger.Debug("[ApplyBlock] Validating block")
 	if err := blockExec.ValidateBlock(state, block); err != nil {
 		return state, ErrInvalidBlock(err)
 	}
 
+	blockExec.logger.Debug("[ApplyBlock] Executing block")
 	abciResponses, err := execBlockOnProxyApp(blockExec.logger, blockExec.proxyApp, block, state.LastValidators, blockExec.db)
 	if err != nil {
 		return state, ErrProxyAppConn(err)
@@ -81,35 +116,37 @@ func (blockExec *BlockExecutor) ApplyBlock(state State, blockID types.BlockID, b
 	fail.Fail() // XXX
 
 	// save the results before we commit
+	blockExec.logger.Debug("[ApplyBlock] Save ABCI responses")
 	saveABCIResponses(blockExec.db, block.Height, abciResponses)
 
 	fail.Fail() // XXX
 
 	// update the state with the block and responses
+	blockExec.logger.Debug("[ApplyBlock] Update the state")
 	state, err = updateState(state, blockID, block.Header, abciResponses)
 	if err != nil {
 		return state, fmt.Errorf("Commit failed for application: %v", err)
 	}
 
 	// lock mempool, commit app state, update mempoool
+	blockExec.logger.Debug("[ApplyBlock] Committing the block")
 	appHash, err := blockExec.Commit(block)
 	if err != nil {
 		return state, fmt.Errorf("Commit failed for application: %v", err)
 	}
 
-	// Update evpool with the block and state.
-	blockExec.evpool.Update(block, state)
-
 	fail.Fail() // XXX
 
 	// update the app hash and save the state
 	state.AppHash = appHash
+	blockExec.logger.Debug("[ApplyBlock] Persisting state")
 	SaveState(blockExec.db, state)
 
 	fail.Fail() // XXX
 
 	// events are fired after everything else
 	// NOTE: if we crash between Commit and Save, events wont be fired during replay
+	blockExec.logger.Debug("[ApplyBlock] Fire events")
 	fireEvents(blockExec.logger, blockExec.eventBus, block, abciResponses)
 
 	return state, nil
@@ -141,11 +178,11 @@ func (blockExec *BlockExecutor) Commit(block *types.Block) ([]byte, error) {
 
 	blockExec.logger.Info("Committed state",
 		"height", block.Height,
-		"txs", block.NumTxs,
+		"txs", block.Data.TotalTxsInBuckets(),
 		"appHash", fmt.Sprintf("%X", res.Data))
 
 	// Update mempool.
-	if err := blockExec.mempool.Update(block.Height, block.Txs); err != nil {
+	if err := blockExec.mempool.Update(block.Height, block.TxBuckets); err != nil {
 		return nil, err
 	}
 
@@ -184,38 +221,50 @@ func execBlockOnProxyApp(logger log.Logger, proxyAppConn proxy.AppConnConsensus,
 	}
 	proxyAppConn.SetResponseCallback(proxyCb)
 
-	signVals, byzVals := getBeginBlockValidatorInfo(block, lastValSet, stateDB)
+	signVals := getBeginBlockValidatorInfo(block, lastValSet, stateDB)
 
 	// Begin block
+	logger.Info("[execBlockOnProxyApp] BeginBlock sync")
 	_, err := proxyAppConn.BeginBlockSync(abci.RequestBeginBlock{
-		Hash:                block.Hash(),
-		Header:              types.TM2PB.Header(block.Header),
-		Validators:          signVals,
-		ByzantineValidators: byzVals,
+		Hash:       block.Hash(),
+		Header:     types.TM2PB.Header(block.Header),
+		Validators: signVals,
 	})
 	if err != nil {
 		logger.Error("Error in proxyAppConn.BeginBlock", "err", err)
 		return nil, err
 	}
 
+	logger.Info("[execBlockOnProxyApp] Delivering Tx")
 	// Run txs of block
-	for _, tx := range block.Txs {
-		proxyAppConn.DeliverTxAsync(tx)
-		if err := proxyAppConn.Error(); err != nil {
-			return nil, err
+	for _, txBucket := range block.TxBuckets {
+		for _, tx := range txBucket.Txs {
+			proxyAppConn.DeliverTxAsync(tx, block.Height)
+			if err := proxyAppConn.Error(); err != nil {
+				return nil, err
+			}
 		}
 	}
 
 	// End block
-	abciResponses.EndBlock, err = proxyAppConn.EndBlockSync(abci.RequestEndBlock{block.Height})
+	logger.Info("[execBlockOnProxyApp] End block")
+	abciResponses.EndBlock, err = proxyAppConn.EndBlockSync(abci.RequestEndBlock{})
 	if err != nil {
-		logger.Error("Error in proxyAppConn.EndBlock", "err", err)
+		logger.Error("Error in proxyAppConn.EndBlockSync", "err", err)
+		return nil, err
+	}
+
+	// Update validator set for next block
+	logger.Info("[execBlockOnProxyApp] Updating validator set")
+	abciResponses.GetValidatorSet, err = proxyAppConn.GetValidatorSetSync(block.Height + 1)
+	if err != nil {
+		logger.Error("Error in proxyAppConn.GetValidatorSetSync", "err", err)
 		return nil, err
 	}
 
 	logger.Info("Executed block", "height", block.Height, "validTxs", validTxs, "invalidTxs", invalidTxs)
 
-	valUpdates := abciResponses.EndBlock.ValidatorUpdates
+	valUpdates := abciResponses.GetValidatorSet.ValidatorSet
 	if len(valUpdates) > 0 {
 		logger.Info("Updates to validators", "updates", abci.ValidatorsString(valUpdates))
 	}
@@ -223,17 +272,17 @@ func execBlockOnProxyApp(logger log.Logger, proxyAppConn proxy.AppConnConsensus,
 	return abciResponses, nil
 }
 
-func getBeginBlockValidatorInfo(block *types.Block, lastValSet *types.ValidatorSet, stateDB dbm.DB) ([]abci.SigningValidator, []abci.Evidence) {
+func getBeginBlockValidatorInfo(block *types.Block, lastValSet *types.ValidatorSet, stateDB dbm.DB) []abci.SigningValidator {
 
 	// Sanity check that commit length matches validator set size -
 	// only applies after first block
 	if block.Height > 1 {
-		precommitLen := len(block.LastCommit.Precommits)
+		precommitLen := len(block.Commit.Precommits)
 		valSetLen := len(lastValSet.Validators)
 		if precommitLen != valSetLen {
 			// sanity check
 			panic(fmt.Sprintf("precommit length (%d) doesn't match valset length (%d) at height %d\n\n%v\n\n%v",
-				precommitLen, valSetLen, block.Height, block.LastCommit.Precommits, lastValSet.Validators))
+				precommitLen, valSetLen, block.Height, block.Commit.Precommits, lastValSet.Validators))
 		}
 	}
 
@@ -241,8 +290,8 @@ func getBeginBlockValidatorInfo(block *types.Block, lastValSet *types.ValidatorS
 	signVals := make([]abci.SigningValidator, len(lastValSet.Validators))
 	for i, val := range lastValSet.Validators {
 		var vote *types.Vote
-		if i < len(block.LastCommit.Precommits) {
-			vote = block.LastCommit.Precommits[i]
+		if i < len(block.Commit.Precommits) {
+			vote = block.Commit.Precommits[i]
 		}
 		val := abci.SigningValidator{
 			Validator:       types.TM2PB.Validator(val),
@@ -251,19 +300,7 @@ func getBeginBlockValidatorInfo(block *types.Block, lastValSet *types.ValidatorS
 		signVals[i] = val
 	}
 
-	byzVals := make([]abci.Evidence, len(block.Evidence.Evidence))
-	for i, ev := range block.Evidence.Evidence {
-		// We need the validator set. We already did this in validateBlock.
-		// TODO: Should we instead cache the valset in the evidence itself and add
-		// `SetValidatorSet()` and `ToABCI` methods ?
-		valset, err := LoadValidators(stateDB, ev.Height())
-		if err != nil {
-			panic(err) // shouldn't happen
-		}
-		byzVals[i] = types.TM2PB.Evidence(ev, valset, block.Time)
-	}
-
-	return signVals, byzVals
+	return signVals
 
 }
 
@@ -314,8 +351,8 @@ func updateState(state State, blockID types.BlockID, header *types.Header,
 
 	// update the validator set with the latest abciResponses
 	lastHeightValsChanged := state.LastHeightValidatorsChanged
-	if len(abciResponses.EndBlock.ValidatorUpdates) > 0 {
-		err := updateValidators(nextValSet, abciResponses.EndBlock.ValidatorUpdates)
+	if len(abciResponses.GetValidatorSet.ValidatorSet) > 0 {
+		err := updateValidators(nextValSet, abciResponses.GetValidatorSet.ValidatorSet)
 		if err != nil {
 			return state, fmt.Errorf("Error changing validator set: %v", err)
 		}
@@ -365,13 +402,15 @@ func fireEvents(logger log.Logger, eventBus types.BlockEventPublisher, block *ty
 	eventBus.PublishEventNewBlock(types.EventDataNewBlock{block})
 	eventBus.PublishEventNewBlockHeader(types.EventDataNewBlockHeader{block.Header})
 
-	for i, tx := range block.Data.Txs {
-		eventBus.PublishEventTx(types.EventDataTx{types.TxResult{
-			Height: block.Height,
-			Index:  uint32(i),
-			Tx:     tx,
-			Result: *(abciResponses.DeliverTx[i]),
-		}})
+	for i, txBucket := range block.Data.TxBuckets {
+		for _, tx := range txBucket.Txs {
+			eventBus.PublishEventTx(types.EventDataTx{types.TxResult{
+				Height: block.Height,
+				Index:  uint32(i),
+				Tx:     tx,
+				Result: *(abciResponses.DeliverTx[i]),
+			}})
+		}
 	}
 }
 

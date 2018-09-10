@@ -5,21 +5,91 @@
 package p2p
 
 import (
-	"encoding/hex"
 	"flag"
 	"fmt"
 	"net"
 	"strconv"
 	"strings"
 	"time"
+	"errors"
 
 	cmn "github.com/tendermint/tendermint/libs/common"
+	"encoding/hex"
+	"crypto/ecdsa"
+	"github.com/ethereum/go-ethereum/crypto"
+	"math/big"
 )
+
+const NodeIDBits = 512
+
+// NodeID is a unique identifier for each node.
+// The node identifier is a marshaled elliptic curve public key.
+type NodeID struct {
+	ID [NodeIDBits / 8]byte
+
+}
+
+func (nodeID NodeID) getHexID() string {
+	return hex.EncodeToString(nodeID.ID[:]);
+}
+
+// Bytes returns a byte slice representation of the NodeID
+func (n NodeID) Bytes() []byte {
+	return n.ID[:]
+}
+
+// NodeID prints as a long hexadecimal number.
+func (n NodeID) String() string {
+	return fmt.Sprintf("%x", n.ID[:])
+}
+
+// NodeID prints segmentID as a long hexadecimal number.
+func (n NodeID) SegmentID() string {
+	return fmt.Sprintf("%x", n.ID[:])[:2]
+}
+
+// The Go syntax representation of a NodeID is a call to HexID.
+func (n NodeID) GoString() string {
+	return fmt.Sprintf("kademlia.HexID(\"%x\")", n.ID[:])
+}
+
+// TerminalString returns a shortened hex string for terminal logging.
+func (n NodeID) TerminalString() string {
+	return hex.EncodeToString(n.ID[:8])
+}
+
+// MarshalText implements the encoding.TextMarshaler interface.
+func (n NodeID) MarshalText() ([]byte, error) {
+	return []byte(hex.EncodeToString(n.ID[:])), nil
+}
+
+// UnmarshalText implements the encoding.TextUnmarshaler interface.
+func (n *NodeID) UnmarshalText(text []byte) error {
+	id, err := HexID(string(text))
+	if err != nil {
+		return err
+	}
+	*n = id
+	return nil
+}
+
+// Pubkey returns the public key represented by the node ID.
+// It returns an error if the ID is not a point on the curve.
+func (id NodeID) Pubkey() (*ecdsa.PublicKey, error) {
+	p := &ecdsa.PublicKey{Curve: crypto.S256(), X: new(big.Int), Y: new(big.Int)}
+	half := len(id.ID) / 2
+	p.X.SetBytes(id.ID[:half])
+	p.Y.SetBytes(id.ID[half:])
+	if !p.Curve.IsOnCurve(p.X, p.Y) {
+		return nil, errors.New("id is invalid secp256k1 curve point")
+	}
+	return p, nil
+}
 
 // NetAddress defines information about a peer on the network
 // including its ID, IP address, and port.
 type NetAddress struct {
-	ID   ID     `json:"id"`
+	ID   NodeID `json:"id"`
 	IP   net.IP `json:"ip"`
 	Port uint16 `json:"port"`
 
@@ -31,8 +101,8 @@ type NetAddress struct {
 }
 
 // IDAddressString returns id@hostPort.
-func IDAddressString(id ID, hostPort string) string {
-	return fmt.Sprintf("%s@%s", id, hostPort)
+func IDAddressString(id NodeID, hostPort string) string {
+	return fmt.Sprintf("%s@%s", hex.EncodeToString(id.ID[:]), hostPort)
 }
 
 // NewNetAddress returns a new NetAddress using the provided TCP
@@ -40,7 +110,7 @@ func IDAddressString(id ID, hostPort string) string {
 // using 0.0.0.0:0. When normal run, other net.Addr (except TCP) will
 // panic.
 // TODO: socks proxies?
-func NewNetAddress(id ID, addr net.Addr) *NetAddress {
+func NewNetAddress(id NodeID, addr net.Addr) *NetAddress {
 	tcpAddr, ok := addr.(*net.TCPAddr)
 	if !ok {
 		if flag.Lookup("test.v") == nil { // normal run
@@ -76,7 +146,7 @@ func NewNetAddressString(addr string) (*NetAddress, error) {
 func NewNetAddressStringWithOptionalID(addr string) (*NetAddress, error) {
 	addrWithoutProtocol := removeProtocolIfDefined(addr)
 
-	var id ID
+	var id NodeID
 	spl := strings.Split(addrWithoutProtocol, "@")
 	if len(spl) == 2 {
 		idStr := spl[0]
@@ -89,8 +159,10 @@ func NewNetAddressStringWithOptionalID(addr string) (*NetAddress, error) {
 				addrWithoutProtocol,
 				fmt.Errorf("invalid hex length - got %d, expected %d", len(idBytes), IDByteLength)}
 		}
-
-		id, addrWithoutProtocol = ID(idStr), spl[1]
+		var idBytes64 [64] byte;
+		copy(idBytes64[:], idBytes[:64])
+		id = NodeID{idBytes64}
+		addrWithoutProtocol = spl[1]
 	}
 
 	host, portStr, err := net.SplitHostPort(addrWithoutProtocol)
@@ -148,34 +220,9 @@ func NewNetAddressIPPort(ip net.IP, port uint16) *NetAddress {
 // including their ID, IP, and Port.
 func (na *NetAddress) Equals(other interface{}) bool {
 	if o, ok := other.(*NetAddress); ok {
-		return na.String() == o.String()
+		return (na.ID == o.ID) && (na.IP.Equal(o.IP)) && (na.Port == o.Port)
 	}
 	return false
-}
-
-// Same returns true is na has the same non-empty ID or DialString as other.
-func (na *NetAddress) Same(other interface{}) bool {
-	if o, ok := other.(*NetAddress); ok {
-		if na.DialString() == o.DialString() {
-			return true
-		}
-		if na.ID != "" && na.ID == o.ID {
-			return true
-		}
-	}
-	return false
-}
-
-// String representation: <ID>@<IP>:<PORT>
-func (na *NetAddress) String() string {
-	if na.str == "" {
-		addrStr := na.DialString()
-		if na.ID != "" {
-			addrStr = IDAddressString(na.ID, addrStr)
-		}
-		na.str = addrStr
-	}
-	return na.str
 }
 
 func (na *NetAddress) DialString() string {
@@ -308,10 +355,49 @@ func (na *NetAddress) RFC4862() bool { return rfc4862.Contains(na.IP) }
 func (na *NetAddress) RFC6052() bool { return rfc6052.Contains(na.IP) }
 func (na *NetAddress) RFC6145() bool { return rfc6145.Contains(na.IP) }
 
+// Same returns true is na has the same non-empty ID or DialString as other.
+func (na *NetAddress) Same(other interface{}) bool {
+	if o, ok := other.(*NetAddress); ok {
+		if na.DialString() == o.DialString() {
+			return true
+		}
+		if string(na.ID.ID[:]) != "" && na.ID == o.ID {
+			return true
+		}
+	}
+	return false
+}
+
 func removeProtocolIfDefined(addr string) string {
 	if strings.Contains(addr, "://") {
 		return strings.Split(addr, "://")[1]
 	}
 	return addr
 
+}
+
+// HexID converts a hex string to a NodeID.
+// The string may be prefixed with 0x.
+func HexID(in string) (NodeID, error) {
+	var id NodeID
+	b, err := hex.DecodeString(strings.TrimPrefix(in, "0x"))
+	if err != nil {
+		return id, err
+	} else if len(b) != len(id.ID) {
+		return id, fmt.Errorf("wrong length, want %d hex chars", len(id.ID)*2)
+	}
+	copy(id.ID[:], b)
+	return id, nil
+}
+
+// String representation: <ID>@<IP>:<PORT>
+func (na *NetAddress) String() string {
+	if na.str == "" {
+		addrStr := na.DialString()
+		if "00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000" != hex.EncodeToString(na.ID.ID[:]) {
+			addrStr = IDAddressString(na.ID, addrStr)
+		}
+		na.str = addrStr
+	}
+	return na.str
 }

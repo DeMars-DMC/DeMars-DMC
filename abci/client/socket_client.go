@@ -157,7 +157,7 @@ func (cli *socketClient) sendRequestsRoutine(conn net.Conn) {
 }
 
 func (cli *socketClient) recvResponseRoutine(conn net.Conn) {
-
+	cli.Logger.Debug("[recvResponseRoutine]")
 	r := bufio.NewReader(conn) // Buffer reads
 	for {
 		var res = &types.Response{}
@@ -169,6 +169,7 @@ func (cli *socketClient) recvResponseRoutine(conn net.Conn) {
 		switch r := res.Value.(type) {
 		case *types.Response_Exception:
 			// XXX After setting cli.err, release waiters (e.g. reqres.Done())
+			cli.Logger.Debug("[recvResponseRoutine] Response_Exception received")
 			cli.StopForError(errors.New(r.Exception.Error))
 			return
 		default:
@@ -238,12 +239,12 @@ func (cli *socketClient) SetOptionAsync(req types.RequestSetOption) *ReqRes {
 	return cli.queueRequest(types.ToRequestSetOption(req))
 }
 
-func (cli *socketClient) DeliverTxAsync(tx []byte) *ReqRes {
-	return cli.queueRequest(types.ToRequestDeliverTx(tx))
+func (cli *socketClient) DeliverTxAsync(tx []byte, height int64) *ReqRes {
+	return cli.queueRequest(types.ToRequestDeliverTx(tx, height, ""))
 }
 
-func (cli *socketClient) CheckTxAsync(tx []byte) *ReqRes {
-	return cli.queueRequest(types.ToRequestCheckTx(tx))
+func (cli *socketClient) CheckTxAsync(tx []byte, height int64) *ReqRes {
+	return cli.queueRequest(types.ToRequestCheckTx(tx, height))
 }
 
 func (cli *socketClient) QueryAsync(req types.RequestQuery) *ReqRes {
@@ -295,16 +296,28 @@ func (cli *socketClient) SetOptionSync(req types.RequestSetOption) (*types.Respo
 	return reqres.Response.GetSetOption(), cli.Error()
 }
 
-func (cli *socketClient) DeliverTxSync(tx []byte) (*types.ResponseDeliverTx, error) {
-	reqres := cli.queueRequest(types.ToRequestDeliverTx(tx))
+func (cli *socketClient) DeliverTxSync(tx []byte, height int64) (*types.ResponseDeliverTx, error) {
+	reqres := cli.queueRequest(types.ToRequestDeliverTx(tx, height, ""))
 	cli.FlushSync()
 	return reqres.Response.GetDeliverTx(), cli.Error()
 }
 
-func (cli *socketClient) CheckTxSync(tx []byte) (*types.ResponseCheckTx, error) {
-	reqres := cli.queueRequest(types.ToRequestCheckTx(tx))
+func (cli *socketClient) DeliverBucketedTxSync(tx []byte, height int64, bucketID string) (*types.ResponseDeliverTx, error) {
+	reqres := cli.queueRequest(types.ToRequestDeliverTx(tx, height, bucketID))
+	cli.FlushSync()
+	return reqres.Response.GetDeliverTx(), cli.Error()
+}
+
+func (cli *socketClient) CheckTxSync(tx []byte, height int64) (*types.ResponseCheckTx, error) {
+	reqres := cli.queueRequest(types.ToRequestCheckTx(tx, height))
 	cli.FlushSync()
 	return reqres.Response.GetCheckTx(), cli.Error()
+}
+
+func (cli *socketClient) GetValidatorSetSync(height int64) (*types.ResponseGetValidatorSet, error) {
+	reqres := cli.queueRequest(types.ToRequestGetValidatorSet(height))
+	cli.FlushSync()
+	return reqres.Response.GetGetValidatorSet(), cli.Error()
 }
 
 func (cli *socketClient) QuerySync(req types.RequestQuery) (*types.ResponseQuery, error) {
@@ -340,6 +353,7 @@ func (cli *socketClient) EndBlockSync(req types.RequestEndBlock) (*types.Respons
 //----------------------------------------
 
 func (cli *socketClient) queueRequest(req *types.Request) *ReqRes {
+	cli.Logger.Debug("Queueing req")
 	reqres := NewReqRes(req)
 
 	// TODO: set cli.err if reqQueue times out
@@ -394,6 +408,8 @@ func resMatchesReq(req *types.Request, res *types.Response) (ok bool) {
 		_, ok = res.Value.(*types.Response_BeginBlock)
 	case *types.Request_EndBlock:
 		_, ok = res.Value.(*types.Response_EndBlock)
+	case *types.Request_GetValidatorSet:
+		_, ok = res.Value.(*types.Response_GetValidatorSet)
 	}
 	return ok
 }

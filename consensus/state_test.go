@@ -12,6 +12,7 @@ import (
 	"github.com/tendermint/tendermint/types"
 	cmn "github.com/tendermint/tendermint/libs/common"
 	"github.com/tendermint/tendermint/libs/log"
+	"github.com/tendermint/tendermint/p2p"
 )
 
 func init() {
@@ -209,7 +210,8 @@ func TestStateBadProposal(t *testing.T) {
 	}
 
 	// set the proposal block
-	if err := cs1.SetProposalAndBlock(proposal, propBlock, propBlockParts, "some peer"); err != nil {
+	peer, _ := p2p.HexID("some peer")
+	if err := cs1.SetProposalAndBlock(proposal, propBlock, propBlockParts, peer); err != nil {
 		t.Fatal(err)
 	}
 
@@ -480,7 +482,8 @@ func TestStateLockNoPOL(t *testing.T) {
 
 	// now we're on a new round and not the proposer
 	// so set the proposal block
-	if err := cs1.SetProposalAndBlock(prop, propBlock, propBlock.MakePartSet(partSize), ""); err != nil {
+	peer, _ := p2p.HexID("")
+	if err := cs1.SetProposalAndBlock(prop, propBlock, propBlock.MakePartSet(partSize), peer); err != nil {
 		t.Fatal(err)
 	}
 
@@ -559,7 +562,8 @@ func TestStateLockPOLRelock(t *testing.T) {
 	<-timeoutWaitCh
 
 	//XXX: this isnt guaranteed to get there before the timeoutPropose ...
-	if err := cs1.SetProposalAndBlock(prop, propBlock, propBlockParts, "some peer"); err != nil {
+	peer, _ := p2p.HexID("some peer")
+	if err := cs1.SetProposalAndBlock(prop, propBlock, propBlockParts, peer); err != nil {
 		t.Fatal(err)
 	}
 
@@ -673,7 +677,8 @@ func TestStateLockPOLUnlock(t *testing.T) {
 	lockedBlockHash := rs.LockedBlock.Hash()
 
 	//XXX: this isnt guaranteed to get there before the timeoutPropose ...
-	if err := cs1.SetProposalAndBlock(prop, propBlock, propBlockParts, "some peer"); err != nil {
+	peer, _ := p2p.HexID("some peer")
+	if err := cs1.SetProposalAndBlock(prop, propBlock, propBlockParts, peer); err != nil {
 		t.Fatal(err)
 	}
 
@@ -762,7 +767,8 @@ func TestStateLockPOLSafety1(t *testing.T) {
 	incrementRound(vs2, vs3, vs4)
 
 	//XXX: this isnt guaranteed to get there before the timeoutPropose ...
-	if err := cs1.SetProposalAndBlock(prop, propBlock, propBlockParts, "some peer"); err != nil {
+	peer, _ := p2p.HexID("some peer")
+	if err := cs1.SetProposalAndBlock(prop, propBlock, propBlockParts, peer); err != nil {
 		t.Fatal(err)
 	}
 
@@ -876,7 +882,8 @@ func TestStateLockPOLSafety2(t *testing.T) {
 	startTestRound(cs1, height, 1)
 	<-newRoundCh
 
-	if err := cs1.SetProposalAndBlock(prop1, propBlock1, propBlockParts1, "some peer"); err != nil {
+	peer, _ := p2p.HexID("some peer")
+	if err := cs1.SetProposalAndBlock(prop1, propBlock1, propBlockParts1, peer); err != nil {
 		t.Fatal(err)
 	}
 	<-proposalCh
@@ -903,7 +910,7 @@ func TestStateLockPOLSafety2(t *testing.T) {
 	if err := vs3.SignProposal(config.ChainID(), newProp); err != nil {
 		t.Fatal(err)
 	}
-	if err := cs1.SetProposalAndBlock(newProp, propBlock0, propBlockParts0, "some peer"); err != nil {
+	if err := cs1.SetProposalAndBlock(newProp, propBlock0, propBlockParts0, peer); err != nil {
 		t.Fatal(err)
 	}
 

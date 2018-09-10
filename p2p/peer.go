@@ -5,11 +5,9 @@ import (
 	"net"
 	"sync/atomic"
 	"time"
-
 	crypto "github.com/tendermint/tendermint/crypto"
 	cmn "github.com/tendermint/tendermint/libs/common"
 	"github.com/tendermint/tendermint/libs/log"
-
 	"github.com/tendermint/tendermint/config"
 	tmconn "github.com/tendermint/tendermint/p2p/conn"
 )
@@ -20,7 +18,7 @@ var testIPSuffix uint32
 type Peer interface {
 	cmn.Service
 
-	ID() ID             // peer's cryptographic ID
+	ID() NodeID             // peer's cryptographic ID
 	RemoteIP() net.IP   // remote IP of the connection
 	IsOutbound() bool   // did we dial the peer
 	IsPersistent() bool // do we redial this peer when we disconnect
@@ -47,7 +45,7 @@ type peerConn struct {
 
 // ID only exists for SecretConnection.
 // NOTE: Will panic if conn is not *SecretConnection.
-func (pc peerConn) ID() ID {
+func (pc peerConn) ID() NodeID {
 	return PubKeyToID(pc.conn.(*tmconn.SecretConnection).RemotePubKey())
 }
 
@@ -234,8 +232,8 @@ func (p *peer) OnStop() {
 //---------------------------------------------------
 // Implements Peer
 
-// ID returns the peer's ID - the hex encoded hash of its pubkey.
-func (p *peer) ID() ID {
+// ID returns the peer's ID
+func (p *peer) ID() NodeID {
 	return p.nodeInfo.ID
 }
 

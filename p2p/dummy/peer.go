@@ -13,7 +13,7 @@ type peer struct {
 	kv map[string]interface{}
 }
 
-var _ p2p.Peer = (*peer)(nil)
+var _ *p2p.Peer = (*p2p.Peer)(nil)
 
 // NewPeer creates new dummy peer.
 func NewPeer() *peer {
@@ -26,8 +26,9 @@ func NewPeer() *peer {
 }
 
 // ID always returns dummy.
-func (p *peer) ID() p2p.ID {
-	return p2p.ID("dummy")
+func (p *peer) ID() p2p.NodeID {
+	peer, _ := p2p.HexID("dummy")
+	return peer
 }
 
 // IsOutbound always returns false.

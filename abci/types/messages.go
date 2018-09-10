@@ -71,7 +71,7 @@ func encodeVarint(w io.Writer, i int64) (err error) {
 
 func ToRequestEcho(message string) *Request {
 	return &Request{
-		Value: &Request_Echo{&RequestEcho{message}},
+		Value: &Request_Echo{&RequestEcho{Message: message}},
 	}
 }
 
@@ -93,15 +93,21 @@ func ToRequestSetOption(req RequestSetOption) *Request {
 	}
 }
 
-func ToRequestDeliverTx(tx []byte) *Request {
+func ToRequestDeliverTx(tx []byte, height int64, bucketID string) *Request {
 	return &Request{
-		Value: &Request_DeliverTx{&RequestDeliverTx{tx}},
+		Value: &Request_DeliverTx{&RequestDeliverTx{Tx: tx, Height: height, BucketID: bucketID}},
 	}
 }
 
-func ToRequestCheckTx(tx []byte) *Request {
+func ToRequestCheckTx(tx []byte, height int64) *Request {
 	return &Request{
-		Value: &Request_CheckTx{&RequestCheckTx{tx}},
+		Value: &Request_CheckTx{&RequestCheckTx{Tx: tx, Height: height}},
+	}
+}
+
+func ToRequestGetValidatorSet(height int64) *Request {
+	return &Request{
+		Value: &Request_GetValidatorSet{&RequestGetValidatorSet{Height: height}},
 	}
 }
 
@@ -139,13 +145,13 @@ func ToRequestEndBlock(req RequestEndBlock) *Request {
 
 func ToResponseException(errStr string) *Response {
 	return &Response{
-		Value: &Response_Exception{&ResponseException{errStr}},
+		Value: &Response_Exception{&ResponseException{Error: errStr}},
 	}
 }
 
 func ToResponseEcho(message string) *Response {
 	return &Response{
-		Value: &Response_Echo{&ResponseEcho{message}},
+		Value: &Response_Echo{&ResponseEcho{Message: message}},
 	}
 }
 
@@ -206,5 +212,11 @@ func ToResponseBeginBlock(res ResponseBeginBlock) *Response {
 func ToResponseEndBlock(res ResponseEndBlock) *Response {
 	return &Response{
 		Value: &Response_EndBlock{&res},
+	}
+}
+
+func ToResponseGetValidatorSet(res ResponseGetValidatorSet) *Response {
+	return &Response{
+		Value: &Response_GetValidatorSet{&res},
 	}
 }

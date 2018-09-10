@@ -126,7 +126,7 @@ func (pb *playback) replayReset(count int, newStepCh chan interface{}) error {
 	pb.cs.Wait()
 
 	newCS := NewConsensusState(pb.cs.config, pb.genesisState.Copy(), pb.cs.blockExec,
-		pb.cs.blockStore, pb.cs.mempool, pb.cs.evpool)
+		pb.cs.blockStore, pb.cs.mempool)
 	newCS.SetEventBus(pb.cs.eventBus)
 	newCS.startForReplay()
 
@@ -310,11 +310,11 @@ func newConsensusStateForReplay(config cfg.BaseConfig, csConfig *cfg.ConsensusCo
 		cmn.Exit(cmn.Fmt("Failed to start event bus: %v", err))
 	}
 
-	mempool, evpool := sm.MockMempool{}, sm.MockEvidencePool{}
-	blockExec := sm.NewBlockExecutor(stateDB, log.TestingLogger(), proxyApp.Consensus(), mempool, evpool)
+	mempool := sm.MockMempool{}
+	blockExec := sm.NewBlockExecutor(stateDB, log.TestingLogger(), proxyApp.Consensus(), mempool)
 
 	consensusState := NewConsensusState(csConfig, state.Copy(), blockExec,
-		blockStore, mempool, evpool)
+		blockStore, mempool)
 
 	consensusState.SetEventBus(eventBus)
 	return consensusState

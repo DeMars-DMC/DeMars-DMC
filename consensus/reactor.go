@@ -106,6 +106,14 @@ func (conR *ConsensusReactor) SwitchToConsensus(state sm.State, blocksSynced int
 	}
 }
 
+func (conR *ConsensusReactor) TurnOffConsensus() {
+	err := conR.conS.Stop()
+	if err != nil {
+		conR.Logger.Error("Error stopping conS", "err", err)
+		return
+	}
+}
+
 // GetChannels implements Reactor
 func (conR *ConsensusReactor) GetChannels() []*p2p.ChannelDescriptor {
 	// TODO optimize
@@ -217,6 +225,7 @@ func (conR *ConsensusReactor) Receive(chID byte, src p2p.Peer, msgBytes []byte) 
 				conR.Switch.StopPeerForError(src, err)
 				return
 			}
+
 			// Respond with a VoteSetBitsMessage showing which votes we have.
 			// (and consequently shows which we don't have)
 			var ourVotes *cmn.BitArray
@@ -432,6 +441,10 @@ func makeRoundStepMessages(rs *cstypes.RoundState) (nrsMsg *NewRoundStepMessage,
 		}
 	}
 	return
+}
+
+func (conR *ConsensusReactor) IsProposer() bool {
+	return conR.conS.isProposer()
 }
 
 func (conR *ConsensusReactor) sendNewRoundStepMessages(peer p2p.Peer) {

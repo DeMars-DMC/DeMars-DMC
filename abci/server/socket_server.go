@@ -178,10 +178,10 @@ func (s *SocketServer) handleRequest(req *types.Request, responses chan<- *types
 		res := s.app.SetOption(*r.SetOption)
 		responses <- types.ToResponseSetOption(res)
 	case *types.Request_DeliverTx:
-		res := s.app.DeliverTx(r.DeliverTx.Tx)
+		res := s.app.DeliverTx(r.DeliverTx.Tx, r.DeliverTx.Height)
 		responses <- types.ToResponseDeliverTx(res)
 	case *types.Request_CheckTx:
-		res := s.app.CheckTx(r.CheckTx.Tx)
+		res := s.app.CheckTx(r.CheckTx.Tx, r.CheckTx.Height)
 		responses <- types.ToResponseCheckTx(res)
 	case *types.Request_Commit:
 		res := s.app.Commit()
@@ -198,8 +198,12 @@ func (s *SocketServer) handleRequest(req *types.Request, responses chan<- *types
 	case *types.Request_EndBlock:
 		res := s.app.EndBlock(*r.EndBlock)
 		responses <- types.ToResponseEndBlock(res)
+	case *types.Request_GetValidatorSet:
+		res := s.app.GetValidatorSet(r.GetValidatorSet.Height)
+		responses <- types.ToResponseGetValidatorSet(res)
 	default:
-		responses <- types.ToResponseException("Unknown request")
+		s.Logger.Debug("Could not parse request")
+		responses <- types.ToResponseException("sUnknown request")
 	}
 }
 

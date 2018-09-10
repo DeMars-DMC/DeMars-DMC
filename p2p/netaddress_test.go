@@ -11,12 +11,13 @@ import (
 func TestNewNetAddress(t *testing.T) {
 	tcpAddr, err := net.ResolveTCPAddr("tcp", "127.0.0.1:8080")
 	require.Nil(t, err)
-	addr := NewNetAddress("", tcpAddr)
+	peer, _ := HexID("peer")
+	addr := NewNetAddress(peer, tcpAddr)
 
 	assert.Equal(t, "127.0.0.1:8080", addr.String())
 
 	assert.NotPanics(t, func() {
-		NewNetAddress("", &net.UDPAddr{IP: net.ParseIP("127.0.0.1"), Port: 8000})
+		NewNetAddress(peer, &net.UDPAddr{IP: net.ParseIP("127.0.0.1"), Port: 8000})
 	}, "Calling NewNetAddress with UDPAddr should not panic in testing")
 }
 
@@ -39,13 +40,13 @@ func TestNewNetAddressStringWithOptionalID(t *testing.T) {
 
 		{"deadbeef@127.0.0.1:8080", "", false},
 		{"this-isnot-hex@127.0.0.1:8080", "", false},
-		{"xxxxbeefdeadbeefdeadbeefdeadbeefdeadbeef@127.0.0.1:8080", "", false},
-		{"deadbeefdeadbeefdeadbeefdeadbeefdeadbeef@127.0.0.1:8080", "deadbeefdeadbeefdeadbeefdeadbeefdeadbeef@127.0.0.1:8080", true},
+		{"xxxxbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef@127.0.0.1:8080", "", false},
+		{"deadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef@127.0.0.1:8080", "deadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef@127.0.0.1:8080", true},
 
 		{"tcp://deadbeef@127.0.0.1:8080", "", false},
 		{"tcp://this-isnot-hex@127.0.0.1:8080", "", false},
-		{"tcp://xxxxbeefdeadbeefdeadbeefdeadbeefdeadbeef@127.0.0.1:8080", "", false},
-		{"tcp://deadbeefdeadbeefdeadbeefdeadbeefdeadbeef@127.0.0.1:8080", "deadbeefdeadbeefdeadbeefdeadbeefdeadbeef@127.0.0.1:8080", true},
+		{"tcp://xxxxbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef@127.0.0.1:8080", "", false},
+		{"tcp://deadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef@127.0.0.1:8080", "deadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef@127.0.0.1:8080", true},
 
 		{"tcp://@127.0.0.1:8080", "", false},
 		{"tcp://@", "", false},
@@ -74,7 +75,7 @@ func TestNewNetAddressString(t *testing.T) {
 		correct  bool
 	}{
 		{"127.0.0.1:8080", "127.0.0.1:8080", false},
-		{"deadbeefdeadbeefdeadbeefdeadbeefdeadbeef@127.0.0.1:8080", "deadbeefdeadbeefdeadbeefdeadbeefdeadbeef@127.0.0.1:8080", true},
+		{"deadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef@127.0.0.1:8080", "deadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef@127.0.0.1:8080", true},
 	}
 
 	for _, tc := range testCases {
@@ -92,8 +93,8 @@ func TestNewNetAddressString(t *testing.T) {
 func TestNewNetAddressStrings(t *testing.T) {
 	addrs, errs := NewNetAddressStrings([]string{
 		"127.0.0.1:8080",
-		"deadbeefdeadbeefdeadbeefdeadbeefdeadbeef@127.0.0.1:8080",
-		"deadbeefdeadbeefdeadbeefdeadbeefdeadbeed@127.0.0.2:8080"})
+		"deadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef@127.0.0.1:8080",
+		"deadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef@127.0.0.2:8080"})
 	assert.Len(t, errs, 1)
 	assert.Equal(t, 2, len(addrs))
 }

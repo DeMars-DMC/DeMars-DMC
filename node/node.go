@@ -8,10 +8,9 @@ import (
 	"net"
 	"net/http"
 
+	amino "github.com/tendermint/go-amino"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 
-	amino "github.com/tendermint/go-amino"
-	abci "github.com/tendermint/tendermint/abci/types"
 	cmn "github.com/tendermint/tendermint/libs/common"
 	dbm "github.com/tendermint/tendermint/libs/db"
 	"github.com/tendermint/tendermint/libs/log"
@@ -20,25 +19,25 @@ import (
 	cfg "github.com/tendermint/tendermint/config"
 	cs "github.com/tendermint/tendermint/consensus"
 	"github.com/tendermint/tendermint/crypto"
-	"github.com/tendermint/tendermint/evidence"
 	mempl "github.com/tendermint/tendermint/mempool"
 	"github.com/tendermint/tendermint/p2p"
-	"github.com/tendermint/tendermint/p2p/pex"
 	"github.com/tendermint/tendermint/privval"
 	"github.com/tendermint/tendermint/proxy"
 	rpccore "github.com/tendermint/tendermint/rpc/core"
 	ctypes "github.com/tendermint/tendermint/rpc/core/types"
 	grpccore "github.com/tendermint/tendermint/rpc/grpc"
-	rpc "github.com/tendermint/tendermint/rpc/lib"
-	rpcserver "github.com/tendermint/tendermint/rpc/lib/server"
+	"github.com/tendermint/tendermint/rpc/lib"
+	"github.com/tendermint/tendermint/rpc/lib/server"
 	sm "github.com/tendermint/tendermint/state"
 	"github.com/tendermint/tendermint/state/txindex"
-	"github.com/tendermint/tendermint/state/txindex/kv"
 	"github.com/tendermint/tendermint/state/txindex/null"
 	"github.com/tendermint/tendermint/types"
 	"github.com/tendermint/tendermint/version"
+	"github.com/tendermint/tendermint/p2p/kademlia"
+	abci "github.com/tendermint/tendermint/abci/types"
 
 	_ "net/http/pprof"
+	"github.com/tendermint/tendermint/state/txindex/kv"
 )
 
 //------------------------------------------------------------------------------
@@ -117,7 +116,6 @@ type Node struct {
 
 	// network
 	sw       *p2p.Switch  // p2p connections
-	addrBook pex.AddrBook // known peers
 
 	// services
 	eventBus         *types.EventBus // pub/sub for services
@@ -127,7 +125,6 @@ type Node struct {
 	mempoolReactor   *mempl.MempoolReactor  // for gossipping transactions
 	consensusState   *cs.ConsensusState     // latest consensus state
 	consensusReactor *cs.ConsensusReactor   // for participating in the consensus
-	evidencePool     *evidence.EvidencePool // tracking evidence
 	proxyApp         proxy.AppConns         // connection to the application
 	rpcListeners     []net.Listener         // rpc servers
 	txIndexer        txindex.TxIndexer
@@ -223,9 +220,11 @@ func NewNode(config *cfg.Config,
 
 	// Log whether this node is a validator or an observer
 	if state.Validators.HasAddress(privValidator.GetAddress()) {
-		consensusLogger.Info("This node is a validator", "addr", privValidator.GetAddress(), "pubKey", privValidator.GetPubKey())
+		consensusLogger.Info("This node is a validator", "addr",
+			privValidator.GetAddress(), "pubKey", privValidator.GetPubKey())
 	} else {
-		consensusLogger.Info("This node is not a validator", "addr", privValidator.GetAddress(), "pubKey", privValidator.GetPubKey())
+		consensusLogger.Info("This node is not a validator", "addr",
+			privValidator.GetAddress(), "pubKey", privValidator.GetPubKey())
 	}
 
 	// metrics
@@ -253,29 +252,18 @@ func NewNode(config *cfg.Config,
 	mempoolReactor := mempl.NewMempoolReactor(config.Mempool, mempool)
 	mempoolReactor.SetLogger(mempoolLogger)
 
-	if config.Consensus.WaitForTxs() {
-		mempool.EnableTxsAvailable()
-	}
-
-	// Make Evidence Reactor
-	evidenceDB, err := dbProvider(&DBContext{"evidence", config})
-	if err != nil {
-		return nil, err
-	}
-	evidenceLogger := logger.With("module", "evidence")
-	evidenceStore := evidence.NewEvidenceStore(evidenceDB)
-	evidencePool := evidence.NewEvidencePool(stateDB, evidenceStore)
-	evidencePool.SetLogger(evidenceLogger)
-	evidenceReactor := evidence.NewEvidenceReactor(evidencePool)
-	evidenceReactor.SetLogger(evidenceLogger)
-
 	blockExecLogger := logger.With("module", "state")
 	// make block executor for consensus and blockchain reactors to execute blocks
-	blockExec := sm.NewBlockExecutor(stateDB, blockExecLogger, proxyApp.Consensus(), mempool, evidencePool)
+	blockExec := sm.NewBlockExecutor(stateDB, blockExecLogger, proxyApp.Consensus(), mempool)
 
 	// Make BlockchainReactor
 	bcReactor := bc.NewBlockchainReactor(state.Copy(), blockExec, blockStore, fastSync)
 	bcReactor.SetLogger(logger.With("module", "blockchain"))
+
+	mempool.BCReactor = bcReactor
+	if config.Consensus.WaitForTxs() {
+		mempool.EnableTxsAvailable()
+	}
 
 	// Make ConsensusReactor
 	consensusState := cs.NewConsensusState(
@@ -284,7 +272,6 @@ func NewNode(config *cfg.Config,
 		blockExec,
 		blockStore,
 		mempool,
-		evidencePool,
 		cs.WithMetrics(csMetrics),
 	)
 	consensusState.SetLogger(consensusLogger)
@@ -301,34 +288,11 @@ func NewNode(config *cfg.Config,
 	sw.AddReactor("MEMPOOL", mempoolReactor)
 	sw.AddReactor("BLOCKCHAIN", bcReactor)
 	sw.AddReactor("CONSENSUS", consensusReactor)
-	sw.AddReactor("EVIDENCE", evidenceReactor)
 
-	// Optionally, start the pex reactor
-	//
-	// TODO:
-	//
-	// We need to set Seeds and PersistentPeers on the switch,
-	// since it needs to be able to use these (and their DNS names)
-	// even if the PEX is off. We can include the DNS name in the NetAddress,
-	// but it would still be nice to have a clear list of the current "PersistentPeers"
-	// somewhere that we can return with net_info.
-	//
-	// If PEX is on, it should handle dialing the seeds. Otherwise the switch does it.
-	// Note we currently use the addrBook regardless at least for AddOurAddress
-	addrBook := pex.NewAddrBook(config.P2P.AddrBookFile(), config.P2P.AddrBookStrict)
-	addrBook.SetLogger(p2pLogger.With("book", config.P2P.AddrBookFile()))
-	if config.P2P.PexReactor {
-		// TODO persistent peers ? so we can have their DNS addrs saved
-		pexReactor := pex.NewPEXReactor(addrBook,
-			&pex.PEXReactorConfig{
-				Seeds:          cmn.SplitAndTrim(config.P2P.Seeds, ",", " "),
-				SeedMode:       config.P2P.SeedMode,
-				PrivatePeerIDs: cmn.SplitAndTrim(config.P2P.PrivatePeerIDs, ",", " ")})
-		pexReactor.SetLogger(p2pLogger)
-		sw.AddReactor("PEX", pexReactor)
-	}
-
-	sw.SetAddrBook(addrBook)
+	// Start the KademliaReactor
+	kademliaReactor := kademlia.NewKademliaReactor()
+	kademliaReactor.SetLogger(p2pLogger)
+	sw.AddReactor("KADEMLIA", kademliaReactor)
 
 	// Filter peers by addr or pubkey with an ABCI query.
 	// If the query return code is OK, add peer.
@@ -336,7 +300,8 @@ func NewNode(config *cfg.Config,
 	if config.FilterPeers {
 		// NOTE: addr is ip:port
 		sw.SetAddrFilter(func(addr net.Addr) error {
-			resQuery, err := proxyApp.Query().QuerySync(abci.RequestQuery{Path: cmn.Fmt("/p2p/filter/addr/%s", addr.String())})
+			resQuery, err := proxyApp.Query().QuerySync(abci.RequestQuery{Path: cmn.Fmt("/p2p/filter/addr/%s",
+				addr.String())})
 			if err != nil {
 				return err
 			}
@@ -345,8 +310,9 @@ func NewNode(config *cfg.Config,
 			}
 			return nil
 		})
-		sw.SetIDFilter(func(id p2p.ID) error {
-			resQuery, err := proxyApp.Query().QuerySync(abci.RequestQuery{Path: cmn.Fmt("/p2p/filter/id/%s", id)})
+		sw.SetIDFilter(func(id p2p.NodeID) error {
+			resQuery, err := proxyApp.Query().QuerySync(abci.RequestQuery{Path: cmn.Fmt("/p2p/filter/id/%s",
+				id)})
 			if err != nil {
 				return err
 			}
@@ -373,7 +339,8 @@ func NewNode(config *cfg.Config,
 			return nil, err
 		}
 		if config.TxIndex.IndexTags != "" {
-			txIndexer = kv.NewTxIndex(store, kv.IndexTags(cmn.SplitAndTrim(config.TxIndex.IndexTags, ",", " ")))
+			txIndexer = kv.NewTxIndex(store, kv.IndexTags(cmn.SplitAndTrim(config.TxIndex.IndexTags, ",",
+				" ")))
 		} else if config.TxIndex.IndexAllTags {
 			txIndexer = kv.NewTxIndex(store, kv.IndexAllTags())
 		} else {
@@ -400,7 +367,6 @@ func NewNode(config *cfg.Config,
 		privValidator: privValidator,
 
 		sw:       sw,
-		addrBook: addrBook,
 
 		stateDB:          stateDB,
 		blockStore:       blockStore,
@@ -408,7 +374,6 @@ func NewNode(config *cfg.Config,
 		mempoolReactor:   mempoolReactor,
 		consensusState:   consensusState,
 		consensusReactor: consensusReactor,
-		evidencePool:     evidencePool,
 		proxyApp:         proxyApp,
 		txIndexer:        txIndexer,
 		indexerService:   indexerService,
@@ -445,9 +410,6 @@ func (n *Node) OnStart() error {
 	n.sw.SetNodeInfo(nodeInfo)
 	n.sw.SetNodeKey(nodeKey)
 
-	// Add ourselves to addrbook to prevent dialing ourselves
-	n.addrBook.AddOurAddress(nodeInfo.NetAddress())
-
 	// Start the RPC server before the P2P server
 	// so we can eg. receive txs for the first block
 	if n.config.RPC.ListenAddress != "" {
@@ -466,14 +428,6 @@ func (n *Node) OnStart() error {
 	err = n.sw.Start()
 	if err != nil {
 		return err
-	}
-
-	// Always connect to persistent peers
-	if n.config.P2P.PersistentPeers != "" {
-		err = n.sw.DialPeersAsync(n.addrBook, cmn.SplitAndTrim(n.config.P2P.PersistentPeers, ",", " "), true)
-		if err != nil {
-			return err
-		}
 	}
 
 	// start tx indexer
@@ -507,7 +461,7 @@ func (n *Node) OnStop() {
 	if n.prometheusSrv != nil {
 		if err := n.prometheusSrv.Shutdown(context.Background()); err != nil {
 			// Error from closing listeners, or context timeout:
-			n.Logger.Error("Prometheus HTTP server Shutdown", "err", err)
+			n.Logger.Error("Prometheus HTTP server ShutdoRwn", "err", err)
 		}
 	}
 }
@@ -534,11 +488,9 @@ func (n *Node) ConfigureRPC() {
 	rpccore.SetBlockStore(n.blockStore)
 	rpccore.SetConsensusState(n.consensusState)
 	rpccore.SetMempool(n.mempoolReactor.Mempool)
-	rpccore.SetEvidencePool(n.evidencePool)
 	rpccore.SetSwitch(n.sw)
 	rpccore.SetPubKey(n.privValidator.GetPubKey())
 	rpccore.SetGenesisDoc(n.genesisDoc)
-	rpccore.SetAddrBook(n.addrBook)
 	rpccore.SetProxyAppQuery(n.proxyApp.Query())
 	rpccore.SetTxIndexer(n.txIndexer)
 	rpccore.SetConsensusReactor(n.consensusReactor)
@@ -636,11 +588,6 @@ func (n *Node) MempoolReactor() *mempl.MempoolReactor {
 	return n.mempoolReactor
 }
 
-// EvidencePool returns the Node's EvidencePool.
-func (n *Node) EvidencePool() *evidence.EvidencePool {
-	return n.evidencePool
-}
-
 // EventBus returns the Node's EventBus.
 func (n *Node) EventBus() *types.EventBus {
 	return n.eventBus
@@ -662,7 +609,7 @@ func (n *Node) ProxyApp() proxy.AppConns {
 	return n.proxyApp
 }
 
-func (n *Node) makeNodeInfo(nodeID p2p.ID) p2p.NodeInfo {
+func (n *Node) makeNodeInfo(nodeID p2p.NodeID) p2p.NodeInfo {
 	txIndexerStatus := "on"
 	if _, ok := n.txIndexer.(*null.TxIndex); ok {
 		txIndexerStatus = "off"
@@ -675,7 +622,6 @@ func (n *Node) makeNodeInfo(nodeID p2p.ID) p2p.NodeInfo {
 			bc.BlockchainChannel,
 			cs.StateChannel, cs.DataChannel, cs.VoteChannel, cs.VoteSetBitsChannel,
 			mempl.MempoolChannel,
-			evidence.EvidenceChannel,
 		},
 		Moniker: n.config.Moniker,
 		Other: []string{
@@ -688,7 +634,7 @@ func (n *Node) makeNodeInfo(nodeID p2p.ID) p2p.NodeInfo {
 	}
 
 	if n.config.P2P.PexReactor {
-		nodeInfo.Channels = append(nodeInfo.Channels, pex.PexChannel)
+		nodeInfo.Channels = append(nodeInfo.Channels, kademlia.KademliaChannel)
 	}
 
 	rpcListenAddr := n.config.RPC.ListenAddress
@@ -728,7 +674,8 @@ func loadGenesisDoc(db dbm.DB) (*types.GenesisDoc, error) {
 	var genDoc *types.GenesisDoc
 	err := cdc.UnmarshalJSON(bytes, &genDoc)
 	if err != nil {
-		cmn.PanicCrisis(fmt.Sprintf("Failed to load genesis doc due to unmarshaling error: %v (bytes: %X)", err, bytes))
+		cmn.PanicCrisis(fmt.Sprintf("Failed to load genesis doc due to unmarshaling error: %v (bytes: %X)",
+			err, bytes))
 	}
 	return genDoc, nil
 }

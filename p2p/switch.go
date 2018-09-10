@@ -68,7 +68,7 @@ type Switch struct {
 	addrBook     AddrBook
 
 	filterConnByAddr func(net.Addr) error
-	filterConnByID   func(ID) error
+	filterConnByID   func(NodeID) error
 
 	mConfig conn.MConnConfig
 
@@ -311,11 +311,11 @@ func (sw *Switch) stopAndRemovePeer(peer Peer, reason interface{}) {
 //  - ie. if we're getting ErrDuplicatePeer we can stop
 //  	because the addrbook got us the peer back already
 func (sw *Switch) reconnectToPeer(addr *NetAddress) {
-	if sw.reconnecting.Has(string(addr.ID)) {
+	if sw.reconnecting.Has(string(addr.ID.ID[:])) {
 		return
 	}
-	sw.reconnecting.Set(string(addr.ID), addr)
-	defer sw.reconnecting.Delete(string(addr.ID))
+	sw.reconnecting.Set(string(addr.ID.ID[:]), addr)
+	defer sw.reconnecting.Delete(string(addr.ID.ID[:]))
 
 	start := time.Now()
 	sw.Logger.Info("Reconnecting to peer", "addr", addr)
@@ -436,8 +436,8 @@ func (sw *Switch) DialPeersAsync(addrBook AddrBook, peers []string, persistent b
 // DialPeerWithAddress dials the given peer and runs sw.addPeer if it connects and authenticates successfully.
 // If `persistent == true`, the switch will always try to reconnect to this peer if the connection ever fails.
 func (sw *Switch) DialPeerWithAddress(addr *NetAddress, persistent bool) error {
-	sw.dialing.Set(string(addr.ID), addr)
-	defer sw.dialing.Delete(string(addr.ID))
+	sw.dialing.Set(string(addr.ID.ID[:]), addr)
+	defer sw.dialing.Delete(string(addr.ID.ID[:]))
 	return sw.addOutboundPeerWithConfig(addr, sw.config, persistent)
 }
 
@@ -459,7 +459,7 @@ func (sw *Switch) FilterConnByAddr(addr net.Addr) error {
 }
 
 // FilterConnByID returns an error if connecting to the given peer ID is forbidden.
-func (sw *Switch) FilterConnByID(id ID) error {
+func (sw *Switch) FilterConnByID(id NodeID) error {
 	if sw.filterConnByID != nil {
 		return sw.filterConnByID(id)
 	}
@@ -473,7 +473,7 @@ func (sw *Switch) SetAddrFilter(f func(net.Addr) error) {
 }
 
 // SetIDFilter sets the function for filtering connections by peer ID.
-func (sw *Switch) SetIDFilter(f func(ID) error) {
+func (sw *Switch) SetIDFilter(f func(NodeID) error) {
 	sw.filterConnByID = f
 }
 

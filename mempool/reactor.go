@@ -27,6 +27,7 @@ type MempoolReactor struct {
 	p2p.BaseReactor
 	config  *cfg.MempoolConfig
 	Mempool *Mempool
+	UnprocessedTxs []types.Tx
 }
 
 // NewMempoolReactor returns a new MempoolReactor with the given config and mempool.
@@ -34,6 +35,7 @@ func NewMempoolReactor(config *cfg.MempoolConfig, mempool *Mempool) *MempoolReac
 	memR := &MempoolReactor{
 		config:  config,
 		Mempool: mempool,
+		UnprocessedTxs: make([]types.Tx, 100),
 	}
 	memR.BaseReactor = *p2p.NewBaseReactor("MempoolReactor", memR)
 	return memR
@@ -50,7 +52,31 @@ func (memR *MempoolReactor) OnStart() error {
 	if !memR.config.Broadcast {
 		memR.Logger.Info("Tx broadcasting is disabled")
 	}
+
+	go memR.poolRoutine()
+
 	return nil
+}
+
+func (memR *MempoolReactor) poolRoutine() {
+	checkUnprocessedTxs := time.NewTicker(50 * time.Millisecond)
+	for {
+		select {
+		case <-checkUnprocessedTxs.C:
+			for i := 0; i < 100; i++ {
+				if memR.UnprocessedTxs[i] != nil {
+					err, bucketID := memR.Mempool.CheckTx(memR.UnprocessedTxs[i], nil)
+					if err != nil {
+						memR.Logger.Info("Could not check tx", "tx", TxID(memR.UnprocessedTxs[i]), "err", err)
+					}
+					if bucketID == "" {
+						// Transaction has been checked
+						memR.UnprocessedTxs[i] = nil
+					}
+				}
+			}
+		}
+	}
 }
 
 // GetChannels implements Reactor.
@@ -88,9 +114,17 @@ func (memR *MempoolReactor) Receive(chID byte, src p2p.Peer, msgBytes []byte) {
 
 	switch msg := msg.(type) {
 	case *TxMessage:
-		err := memR.Mempool.CheckTx(msg.Tx, nil)
+		err, bucketID := memR.Mempool.CheckTx(msg.Tx, nil)
 		if err != nil {
 			memR.Logger.Info("Could not check tx", "tx", TxID(msg.Tx), "err", err)
+		}
+		if bucketID != "" {
+			// We need to wait for this bucket chain to be retrieved from peers
+			for i := 0; i < 100; i++ {
+				if memR.UnprocessedTxs[i] == nil {
+					memR.UnprocessedTxs[i] = msg.Tx
+				}
+			}
 		}
 		// broadcasting happens from go routines per peer
 	default:
@@ -99,7 +133,7 @@ func (memR *MempoolReactor) Receive(chID byte, src p2p.Peer, msgBytes []byte) {
 }
 
 // BroadcastTx is an alias for Mempool.CheckTx. Broadcasting itself happens in peer routines.
-func (memR *MempoolReactor) BroadcastTx(tx types.Tx, cb func(*abci.Response)) error {
+func (memR *MempoolReactor) BroadcastTx(tx types.Tx, cb func(*abci.Response)) (error, string) {
 	return memR.Mempool.CheckTx(tx, cb)
 }
 
