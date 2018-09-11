@@ -1,12 +1,10 @@
-package kvstore
+package dmccoin
 
 import (
 	"encoding/json"
 	"fmt"
 	"sort"
-
 	crypto "github.com/tendermint/tendermint/crypto"
-
 	wire "github.com/tendermint/go-wire"
 	"github.com/tendermint/go-wire/data"
 )
@@ -32,7 +30,10 @@ func TopkAccounts(acc []Account, k int) []Account {
 	sort.Slice(accounts, func(i int, j int) bool {
 		return accounts[i].Balance < accounts[j].Balance
 	})
-	return accounts[0:k]
+	if (k < len(accounts)) {
+		return accounts[0:k]
+	}
+	return accounts[:]
 }
 
 func (acc *Account) Copy() *Account {

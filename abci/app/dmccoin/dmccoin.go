@@ -1,14 +1,12 @@
-package kvstore
+package dmccoin
 
 import (
 	"encoding/json"
 	"fmt"
-
 	"github.com/tendermint/tendermint/libs/log"
-
 	wire "github.com/tendermint/go-wire"
 	"github.com/tendermint/go-wire/data"
-	"github.com/tendermint/tendermint/abci/example/code"
+	"github.com/tendermint/tendermint/abci/app/code"
 	"github.com/tendermint/tendermint/abci/types"
 )
 
@@ -27,9 +25,9 @@ func prefixKey(key []byte) []byte {
 
 //---------------------------------------------------
 
-var _ types.Application = (*KVStoreApplication)(nil)
+var _ types.Application = (*DMCCoinApplication)(nil)
 
-type KVStoreApplication struct {
+type DMCCoinApplication struct {
 	types.BaseApplication
 
 	state      State
@@ -37,24 +35,24 @@ type KVStoreApplication struct {
 	logger     log.Logger
 }
 
-func NewKVStoreApplication(logger log.Logger) *KVStoreApplication {
-	return &KVStoreApplication{
+func NewDMCCoinApplication(logger log.Logger) *DMCCoinApplication {
+	return &DMCCoinApplication{
 		state:  *NewState(NewMemKVS(), logger),
 		logger: logger,
 	}
 
 }
 
-func (app *KVStoreApplication) SetInitAccount(address data.Bytes, balance uint64) {
+func (app *DMCCoinApplication) SetInitAccount(address data.Bytes, balance uint64) {
 	app.state.SetAccount(address, &Account{PubKey: nil, Height: 0, Balance: balance, Address: address})
 }
 
-func (app *KVStoreApplication) Info(req types.RequestInfo) (resInfo types.ResponseInfo) {
+func (app *DMCCoinApplication) Info(req types.RequestInfo) (resInfo types.ResponseInfo) {
 	return types.ResponseInfo{Data: fmt.Sprintf("{\"size\":%v}", 0)}
 }
 
 // tx is either "key=value" or just arbitrary bytes
-func (app *KVStoreApplication) DeliverTx(txBytes []byte, height int64) types.ResponseDeliverTx {
+func (app *DMCCoinApplication) DeliverTx(txBytes []byte, height int64) types.ResponseDeliverTx {
 	if len(txBytes) > maxTxSize {
 		return types.ResponseDeliverTx{Code: 1}
 	}
@@ -71,11 +69,11 @@ func (app *KVStoreApplication) DeliverTx(txBytes []byte, height int64) types.Res
 	return types.ResponseDeliverTx{Code: 0}
 }
 
-func (app *KVStoreApplication) GetState() *State {
+func (app *DMCCoinApplication) GetState() *State {
 	return &app.state
 }
 
-func (app *KVStoreApplication) DeliverBucketedTx(txBytes []byte, height int64, bucketID string) (res types.ResponseDeliverTx) {
+func (app *DMCCoinApplication) DeliverBucketedTx(txBytes []byte, height int64, bucketID string) (res types.ResponseDeliverTx) {
 	if len(txBytes) > maxTxSize {
 		return types.ResponseDeliverTx{Code: 1}
 	}
@@ -98,7 +96,7 @@ func (app *KVStoreApplication) DeliverBucketedTx(txBytes []byte, height int64, b
 	return types.ResponseDeliverTx{}
 }
 
-func (app *KVStoreApplication) CheckTx(txBytes []byte, height int64) types.ResponseCheckTx {
+func (app *DMCCoinApplication) CheckTx(txBytes []byte, height int64) types.ResponseCheckTx {
 	app.logger.Debug("Checking transaction")
 	if len(txBytes) > maxTxSize {
 		app.logger.Debug("Max transaction size exceeded")
@@ -106,7 +104,7 @@ func (app *KVStoreApplication) CheckTx(txBytes []byte, height int64) types.Respo
 
 	}
 
-	var trx TxUTXO
+	trx := TxUTXO{} 
 	trs := DMCTx{}
 	if height%100 == 1 {
 		_ = wire.ReadBinaryBytes(txBytes, &trx)
@@ -134,63 +132,61 @@ func (app *KVStoreApplication) CheckTx(txBytes []byte, height int64) types.Respo
 	return types.ResponseCheckTx{Code: code.CodeTypeOK}
 }
 
-func (app *KVStoreApplication) GetValidatorSet(height int64) (res types.ResponseGetValidatorSet) {
+// FIXME: At the moment this call is also used to get UTXO account balances
+func (app *DMCCoinApplication) GetValidatorSet(height int64) (res types.ResponseGetValidatorSet) {
 	app.logger.Debug(fmt.Sprintf("Retrieving validator set at height %d", height))
 	if height < 0 {
-		allaccounts := app.GetState().GetAllAccounts()
+		allAccounts := app.GetState().GetAllAccounts()
 
 		accBalances := make([]types.Validator, 0)
 
-		for _, acc1 := range allaccounts {
+		for _, acc1 := range allAccounts {
 			validator := types.Validator{}
 			validator.Power = int64(acc1.Balance)
 			validator.Address = acc1.Address
 			accBalances = append(accBalances, validator)
 		}
-		app.logger.Debug(fmt.Sprintf("Got %d validators", len(allaccounts)))
-		app.logger.Debug(fmt.Sprintf("Val1: %d", allaccounts[0].Balance))
+		app.logger.Debug(fmt.Sprintf("Got %d validators", len(allAccounts)))
+		app.logger.Debug(fmt.Sprintf("Val1: %d", allAccounts[0].Balance))
 		
 		return types.ResponseGetValidatorSet{ValidatorSet: accBalances}
-	} else {
-		segmentID := height % 100
-		SegmentHex := fmt.Sprintf("%x", segmentID)
-		lastUTXOheight := (height/100)*100 + 1
-
-		accs := app.GetState().GetAllAccountsInSegment([]byte(SegmentHex), 2)
-		app.logger.Debug(fmt.Sprintf("Number of validators: %d", len(accs)))
-		app.logger.Debug(fmt.Sprintf("Validator Address: %d", accs[0].Address))
-		app.logger.Debug(fmt.Sprintf("Validator Height: %d", accs[0].Height))
-		app.logger.Debug(fmt.Sprintf("Last UTXO Height: %d", lastUTXOheight))
-		for _, acc := range accs {
-			if acc.Height >= (int)(lastUTXOheight) {
-				// Abnormal behaviour: we do not have the latest account balances
-				// FIXME: We need to keep track of account balances at last UTXO to get
-				// list of validators
-				return types.ResponseGetValidatorSet{}
-			}
-		}
-		validatorAccounts := TopkAccounts(accs, 100)
-		validatorSet := make([]types.Validator, 0)
-
-		for _, acc1 := range validatorAccounts {
-			validator := types.Validator{}
-			validator.Power = 1
-			validator.Address = acc1.Address
-			validatorSet = append(validatorSet, validator)
-		}
-		return types.ResponseGetValidatorSet{ValidatorSet: validatorSet}
 	}
+
+	segmentID := height % 100
+	SegmentHex := fmt.Sprintf("%x", segmentID)
+	lastUTXOheight := (height / 100) * 100 + 1
+
+	accs := app.GetState().GetAllAccountsInSegment([]byte(SegmentHex), 2)
+	app.logger.Debug(fmt.Sprintf("Number of validators: %d", len(accs)))
+	app.logger.Debug(fmt.Sprintf("Validator Address: %d", accs[0].Address))
+	app.logger.Debug(fmt.Sprintf("Validator Height: %d", accs[0].Height))
+	app.logger.Debug(fmt.Sprintf("Last UTXO Height: %d", lastUTXOheight))
+	for _, acc := range accs {
+		if acc.Height >= (int)(lastUTXOheight) {
+			// Abnormal behaviour: we do not have the latest account balances
+			// FIXME: We need to keep track of account balances at last UTXO to get
+			// list of validators
+			return types.ResponseGetValidatorSet{}
+		}
+	}
+	validatorAccounts := TopkAccounts(accs, 100)
+	validatorSet := make([]types.Validator, 0)
+
+	for _, acc1 := range validatorAccounts {
+		validator := types.Validator{}
+		validator.Power = 1
+		validator.Address = acc1.Address
+		validatorSet = append(validatorSet, validator)
+	}
+	return types.ResponseGetValidatorSet{ValidatorSet: validatorSet}
 }
-func (app *KVStoreApplication) Commit() types.ResponseCommit {
+func (app *DMCCoinApplication) Commit() types.ResponseCommit {
 	// Using a memdb - just return the big endian size of the db
 	// Commit state
-	res := app.state.Commit()
-
-	if res == "" {
-	}
+	app.state.Commit()
 	return types.ResponseCommit{} //res
 }
 
-func (app *KVStoreApplication) Query(reqQuery types.RequestQuery) (resQuery types.ResponseQuery) {
+func (app *DMCCoinApplication) Query(reqQuery types.RequestQuery) (resQuery types.ResponseQuery) {
 	return
 }
