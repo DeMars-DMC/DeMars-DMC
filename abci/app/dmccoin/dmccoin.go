@@ -106,8 +106,8 @@ func (app *DMCCoinApplication) CheckTx(txBytes []byte, height int64) types.Respo
 
 	trx := TxUTXO{} 
 	trs := DMCTx{}
-	if height%100 == 1 {
-		_ = wire.ReadBinaryBytes(txBytes, &trx)
+	if height % 100 == 1 {
+		json.Unmarshal(txBytes, &trx)
 		if app.GetState().GetAccount(trx.Address).Height != (int)(height-1) {
 			// get bucketIDs from address and return
 			var BucketIDs [1]string
@@ -123,11 +123,10 @@ func (app *DMCCoinApplication) CheckTx(txBytes []byte, height int64) types.Respo
 			app.logger.Debug(fmt.Sprintf("Wrong sequence. Expected: %d Got: %d", height, trs.Input.Sequence))
 			return types.ResponseCheckTx{Code: 1}
 		}
-		var BucketIDs []string
-		if app.GetState().GetAccount(trs.Input.Address).Height != (int)(height-1) {
-			BucketIDs[0] = string(trs.Input.Address[:2])
-		}
-		return types.ResponseCheckTx{BucketIDs: BucketIDs}
+		bucketIDs := make([]string, 1)
+		// We only need to check input address, the output address does not need to be validated
+		bucketIDs[0] = string(trs.Input.Address[:2])
+		return types.ResponseCheckTx{BucketIDs: bucketIDs}
 	}
 	return types.ResponseCheckTx{Code: code.CodeTypeOK}
 }
