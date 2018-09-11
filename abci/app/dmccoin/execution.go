@@ -100,14 +100,8 @@ func getInputs(state AccountGetter, ins []TxInput) (map[string]*Account, int) {
 	return accounts, 1
 }
 
-// @arun
 func getInput(state AccountGetter, in TxInput) (*Account, int) {
-	//accounts := types.Account{}
-
 	acc := state.GetAccount(in.Address)
-	// if acc == nil {
-	// 	return acc, abci.ErrBaseUnknownAddress
-	// }
 
 	if !in.PubKey.Equals(acc.PubKey) {
 		acc.PubKey = in.PubKey
@@ -191,11 +185,7 @@ func validateInputsAdvanced(accounts map[string]*Account, signBytes []byte, ins 
 
 func validateInputAdvanced(acc *Account, signBytes []byte, in TxInput) (res int) {
 	// Check sequence/coins
-	//height, balance := acc.Height, acc.Balance
 	balance := acc.Balance
-	//if seq+1 != in.Sequence {
-	//return abci.ErrBaseInvalidSequence.AppendLog(cmn.Fmt("Got %v, expected %v. (acc.seq=%v)", in.Sequence, seq+1, acc.Sequence))
-	//}
 	// Check amount
 	if balance < in.Coins {
 		return 0
@@ -247,8 +237,6 @@ func adjustByInputs(state AccountSetter, accounts map[string]*Account, ins []TxI
 }
 
 func adjustByInput(state AccountSetter, acc *Account, in TxInput) {
-	//for _, in := range ins {
-	//acc := accounts[string(in.Address)]
 	if acc == nil {
 		cmn.PanicSanity("adjustByInput() expects account in accounts")
 	}
@@ -260,33 +248,9 @@ func adjustByInput(state AccountSetter, acc *Account, in TxInput) {
 	state.SetAccount(in.Address, acc)
 }
 
-func adjustByOutputs(state *State, accounts map[string]*Account, outs []TxOutput, isCheckTx bool) {
-	/*for _, out := range outs {
-		destChain, outAddress, _ := out.ChainAndAddress() // already validated
-		if destChain != nil {
-			payload := ibc.CoinsPayload{outAddress, out.Coins}
-			ibc.SaveNewIBCPacket(state, state.GetChainID(), string(destChain), payload)
-			continue
-		}
-
-		acc := accounts[string(outAddress)]
-		if acc == nil {
-			cmn.PanicSanity("adjustByOutputs() expects account in accounts")
-		}
-		acc.Balance = acc.Balance + (out.Coins)
-		if !isCheckTx {
-			state.SetAccount(outAddress, acc)
-		}
-	}*/
-}
-
 func adjustByOutput(state *State, acc *Account, out TxOutput, isCheckTx bool) {
-	//_, outAddress, _ := out.ChainAndAddress() // already validated
-	//if destChain != nil {
-	//	payload := ibc.CoinsPayload{outAddress, out.Coins}
-	//	ibc.SaveNewIBCPacket(state, state.GetChainID(), string(destChain), payload)
-	//}
-	outAddress := out.Address
+	_, outAddress, _ := out.ChainAndAddress() // already validated
+
 	if acc == nil {
 		cmn.PanicSanity("adjustByOutputs() expects account in accounts")
 	}
