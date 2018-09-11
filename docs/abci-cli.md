@@ -10,11 +10,11 @@ Make sure you [have Go installed](https://golang.org/doc/install).
 
 Next, install the `abci-cli` tool and example applications:
 
-    go get github.com/tendermint/tendermint
+    go get github.com/demars-dmc/demars-dmc
 
 to get vendored dependencies:
 
-    cd $GOPATH/src/github.com/tendermint/tendermint
+    cd $GOPATH/src/github.com/demars-dmc/demars-dmc
     make get_tools
     make get_vendor_deps
     make install_abci
@@ -29,9 +29,8 @@ Now run `abci-cli` to see the list of commands:
       check_tx    Validate a tx
       commit      Commit the application state and return the Merkle root hash
       console     Start an interactive abci console for multiple commands
-      counter     ABCI demo example
       deliver_tx  Deliver a new tx to the application
-      kvstore       ABCI demo example
+      dmccoin     DéMars coin application
       echo        Have the application echo a message
       help        Help about any command
       info        Get some info about the application
@@ -45,7 +44,7 @@ Now run `abci-cli` to see the list of commands:
       -v, --verbose          print the command and results as if it were a console session
 
     Use "abci-cli [command] --help" for more information about a command.
-
+<!--
 ## KVStore - First Example
 
 The `abci-cli` tool lets us send ABCI messages to our application, to
@@ -65,7 +64,7 @@ and looks like:
 
     func cmdKVStore(cmd *cobra.Command, args []string) error {
         logger := log.NewTMLogger(log.NewSyncWriter(os.Stdout))
-    
+
         // Create the application - in memory or persisted to disk
         var app types.Application
         if flagPersist == "" {
@@ -74,7 +73,7 @@ and looks like:
             app = kvstore.NewPersistentKVStoreApplication(flagPersist)
             app.(*kvstore.PersistentKVStoreApplication).SetLogger(logger.With("module", "kvstore"))
         }
-    
+
         // Start the listener
         srv, err := server.NewServer(flagAddrD, flagAbci, app)
         if err != nil {
@@ -84,7 +83,7 @@ and looks like:
         if err := srv.Start(); err != nil {
             return err
         }
-    
+
         // Wait forever
         cmn.TrapSignal(func() {
             // Cleanup
@@ -207,11 +206,11 @@ Like the kvstore app, its code can be found
 and looks like:
 
     func cmdCounter(cmd *cobra.Command, args []string) error {
-    
+
         app := counter.NewCounterApplication(flagSerial)
-    
+
         logger := log.NewTMLogger(log.NewSyncWriter(os.Stdout))
-    
+
         // Start the listener
         srv, err := server.NewServer(flagAddrC, flagAbci, app)
         if err != nil {
@@ -221,7 +220,7 @@ and looks like:
         if err := srv.Start(); err != nil {
             return err
         }
-    
+
         // Wait forever
         cmn.TrapSignal(func() {
             // Cleanup
@@ -326,3 +325,4 @@ For more information, see the [application developers
 guide](./app-development.md). For examples of running an ABCI app with
 Tendermint, see the [getting started guide](./getting-started.md).
 Next is the ABCI specification.
+-->

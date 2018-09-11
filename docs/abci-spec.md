@@ -3,16 +3,16 @@
 ## Message Types
 
 ABCI requests/responses are defined as simple Protobuf messages in [this
-schema file](https://github.com/tendermint/tendermint/blob/develop/abci/types/types.proto).
-TendermintCore sends the requests, and the ABCI application sends the
+schema file](https://github.com/demars-dmc/demars-dmc/abci/types/types.proto).
+DéMars sends the requests, and the ABCI application sends the
 responses. Here, we provide an overview of the messages types and how
-they are used by Tendermint. Then we describe each request-response pair
+they are used by DéMars. Then we describe each request-response pair
 as a function with arguments and return values, and add some notes on
 usage.
 
-Some messages (`Echo, Info, InitChain, BeginBlock, EndBlock, Commit`),
-don't return errors because an error would indicate a critical failure
-in the application and there's nothing Tendermint can do. The problem
+Some messages (`Echo, Info, InitChain, BeginBlock, EndBlock, GetValidatorSet,
+Commit`), don't return errors because an error would indicate a critical
+failure in the application and there's nothing Tendermint can do. The problem
 should be addressed and both Tendermint and the application restarted.
 All other messages (`SetOption, Query, CheckTx, DeliverTx`) return an
 application-specific response `Code uint32`, where only `0` is reserved
@@ -23,20 +23,21 @@ non-deterministic data in the form of `Info` and `Log`. The `Log` is
 intended for the literal output from the application's logger, while the
 `Info` is any additional info that should be returned.
 
-The first time a new blockchain is started, Tendermint calls
+The first time a new blockchain is started, DéMars calls
 `InitChain`. From then on, the Block Execution Sequence that causes the
 committed state to be updated is as follows:
 
-`BeginBlock, [DeliverTx], EndBlock, Commit`
+`BeginBlock, [DeliverTx], EndBlock, GetValidatorSet, Commit`
 
 where one `DeliverTx` is called for each transaction in the block.
 Cryptographic commitments to the results of DeliverTx, EndBlock, and
 Commit are included in the header of the next block.
 
-Tendermint opens three connections to the application to handle the
+DéMars opens three connections to the application to handle the
 different message types:
 
--   `Consensus Connection - InitChain, BeginBlock, DeliverTx, EndBlock, Commit`
+-   `Consensus Connection - InitChain, BeginBlock, DeliverTx, EndBlock,
+GetValidatorSet, Commit`
 -   `Mempool Connection - CheckTx`
 -   `Info Connection - Info, SetOption, Query`
 
@@ -174,7 +175,8 @@ See below for more details on the message types and how they are used.
 ### CheckTx
 
 -   **Request**:
-    -   `Tx ([]byte)`: The request transaction bytes
+    -   `Tx ([]byte)`: The request transaction bytes.
+    -   `Height (int64)`: The height of block in which the transaction exists.
 -   **Response**:
     -   `Code (uint32)`: Response code
     -   `Data ([]byte)`: Result bytes, if any.
@@ -187,6 +189,7 @@ See below for more details on the message types and how they are used.
     -   `Tags ([]cmn.KVPair)`: Key-Value tags for filtering and indexing
         transactions (eg. by account).
     -   `Fee (cmn.KI64Pair)`: Fee paid for the transaction.
+    -   `BucketIDs ([]string)`: IDs of buckets to be fetched.
 -   **Usage**: Validate a mempool transaction, prior to broadcasting
     or proposing. CheckTx should perform stateful but light-weight
     checks of the validity of the transaction (like checking signatures
@@ -211,6 +214,8 @@ See below for more details on the message types and how they are used.
 
 -   **Request**:
     -   `Tx ([]byte)`: The request transaction bytes.
+    -   `Height (int64)`: The height of block in which the transaction exists.
+    -   `BucketID (string)`: The bucket ID of the sender.
 -   **Response**:
     -   `Code (uint32)`: Response code.
     -   `Data ([]byte)`: Result bytes, if any.
@@ -223,6 +228,7 @@ See below for more details on the message types and how they are used.
     -   `Tags ([]cmn.KVPair)`: Key-Value tags for filtering and indexing
         transactions (eg. by account).
     -   `Fee (cmn.KI64Pair)`: Fee paid for the transaction.
+    -   `BucketIDs ([]string)`: IDs of buckets to be fetched.
 -   **Usage**:
     -   Deliver a transaction to be executed in full by the application.
         If the transaction is valid, returns CodeType.OK.
@@ -245,6 +251,18 @@ See below for more details on the message types and how they are used.
     -   Called prior to each Commit, after all transactions.
     -   Validator set and consensus params are updated with the result.
     -   Validator pubkeys are expected to be go-wire encoded.
+
+### GetValidatorSet
+
+-   **Request**:
+    -   `Height (int64)`: Height of the block just executed.
+-   **Response**:
+    -   `ValidatorSet ([]Validator)`: List of validators for the next block.
+-   **Usage**:
+    -   Called after the end of a block.
+    -   Fetches the validators for the next block.
+    -   Called prior to each Commit, after all transactions.
+    -   Validator set is updated with the result.
 
 ### Commit
 
