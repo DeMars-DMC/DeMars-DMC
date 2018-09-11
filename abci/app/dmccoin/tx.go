@@ -1,4 +1,4 @@
-package kvstore
+package dmccoin
 
 import (
 	"bytes"
@@ -15,8 +15,8 @@ import (
 Tx (Transaction) is an atomic operation on the ledger state.
 
 Account Types:
- - DMCTx         Send coins to address (DMC)
- - AppTx         Send a msg to a contract that runs in the vm
+ - DMCTx         Send coins to address
+ - TxUTXO        Account balance update
 */
 type Tx interface {
 	AssertIsTx()
@@ -160,7 +160,6 @@ func (txOut TxOutput) String() string {
 }
 
 type TxUTXO struct {
-	//Tx map[*data.Bytes]int64 `json:"tx"`
 	Address data.Bytes `json:"address"` // Hash of the PubKey
 	Balance uint64     `json:"coins"`   //
 }
@@ -174,7 +173,6 @@ type DMCTx struct {
 }
 
 func (tx *DMCTx) SignBytes() []byte {
-	//signBytes := wire.BinaryBytes(chainID)
 	sigz := tx.Input.Signature
 	tx.Input.Signature = nil
 	signBytes := wire.BinaryBytes(tx)
@@ -205,9 +203,7 @@ type AppTx struct {
 }
 
 func (tx *AppTx) SignBytes() []byte {
-	//signBytes := wire.BinaryBytes(chainID)
 	sig := tx.Input.Signature
-	//tx.Input.Signature = crypto.Signature{}
 	signBytes := wire.BinaryBytes(tx)
 	tx.Input.Signature = sig
 	return signBytes

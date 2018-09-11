@@ -1,8 +1,7 @@
-package kvstore
+package dmccoin
 
 import (
 	"fmt"
-
 	abci "github.com/tendermint/abci/types"
 	cmn "github.com/tendermint/tmlibs/common"
 	"github.com/tendermint/tmlibs/events"
@@ -10,14 +9,9 @@ import (
 
 // If the tx is invalid, a TMSP error will be returned.
 func ExecTx(state *State, tx Tx, isCheckTx bool, evc events.Fireable, height int64) abci.ResponseDeliverTx {
-	//chainID := state.GetChainID()
-
 	// Exec tx
 	switch tx := tx.(type) {
 	case *DMCTx:
-		if height%100 == 1 {
-
-		}
 		res := validateInputBasic(tx.Input)
 		if res == 0 {
 			return abci.ResponseDeliverTx{
@@ -60,111 +54,15 @@ func ExecTx(state *State, tx Tx, isCheckTx bool, evc events.Fireable, height int
 				Log: fmt.Sprintf(cmn.Fmt("Input total (%v) != output total + fees (%v)", inTotal, outPlusFees))}
 		}
 
-		// TODO: Fee validation for DMCTx
-
 		// Good! Adjust accounts
 		adjustByInput(state, account, tx.Input)
 		adjustByOutput(state, account, tx.Output, isCheckTx)
 
-		/*
-			// Fire events
-			if !isCheckTx {
-				if evc != nil {
-					for _, i := range tx.Inputs {
-						evc.FireEvent(types.EventStringAccInput(i.Address), types.EventDataTx{tx, nil, ""})
-					}
-					for _, o := range tx.Outputs {
-						evc.FireEvent(types.EventStringAccOutput(o.Address), types.EventDataTx{tx, nil, ""})
-					}
-				}
-			}
-		*/
-
 		return abci.ResponseDeliverTx{
 			Log: fmt.Sprintf(string(TxID(tx)), "")}
-
-		// For future smart contract functionality
 	case *AppTx:
-		// Validate input, basic
-		// res := tx.Input.ValidateBasic()
-		// if res.IsErr() {
-		// 	return res
-		// }
-		//
-		// // Get input account
-		// inAcc := state.GetAccount(tx.Input.Address)
-		// if inAcc == nil {
-		// 	return abci.ErrBaseUnknownAddress
-		// }
-		// if !tx.Input.PubKey.Empty() {
-		// 	inAcc.PubKey = tx.Input.PubKey
-		// }
-		//
-		// // Validate input, advanced
-		// signBytes := tx.SignBytes(chainID)
-		// res = validateInputAdvanced(inAcc, signBytes, tx.Input)
-		// if res.IsErr() {
-		// 	state.logger.Info(cmn.Fmt("validateInputAdvanced failed on %X: %v", tx.Input.Address, res))
-		// 	return res.PrependLog("in validateInputAdvanced()")
-		// }
-		// if tx.Input.Coins < (types.Coins{tx.Fee}) {
-		// 	state.logger.Info(cmn.Fmt("Sender did not send enough to cover the fee %X", tx.Input.Address))
-		// 	return abci.ErrBaseInsufficientFunds.AppendLog(cmn.Fmt("input coins is %v, but fee is %v", tx.Input.Coins, types.Coins{tx.Fee}))
-		// }
-		//
-		// // Validate call address
-		// plugin := pgz.GetByName(tx.Name)
-		// if plugin == nil {
-		// 	return abci.ErrBaseUnknownAddress.AppendLog(
-		// 		cmn.Fmt("Unrecognized plugin name%v", tx.Name))
-		// }
-		//
-		// // Good!
-		// coins := tx.Input.Coins.Minus(types.Coins{tx.Fee})
-		// inAcc.Sequence += 1
-		// inAcc.Balance = inAcc.Balance.Minus(tx.Input.Coins)
-		//
-		// // If this is a CheckTx, stop now.
-		// if isCheckTx {
-		// 	state.SetAccount(tx.Input.Address, inAcc)
-		// 	return 1
-		// }
-		//
-		// // Create inAcc checkpoint
-		// inAccCopy := inAcc.Copy()
-		//
-		// // Run the tx.
-		// cache := state.CacheWrap()
-		// cache.SetAccount(tx.Input.Address, inAcc)
-		// ctx := types.NewCallContext(tx.Input.Address, inAcc, coins)
-		// res = plugin.RunTx(cache, ctx, tx.Data)
-		// if res.IsOK() {
-		// 	cache.CacheSync()
-		// 	state.logger.Info("Successful execution")
-		// 	// Fire events
-		// 	/*
-		// 		if evc != nil {
-		// 			exception := ""
-		// 			if res.IsErr() {
-		// 				exception = res.Error()
-		// 			}
-		// 			evc.FireEvent(types.EventStringAccInput(tx.Input.Address), types.EventDataTx{tx, ret, exception})
-		// 			evc.FireEvent(types.EventStringAccOutput(tx.Address), types.EventDataTx{tx, ret, exception})
-		// 		}
-		// 	*/
-		// } else {
-		// 	state.logger.Info("AppTx failed", "error", res)
-		// 	// Just return the coins and return.
-		// 	inAccCopy.Balance = inAccCopy.Balance.Plus(coins)
-		// 	// But take the gas
-		// 	// TODO
-		// 	state.SetAccount(tx.Input.Address, inAccCopy)
-		// }
-		// return res
 		return abci.ResponseDeliverTx{
 			Log: fmt.Sprintf(string(TxID(tx)), "")}
-		// @arun
-		// TODO: case for DMC tx
 	default:
 		return abci.ResponseDeliverTx{
 			Log: fmt.Sprintf(string(TxID(tx)), "")}

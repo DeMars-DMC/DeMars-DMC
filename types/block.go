@@ -6,12 +6,14 @@ import (
 	"fmt"
 	"strings"
 	"sync"
+	"encoding/json"
 	"time"
-
 	"github.com/tendermint/tendermint/crypto/merkle"
 	"github.com/tendermint/tendermint/crypto/tmhash"
 	cmn "github.com/tendermint/tendermint/libs/common"
 	"crypto/sha256"
+	"github.com/tendermint/tendermint/abci/app/dmccoin"
+	"github.com/tendermint/tendermint/libs/log"
 )
 
 // Block defines the atomic unit of a Tendermint blockchain.
@@ -25,7 +27,24 @@ type Block struct {
 
 // MakeBlock returns a new block with an empty header, except what can be computed from itself.
 // It populates the same set of fields validated by ValidateBasic
-func MakeBlock(height int64, txs []Tx, commit *Commit) *Block {
+func MakeBlock(height int64, txs []Tx, commit *Commit, logger log.Logger) *Block {
+	txBuckets := make(TxBuckets, 0)
+	for i := 0; i < 0xff; i++ {
+		txBucket := TxBucket{}
+		txBucket.BucketId = fmt.Sprintf("%x", i)
+		txBucket.Txs = make(Txs, 0)
+		txBuckets = append(txBuckets, txBucket)
+	}
+	for i := 0; i < len(txs); i++ {
+		segments := getBucketId(txs[i], height, logger)
+		logger.Debug(fmt.Sprintf("Segment Id: %v Segment1 Id: %v", segments[0], segments[1]))
+		for j := 0; j < 0xff; j++ {
+			if txBuckets[j].BucketId == segments[0] || txBuckets[j].BucketId == segments[1] {
+				txBuckets[j].Txs = append(txBuckets[j].Txs, txs[i])
+				// Note we do not break here as we can add the same Tx to 2 buckets (input and output)
+			}
+		}
+	}
 	block := &Block{
 		Header: &Header{
 			Height: height,
@@ -34,11 +53,32 @@ func MakeBlock(height int64, txs []Tx, commit *Commit) *Block {
 		},
 		Commit: commit,
 		Data: &Data{
-			TxBuckets: ,
+			TxBuckets: txBuckets,
 		},
 	}
 	block.fillHeader()
 	return block
+}
+
+// getBucketId can return up to 2 bucket ids to which the transaction belongs
+// FIXME: Tendermint should get Txs in a bucketed format from ABCI and not be able
+// to parse them
+func getBucketId(tx Tx, height int64, logger log.Logger) [2]string {
+	utxoTx := dmccoin.TxUTXO{}
+	dmcTx :=  dmccoin.DMCTx{}
+
+	if height % 100 == 1 {
+		// Parse UTXO tx
+		json.Unmarshal(tx, &utxoTx)
+		segment := string(utxoTx.Address)[:2]
+		return [2]string{segment, ""}
+	} else {
+		// Parse normal tx
+		json.Unmarshal(tx, &dmcTx)
+		segment1 := fmt.Sprintf("%x", dmcTx.Input.Address[:])[:2]
+		segment2 := fmt.Sprintf("%x", dmcTx.Output.Address[:])[:2]
+		return [2]string{segment1, segment2}
+	}
 }
 
 // ValidateBasic performs basic validation that doesn't involve state data.

@@ -1,7 +1,6 @@
 package types
 
 import (
-	"bytes"
 	"fmt"
 	"reflect"
 	"time"
@@ -51,8 +50,7 @@ func (tm2pb) Header(header *Header) abci.Header {
 // XXX: panics on unknown pubkey type
 func (tm2pb) Validator(val *Validator) abci.Validator {
 	return abci.Validator{
-		Address: val.PubKey.Address(),
-		PubKey:  TM2PB.PubKey(val.PubKey),
+		Address: val.Address,
 		Power:   val.VotingPower,
 	}
 }
@@ -179,21 +177,8 @@ func (pb2tm) PubKey(pubKey abci.PubKey) (crypto.PubKey, error) {
 func (pb2tm) Validators(vals []abci.Validator) ([]*Validator, error) {
 	tmVals := make([]*Validator, len(vals))
 	for i, v := range vals {
-		pub, err := PB2TM.PubKey(v.PubKey)
-		if err != nil {
-			return nil, err
-		}
-		// If the app provided an address too, it must match.
-		// This is just a sanity check.
-		if len(v.Address) > 0 {
-			if !bytes.Equal(pub.Address(), v.Address) {
-				return nil, fmt.Errorf("Validator.Address (%X) does not match PubKey.Address (%X)",
-					v.Address, pub.Address())
-			}
-		}
 		tmVals[i] = &Validator{
-			Address:     pub.Address(),
-			PubKey:      pub,
+			Address:     v.Address,
 			VotingPower: v.Power,
 		}
 	}

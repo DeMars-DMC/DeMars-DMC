@@ -11,7 +11,7 @@ import (
 	"time"
 
 	fail "github.com/ebuchman/fail-test"
-	"github.com/tendermint/go-wire/data"
+	"github.com/tendermint/tendermint/abci/app/dmccoin"
 	cmn "github.com/tendermint/tendermint/libs/common"
 	"github.com/tendermint/tendermint/libs/log"
 
@@ -873,13 +873,6 @@ func (cs *ConsensusState) defaultDecideProposal(height int64, round int) {
 	polRound, polBlockID := cs.Votes.POLInfo()
 	proposal := types.NewProposal(height, round, blockParts.Header(), polRound, polBlockID)
 	if err := cs.privValidator.SignProposal(cs.state.ChainID, proposal); err == nil {
-		// Set fields
-		/*  fields set by setProposal and addBlockPart
-		cs.Proposal = proposal
-		cs.ProposalBlock = block
-		cs.ProposalBlockParts = blockParts
-		*/
-
 		// send proposal and block parts on internal msg queue
 		cs.sendInternalMessage(msgInfo{&ProposalMessage{proposal}, p2p.NodeID{}})
 		for i := 0; i < blockParts.Total(); i++ {
@@ -930,20 +923,8 @@ func (cs *ConsensusState) createProposalBlock() (block *types.Block, blockParts 
 		return
 	}
 
-	var utxoTxs types.Txs
-	i := 0
-
-	// We are proposing a UTXO block
-	// Need the utxo struct for marshalling the data in json format
-	// Transactions are usually created by the user, but for UTXO blocks, we create them where
-	// They are stored in a byte array
-	type TxUTXO struct {
-		//Tx map[*data.Bytes]int64 `json:"tx"`
-		Address data.Bytes `json:"address"` // Hash of the PubKey
-		Balance uint64     `json:"coins"`   //
-	}
-
-	if cs.Height%100 == 1 {
+	utxoTxs := make(types.Txs, 0)
+	if cs.Height % 100 == 1 {
 		cs.Logger.Debug("Need to propose UTXO block")
 		abciResponses := sm.ABCIResponses{GetValidatorSet: &abci.ResponseGetValidatorSet{}}
 
@@ -953,22 +934,22 @@ func (cs *ConsensusState) createProposalBlock() (block *types.Block, blockParts 
 		balances := abciResponses.GetValidatorSet.ValidatorSet
 		cs.Logger.Debug(fmt.Sprintf("Got %d accounts", len(balances)))
 		for _, bal := range balances {
-			tx := TxUTXO{
+			tx := dmccoin.TxUTXO{
 				Address: []byte(bal.Address),
 				Balance: uint64(bal.Power),
 			}
 
-			utxoTxs[i], _ = json.Marshal(tx)
-			i++
+			utxoTx, _ := json.Marshal(tx)
+			utxoTxs = append(utxoTxs, utxoTx)			
 		}
 		cs.Logger.Debug("Making block from txs")
-		block, parts := cs.state.MakeBlock(cs.Height, utxoTxs, commit)
+		block, parts := cs.state.MakeBlock(cs.Height, utxoTxs, commit, cs.Logger)
 		return block, parts
 	} else {
 		// Mempool validated transactions
 		cs.Logger.Debug("Reaping txs")
 		txs := cs.mempool.Reap(cs.state.ConsensusParams.BlockSize.MaxTxs)
-		block, parts := cs.state.MakeBlock(cs.Height, txs, commit)
+		block, parts := cs.state.MakeBlock(cs.Height, txs, commit, cs.Logger)
 		return block, parts
 	}
 
@@ -1025,7 +1006,7 @@ func (cs *ConsensusState) defaultDoPrevote(height int64, round int) {
 	}
 
 	// Validate proposal block
-	err := cs.blockExec.ValidateBlock(cs.state, cs.ProposalBlock)
+	err := cs.blockExec.ValidateBlock(cs.state, cs.ProposalBlock, logger)
 	if err != nil {
 		// ProposalBlock is invalid, prevote nil.
 		logger.Error("enterPrevote: ProposalBlock is invalid", "err", err)
@@ -1138,7 +1119,7 @@ func (cs *ConsensusState) enterPrecommit(height int64, round int) {
 	if cs.ProposalBlock.HashesTo(blockID.Hash) {
 		logger.Info("enterPrecommit: +2/3 prevoted proposal block. Locking", "hash", blockID.Hash)
 		// Validate the block.
-		if err := cs.blockExec.ValidateBlock(cs.state, cs.ProposalBlock); err != nil {
+		if err := cs.blockExec.ValidateBlock(cs.state, cs.ProposalBlock, logger); err != nil {
 			cmn.PanicConsensus(cmn.Fmt("enterPrecommit: +2/3 prevoted for an invalid block: %v", err))
 		}
 		cs.LockedRound = round
@@ -1281,7 +1262,7 @@ func (cs *ConsensusState) finalizeCommit(height int64) {
 	if !block.HashesTo(blockID.Hash) {
 		cmn.PanicSanity(cmn.Fmt("Cannot finalizeCommit, ProposalBlock does not hash to commit hash"))
 	}
-	if err := cs.blockExec.ValidateBlock(cs.state, block); err != nil {
+	if err := cs.blockExec.ValidateBlock(cs.state, block, cs.Logger); err != nil {
 		cmn.PanicConsensus(cmn.Fmt("+2/3 committed an invalid block: %v", err))
 	}
 
