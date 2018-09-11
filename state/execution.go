@@ -60,7 +60,7 @@ func (blockExec *BlockExecutor) SetEventBus(eventBus types.BlockEventPublisher) 
 // If the block is invalid, it returns an error.
 // Validation does not mutate state, but does require historical information from the stateDB,
 // ie. to verify evidence from a validator at an old height.
-func (blockExec *BlockExecutor) ValidateBlock(state State, block *types.Block) error {
+func (blockExec *BlockExecutor) ValidateBlock(state State, block *types.Block, logger log.Logger) error {
 	return validateBlock(blockExec.db, state, block)
 }
 
@@ -103,7 +103,7 @@ func (blockExec *BlockExecutor) ApplyBucket(height int64, txBucket *types.TxBuck
 // It takes a blockID to avoid recomputing the parts hash.
 func (blockExec *BlockExecutor) ApplyBlock(state State, blockID types.BlockID, block *types.Block) (State, error) {
 	blockExec.logger.Debug("[ApplyBlock] Validating block")
-	if err := blockExec.ValidateBlock(state, block); err != nil {
+	if err := blockExec.ValidateBlock(state, block, blockExec.logger); err != nil {
 		return state, ErrInvalidBlock(err)
 	}
 
@@ -146,8 +146,8 @@ func (blockExec *BlockExecutor) ApplyBlock(state State, blockID types.BlockID, b
 
 	// events are fired after everything else
 	// NOTE: if we crash between Commit and Save, events wont be fired during replay
-	blockExec.logger.Debug("[ApplyBlock] Fire events")
-	fireEvents(blockExec.logger, blockExec.eventBus, block, abciResponses)
+	blockExec.logger.Debug("[ApplyBlock] Not firing events")
+	//fireEvents(blockExec.logger, blockExec.eventBus, block, abciResponses)
 
 	return state, nil
 }
