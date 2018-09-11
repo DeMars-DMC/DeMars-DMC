@@ -16,8 +16,8 @@ import (
 	"github.com/tendermint/tendermint/libs/log"
 
 	abcicli "github.com/tendermint/tendermint/abci/client"
-	"github.com/tendermint/tendermint/abci/example/code"
-	"github.com/tendermint/tendermint/abci/example/kvstore"
+	"github.com/tendermint/tendermint/abci/app/code"
+	"github.com/tendermint/tendermint/abci/app/dmccoin"
 	"github.com/tendermint/tendermint/abci/server"
 	servertest "github.com/tendermint/tendermint/abci/tests/server"
 	"github.com/tendermint/tendermint/abci/types"
@@ -46,7 +46,7 @@ var (
 	// counter
 	flagSerial bool
 
-	// kvstore
+	// dmccoin
 	flagPersist string
 )
 
@@ -57,7 +57,7 @@ var RootCmd = &cobra.Command{
 	PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
 
 		switch cmd.Use {
-		case "counter", "kvstore", "dummy": // for the examples apps, don't pre-run
+		case "counter", "dmccoin", "dummy":
 			return nil
 		case "version": // skip running for version command
 			return nil
@@ -126,8 +126,8 @@ func addDummyFlags() {
 	dummyCmd.PersistentFlags().StringVarP(&flagPersist, "persist", "", "", "directory to use for a database")
 }
 
-func addKVStoreFlags() {
-	kvstoreCmd.PersistentFlags().StringVarP(&flagPersist, "persist", "", "", "directory to use for a database")
+func addDMCCoinFlags() {
+	dmccoinCmd.PersistentFlags().StringVarP(&flagPersist, "persist", "", "", "directory to use for a database")
 }
 
 func addCommands() {
@@ -149,8 +149,8 @@ func addCommands() {
 	addDummyFlags()
 	RootCmd.AddCommand(dummyCmd)
 	// replaces dummy, see issue #196
-	addKVStoreFlags()
-	RootCmd.AddCommand(kvstoreCmd)
+	addDMCCoinFlags()
+	RootCmd.AddCommand(dmccoinCmd)
 }
 
 var batchCmd = &cobra.Command{
@@ -277,22 +277,22 @@ var queryCmd = &cobra.Command{
 // deprecated, left for backwards compatibility
 var dummyCmd = &cobra.Command{
 	Use:        "dummy",
-	Deprecated: "use: [abci-cli kvstore] instead",
+	Deprecated: "use: [abci-cli dmccoin] instead",
 	Short:      "ABCI demo example",
 	Long:       "ABCI demo example",
 	Args:       cobra.ExactArgs(0),
 	RunE: func(cmd *cobra.Command, args []string) error {
-		return cmdKVStore(cmd, args)
+		return cmdDMCCoin(cmd, args)
 	},
 }
 
-var kvstoreCmd = &cobra.Command{
-	Use:   "kvstore",
-	Short: "ABCI demo example",
-	Long:  "ABCI demo example",
+var dmccoinCmd = &cobra.Command{
+	Use:   "dmccoin",
+	Short: "DMC coin CLI client",
+	Long:  "DMC coin CLI client",
 	Args:  cobra.ExactArgs(0),
 	RunE: func(cmd *cobra.Command, args []string) error {
-		return cmdKVStore(cmd, args)
+		return cmdDMCCoin(cmd, args)
 	},
 }
 
@@ -308,7 +308,6 @@ var testCmd = &cobra.Command{
 
 // Generates new Args array based off of previous call args to maintain flag persistence
 func persistentArgs(line []byte) []string {
-
 	// generate the arguments to run from original os.Args
 	// to maintain flag arguments
 	args := os.Args
@@ -639,20 +638,17 @@ func cmdQuery(cmd *cobra.Command, args []string) error {
 	return nil
 }
 
-func cmdKVStore(cmd *cobra.Command, args []string) error {
+func cmdDMCCoin(cmd *cobra.Command, args []string) error {
 	logger := log.NewTMLogger(log.NewSyncWriter(os.Stdout))
 
 	// Create the application - in memory or persisted to disk
 	var app types.Application
 	if flagPersist == "" {
-		app = kvstore.NewKVStoreApplication(logger)
+		app = dmccoin.NewDMCCoinApplication(logger)
 	}
 
+	// FIXME: Hard coded genesis account balance for now
 	app.SetInitAccount([]byte("1624de64206b13cfe08b0aca94ac9ceae4b437224ba17525218b13352e59503bb728aab7b2000000000000000000000000000000000000000000000000000000"), 1000000)
-	/*else {
-		app = kvstore.NewPersistentKVStoreApplication(flagPersist)
-		app.(*kvstore.PersistentKVStoreApplication).SetLogger(logger.With("module", "kvstore"))
-	}*/
 
 	// Start the listener
 	srv, err := server.NewServer(flagAddress, flagAbci, app)

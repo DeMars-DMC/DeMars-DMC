@@ -1,11 +1,9 @@
-package kvstore
+package dmccoin
 
 import (
 	"github.com/tendermint/tendermint/libs/log"
 )
 
-// CONTRACT: State should be quick to copy.
-// See CacheWrap().
 type State struct {
 	chainID    string
 	store      KVS
