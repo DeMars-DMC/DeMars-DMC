@@ -1,9 +1,8 @@
-package kvstore
+package dmccoin
 
 import (
 	"container/list"
 	"fmt"
-
 	. "github.com/tendermint/tmlibs/common"
 )
 

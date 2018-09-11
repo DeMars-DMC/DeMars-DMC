@@ -1,12 +1,10 @@
-package kvstore
+package dmccoin
 
 import (
 	"encoding/json"
 	"fmt"
 	"sort"
-
 	crypto "github.com/tendermint/tendermint/crypto"
-
 	wire "github.com/tendermint/go-wire"
 	"github.com/tendermint/go-wire/data"
 )

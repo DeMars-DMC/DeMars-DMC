@@ -1,3 +1,3 @@
-package example
+package app
 
 // so the go tool doesn't return errors about no buildable go files ...
