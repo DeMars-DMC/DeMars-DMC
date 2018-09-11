@@ -1,6 +1,6 @@
-# p2p
+# P2P
 
-The p2p package provides an abstraction around peer-to-peer communication.
+The P2P package provides an abstraction for peer-to-peer communication in the DéMars-DMC network.
 
 Docs:
 
