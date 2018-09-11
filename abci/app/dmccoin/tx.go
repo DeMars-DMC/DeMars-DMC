@@ -26,10 +26,12 @@ type Tx interface {
 // Types of Tx implementations
 const (
 	// Account transactions
-	TxTypeApp = byte(0x02)
-	TxTypeDMC = byte(0x03)
-	TxNameApp = "app"
-	TxNameDMC = "dmc"
+	TxTypeUTXO = byte(0x01)
+	TxTypeApp  = byte(0x02)
+	TxTypeDMC  = byte(0x03)
+	TxNameUTXO = "utxo"
+	TxNameApp  = "app"
+	TxNameDMC  = "dmc"
 )
 
 func (_ *AppTx) AssertIsTx()  {}
@@ -41,6 +43,7 @@ var txMapper data.Mapper
 // register both private key types with go-wire/data (and thus go-wire)
 func init() {
 	txMapper = data.NewMapper(TxS{}).
+		RegisterImplementation(&TxUTXO{}, TxNameUTXO, TxTypeUTXO).
 		RegisterImplementation(&AppTx{}, TxNameApp, TxTypeApp).
 		RegisterImplementation(&DMCTx{}, TxNameDMC, TxTypeDMC)
 }
@@ -162,6 +165,10 @@ func (txOut TxOutput) String() string {
 type TxUTXO struct {
 	Address data.Bytes `json:"address"` // Hash of the PubKey
 	Balance uint64     `json:"coins"`   //
+}
+
+func (tx *TxUTXO) SignBytes() []byte {
+	return []byte{}
 }
 
 //-----------------------------------------------------------------------------
