@@ -18,6 +18,7 @@ coverage.txt
 docs/_build
 docs/tools
 *.log
+abci/abci-cli
 
 scripts/wal2json/wal2json
 scripts/cutWALUntil/cutWALUntil
