@@ -2,6 +2,7 @@ package dmccoin
 
 import (
 	"fmt"
+
 	abci "github.com/tendermint/abci/types"
 	cmn "github.com/tendermint/tmlibs/common"
 	"github.com/tendermint/tmlibs/events"
@@ -58,6 +59,10 @@ func ExecTx(state *State, tx Tx, isCheckTx bool, evc events.Fireable, height int
 		adjustByInput(state, account, tx.Input)
 		adjustByOutput(state, account, tx.Output, isCheckTx)
 
+		return abci.ResponseDeliverTx{
+			Log: fmt.Sprintf(string(TxID(tx)), "")}
+	case *TxUTXO:
+		state.SetAccount(tx.Address, &Account{Height: int(height), Balance: tx.Balance, Address: tx.Address})
 		return abci.ResponseDeliverTx{
 			Log: fmt.Sprintf(string(TxID(tx)), "")}
 	case *AppTx:
@@ -276,12 +281,12 @@ func adjustByOutputs(state *State, accounts map[string]*Account, outs []TxOutput
 }
 
 func adjustByOutput(state *State, acc *Account, out TxOutput, isCheckTx bool) {
-	_, outAddress, _ := out.ChainAndAddress() // already validated
+	//_, outAddress, _ := out.ChainAndAddress() // already validated
 	//if destChain != nil {
 	//	payload := ibc.CoinsPayload{outAddress, out.Coins}
 	//	ibc.SaveNewIBCPacket(state, state.GetChainID(), string(destChain), payload)
 	//}
-
+	outAddress := out.Address
 	if acc == nil {
 		cmn.PanicSanity("adjustByOutputs() expects account in accounts")
 	}

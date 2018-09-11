@@ -1,9 +1,8 @@
-# Tendermint
+# DéMars-DMC
 
-[Byzantine-Fault Tolerant](https://en.wikipedia.org/wiki/Byzantine_fault_tolerance)
-[State Machine Replication](https://en.wikipedia.org/wiki/State_machine_replication).
-Or [Blockchain](https://en.wikipedia.org/wiki/Blockchain_(database)) for short.
+[XOR-segmented](https://en.wikipedia.org/wiki/Kademlia) [Byzantine-Fault Tolerant](https://en.wikipedia.org/wiki/Byzantine_fault_tolerance) [Blockchain](https://en.wikipedia.org/wiki/Blockchain_(database))
 
+<!---
 [![version](https://img.shields.io/github/tag/tendermint/tendermint.svg)](https://github.com/tendermint/tendermint/releases/latest)
 [![API Reference](
 https://camo.githubusercontent.com/915b7be44ada53c290eb157634330494ebe3e30a/68747470733a2f2f676f646f632e6f72672f6769746875622e636f6d2f676f6c616e672f6764646f3f7374617475732e737667
@@ -11,17 +10,17 @@ https://camo.githubusercontent.com/915b7be44ada53c290eb157634330494ebe3e30a/6874
 [![Go version](https://img.shields.io/badge/go-1.9.2-blue.svg)](https://github.com/moovweb/gvm)
 [![riot.im](https://img.shields.io/badge/riot.im-JOIN%20CHAT-green.svg)](https://riot.im/app/#/room/#tendermint:matrix.org)
 [![license](https://img.shields.io/github/license/tendermint/tendermint.svg)](https://github.com/tendermint/tendermint/blob/master/LICENSE)
-[![](https://tokei.rs/b1/github/tendermint/tendermint?category=lines)](https://github.com/tendermint/tendermint)
+[![](https://tokei.rs/b1/github.com/DeMars-DMC/DeMars-DMC?category=lines)](https://github.com/DeMars-DMC/DeMars-DMC)
 
 
 Branch    | Tests | Coverage
 ----------|-------|----------
 master    | [![CircleCI](https://circleci.com/gh/tendermint/tendermint/tree/master.svg?style=shield)](https://circleci.com/gh/tendermint/tendermint/tree/master) | [![codecov](https://codecov.io/gh/tendermint/tendermint/branch/master/graph/badge.svg)](https://codecov.io/gh/tendermint/tendermint)
 develop   | [![CircleCI](https://circleci.com/gh/tendermint/tendermint/tree/develop.svg?style=shield)](https://circleci.com/gh/tendermint/tendermint/tree/develop) | [![codecov](https://codecov.io/gh/tendermint/tendermint/branch/develop/graph/badge.svg)](https://codecov.io/gh/tendermint/tendermint)
+-->
+DéMars is Byzantine Fault Tolerant (BFT) blockchain which uses XOR segments to reduce the storage and network transfer costs, thereby enabling it to execute on mobile nodes.
 
-Tendermint Core is Byzantine Fault Tolerant (BFT) middleware that takes a state transition machine - written in any programming language -
-and securely replicates it on many machines.
-
+<!--
 For protocol details, see [the specification](/docs/spec).
 
 ## A Note on Production Readiness
@@ -41,7 +40,7 @@ To report a security vulnerability, see our [bug bounty
 program](https://tendermint.com/security).
 
 For examples of the kinds of bugs we're looking for, see [SECURITY.md](SECURITY.md)
-
+-->
 ## Minimum requirements
 
 Requirement|Notes
@@ -52,20 +51,22 @@ Go version | Go1.9 or higher
 
 See the [install instructions](/docs/install.md)
 
+<!--
 ## Quick Start
 
 - [Single node](/docs/using-tendermint.md)
 - [Local cluster using docker-compose](/networks/local)
 - [Remote cluster using terraform and ansible](/docs/terraform-and-ansible.md)
 - [Join the public testnet](https://cosmos.network/testnet)
-
+-->
 ## Resources
 
 ### Tendermint Core
 
 For details about the blockchain data structures and the p2p protocols, see the
-the [Tendermint specification](/docs/spec).
+the [DMC specification](/docs/spec).
 
+<!--
 For details on using the software, [Read The Docs](https://tendermint.readthedocs.io/en/master/).
 Additional information about some - and eventually all - of the sub-projects below, can be found at Read The Docs.
 
@@ -83,18 +84,24 @@ Additional information about some - and eventually all - of the sub-projects bel
 * [Cosmos SDK](http://github.com/cosmos/cosmos-sdk); a cryptocurrency application framework
 * [Ethermint](http://github.com/tendermint/ethermint); Ethereum on Tendermint
 * [Many more](https://tendermint.readthedocs.io/en/master/ecosystem.html#abci-applications)
-
+-->
 ### More
 
+<!--
 * [Master's Thesis on Tendermint](https://atrium.lib.uoguelph.ca/xmlui/handle/10214/9769)
+* -->
+
 * [Original Whitepaper](https://tendermint.com/static/docs/tendermint.pdf)
+
+<!--
 * [Tendermint Blog](https://blog.cosmos.network/tendermint/home)
 * [Cosmos Blog](https://blog.cosmos.network)
-
+-->
 ## Contributing
 
 Yay open source! Please see our [contributing guidelines](CONTRIBUTING.md).
 
+<!--
 ## Versioning
 
 ### SemVer
@@ -129,7 +136,7 @@ data into the new chain.
 
 However, any bump in the PATCH version should be compatible with existing histories
 (if not please open an [issue](https://github.com/tendermint/tendermint/issues)).
-
+-->
 ## Code of Conduct
 
 Please read, understand and adhere to our [code of conduct](CODE_OF_CONDUCT.md).
