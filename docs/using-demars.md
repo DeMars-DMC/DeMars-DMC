@@ -1,49 +1,51 @@
-# Using Tendermint
+# Using DéMars
 
-This is a guide to using the `tendermint` program from the command line.
-It assumes only that you have the `tendermint` binary installed and have
-some rudimentary idea of what Tendermint and ABCI are.
+This is a guide to using the `demars` program from the command line.
+It assumes only that you have the `demars` binary installed and have
+some rudimentary idea of what DéMars and ABCI are.
 
-You can see the help menu with `tendermint --help`, and the version
-number with `tendermint version`.
+You can see the help menu with `demars --help`, and the version
+number with `demars version`.
 
 ## Directory Root
 
-The default directory for blockchain data is `~/.tendermint`. Override
-this by setting the `TMHOME` environment variable.
+The default directory for blockchain data is `~/.demars`. Override
+this by setting the `DMHOME` environment variable.
 
 ## Initialize
 
 Initialize the root directory by running:
 
-    tendermint init
+    demars init
 
 This will create a new private key (`priv_validator.json`), and a
 genesis file (`genesis.json`) containing the associated public key, in
-`$TMHOME/config`. This is all that's necessary to run a local testnet
+`$DMHOME/config`. This is all that's necessary to run a local testnet
 with one validator.
 
+<!--
 For more elaborate initialization, see the tesnet command:
 
     tendermint testnet --help
-
+-->
 ## Run
 
-To run a Tendermint node, use
+To run a DéMars node, use
 
-    tendermint node
+    demars node
 
-By default, Tendermint will try to connect to an ABCI application on
-[127.0.0.1:26658](127.0.0.1:26658). If you have the `kvstore` ABCI app
+By default, DéMars will try to connect to an ABCI application on
+[127.0.0.1:26658](127.0.0.1:26658). If you have the `dmcoin` ABCI app
 installed, run it in another window. If you don't, kill Tendermint and
-run an in-process version of the `kvstore` app:
+run an in-process version of the `dmccoin` app:
 
-    tendermint node --proxy_app=kvstore
+    demars node --proxy_app=dmccoin
 
 After a few seconds you should see blocks start streaming in. Note that
 blocks are produced regularly, even if there are no transactions. See
 *No Empty Blocks*, below, to modify this setting.
 
+<!--
 Tendermint supports in-process versions of the `counter`, `kvstore` and
 `nil` apps that ship as examples with `abci-cli`. It's easy to compile
 your own app in-process with Tendermint if it's written in Go. If your
@@ -52,10 +54,10 @@ app is not written in Go, simply run it in another process, and use the
 on, for instance:
 
     tendermint node --proxy_app=/var/run/abci.sock
-
+-->
 ## Transactions
 
-To send a transaction, use `curl` to make requests to the Tendermint RPC
+To send a transaction, use `curl` to make requests to the DéMars RPC
 server, for example:
 
     curl http://localhost:26657/broadcast_tx_commit?tx=\"abcd\"
@@ -115,10 +117,10 @@ Note that raw hex cannot be used in `POST` transactions.
 **WARNING: UNSAFE** Only do this in development and only if you can
 afford to lose all blockchain data!
 
-To reset a blockchain, stop the node, remove the `~/.tendermint/data`
+To reset a blockchain, stop the node, remove the `~/.demars/data`
 directory and run
 
-    tendermint unsafe_reset_priv_validator
+    demars unsafe_reset_priv_validator
 
 This final step is necessary to reset the `priv_validator.json`, which
 otherwise prevents you from making conflicting votes in the consensus
@@ -128,22 +130,22 @@ new blockchain will not make any blocks.
 
 ## Configuration
 
-Tendermint uses a `config.toml` for configuration. For details, see [the
+DéMars uses a `config.toml` for configuration. For details, see [the
 config specification](./specification/configuration.md).
 
 Notable options include the socket address of the application
-(`proxy_app`), the listening address of the Tendermint peer
+(`proxy_app`), the listening address of the DéMars peer
 (`p2p.laddr`), and the listening address of the RPC server
 (`rpc.laddr`).
 
 Some fields from the config file can be overwritten with flags.
 
+<!--
 ## No Empty Blocks
 
-This much requested feature was implemented in version 0.10.3. While the
-default behaviour of `tendermint` is still to create blocks
-approximately once per second, it is possible to disable empty blocks or
-set a block creation interval. In the former case, blocks will be
+While the default behaviour of `demars` is to create blocks approximately
+once per second, it is possible to disable empty blocks or set a block creation
+interval. In the former case, blocks will be
 created when there are new transactions or when the AppHash changes.
 
 To configure Tendermint to not produce empty blocks unless there are
@@ -169,11 +171,11 @@ creation of each new empty block. It is set via the `config.toml`:
 With this setting, empty blocks will be produced every 5s if no block
 has been produced otherwise, regardless of the value of
 `create_empty_blocks`.
-
+-->
 ## Broadcast API
 
 Earlier, we used the `broadcast_tx_commit` endpoint to send a
-transaction. When a transaction is sent to a Tendermint node, it will
+transaction. When a transaction is sent to a DéMars node, it will
 run via `CheckTx` against the application. If it passes `CheckTx`, it
 will be included in the mempool, broadcasted to other peers, and
 eventually included in a block.
@@ -202,10 +204,10 @@ can take on the order of a second. For a quick result, use
 `broadcast_tx_sync`, but the transaction will not be committed until
 later, and by that point its effect on the state may change.
 
-## Tendermint Networks
+## DéMars Networks
 
-When `tendermint init` is run, both a `genesis.json` and
-`priv_validator.json` are created in `~/.tendermint/config`. The
+When `demars init` is run, both a `genesis.json` and
+`priv_validator.json` are created in `~/.demars/config`. The
 `genesis.json` might look like:
 
     {
@@ -213,7 +215,7 @@ When `tendermint init` is run, both a `genesis.json` and
         {
           "pub_key" : {
             "value" : "h3hk+QE8c6QLTySp8TcfzclJw/BG79ziGB/pIA+DfPE=",
-            "type" : "tendermint/PubKeyEd25519"
+            "type" : "demars/PubKeyEd25519"
           },
           "power" : 10,
           "name" : ""
@@ -232,12 +234,12 @@ And the `priv_validator.json`:
       "address" : "B788DEDE4F50AD8BC9462DE76741CCAFF87D51E2",
       "pub_key" : {
         "value" : "h3hk+QE8c6QLTySp8TcfzclJw/BG79ziGB/pIA+DfPE=",
-        "type" : "tendermint/PubKeyEd25519"
+        "type" : "demars/PubKeyEd25519"
       },
       "last_height" : "0",
       "priv_key" : {
         "value" : "JPivl82x+LfVkp8i3ztoTjY6c6GJ4pBxQexErOCyhwqHeGT5ATxzpAtPJKnxNx/NyUnD8Ebv3OIYH+kgD4N88Q==",
-        "type" : "tendermint/PrivKeyEd25519"
+        "type" : "demars/PrivKeyEd25519"
       }
     }
 
@@ -250,18 +252,15 @@ Note also that the `pub_key` (the public key) in the
 `priv_validator.json` is also present in the `genesis.json`.
 
 The genesis file contains the list of public keys which may participate
-in the consensus, and their corresponding voting power. Greater than 2/3
-of the voting power must be active (i.e. the corresponding private keys
-must be producing signatures) for the consensus to make progress. In our
-case, the genesis file contains the public key of our
-`priv_validator.json`, so a Tendermint node started with the default
-root directory will be able to make progress. Voting power uses an int64
-but must be positive, thus the range is: 0 through 9223372036854775807.
-Because of how the current proposer selection algorithm works, we do not
-recommend having voting powers greater than 10\^12 (ie. 1 trillion) (see
-[Proposals section of Byzantine Consensus
-Algorithm](./specification/byzantine-consensus-algorithm.md#proposals)
-for details).
+in the consensus. Greater than 2/3 of the voting power must be active
+(i.e. the corresponding private keys must be producing signatures)
+for the consensus to make progress. In our case, the genesis file contains
+the public key of our `priv_validator.json`, so a DéMars node started with
+the default root directory will be able to make progress. Each node gets
+one vote in the consensus algorithm (see [Proposals section of Byzantine
+Consensus Algorithm](./specification/byzantine-consensus-algorithm.md#proposals)
+for details). The validators are changed after each block to prevent targeted
+attacks on validator nodes.
 
 If we want to add more nodes to the network, we have two choices: we can
 add a new validator node, who will also participate in the consensus by
@@ -270,7 +269,8 @@ node, who will not participate directly, but will verify and keep up
 with the consensus protocol.
 
 ### Peers
-
+TODO: Add details about types of peer nodes
+<!--
 #### Seed
 A seed node is a node who relays the addresses of other peers which they know
 of. These nodes constantly crawl the network to try to get more peers. The
@@ -417,3 +417,4 @@ away the chain data. Try out the
 [tm-migrate](https://github.com/hxzqlh/tm-tools) tool written by
 [@hxzqlh](https://github.com/hxzqlh) if you are keen to preserve the
 state of your chain when upgrading to newer versions.
+-->
