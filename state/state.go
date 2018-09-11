@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/tendermint/tendermint/types"
+	"github.com/tendermint/tendermint/libs/log"
 )
 
 // database keys
@@ -102,9 +103,9 @@ func (state State) GetValidators() (last *types.ValidatorSet, current *types.Val
 // Create a block from the latest state
 
 // MakeBlock builds a block with the given txs and commit from the current state.
-func (state State) MakeBlock(height int64, txs []types.Tx, commit *types.Commit) (*types.Block, *types.PartSet) {
+func (state State) MakeBlock(height int64, txs []types.Tx, commit *types.Commit, logger log.Logger) (*types.Block, *types.PartSet) {
 	// build base block
-	block := types.MakeBlock(height, txs, commit)
+	block := types.MakeBlock(height, txs, commit, logger)
 
 	// fill header with state data
 	block.ChainID = state.ChainID
