@@ -1,9 +1,8 @@
 Genesis
 =======
 
-The genesis.json file in ``$TMHOME/config`` defines the initial TendermintCore
-state upon genesis of the blockchain (`see
-definition <https://github.com/tendermint/tendermint/blob/master/types/genesis.go>`__).
+The genesis.json file in ``$DMHOME/config`` defines the initial DéMars
+state upon genesis of the blockchain.
 
 Fields
 ~~~~~~

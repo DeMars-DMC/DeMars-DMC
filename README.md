@@ -91,7 +91,7 @@ Additional information about some - and eventually all - of the sub-projects bel
 * [Master's Thesis on Tendermint](https://atrium.lib.uoguelph.ca/xmlui/handle/10214/9769)
 * -->
 
-* [Original Whitepaper](https://tendermint.com/static/docs/tendermint.pdf)
+* [Original Whitepaper](https://github.com/demars-dmc/demars-dmc/whitepaper/demars.pdf)
 
 <!--
 * [Tendermint Blog](https://blog.cosmos.network/tendermint/home)

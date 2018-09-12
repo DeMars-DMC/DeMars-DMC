@@ -8,26 +8,23 @@ validator's private key.
 
 Some Proof-of-Stake consensus algorithms aim to create a "completely"
 decentralized system where all stakeholders (even those who are not
-always available online) participate in the committing of blocks.
-Tendermint has a different approach to block creation. Validators are
-expected to be online, and the set of validators is permissioned/curated
-by some external process. Proof-of-stake is not required, but can be
-implemented on top of Tendermint consensus. That is, validators may be
-required to post collateral on-chain, off-chain, or may not be required
-to post any collateral at all.
+always available online) participate in the committing of blocks. Others
+have a fixed set of validators which can make them potential targets.
+DéMars has a different approach to block creation. Validators are
+expected to be online, and the set of validators is determined for every
+block.
 
-Validators have a cryptographic key-pair and an associated amount of
-"voting power". Voting power need not be the same.
+Validators have a cryptographic key-pair and equal voting power (1 vote).
 
 Becoming a Validator
 --------------------
 
 There are two ways to become validator.
 
-1. They can be pre-established in the `genesis
+1. The validators for the first block are pre-established in the `genesis
    state <./genesis.html>`__
-2. The ABCI app responds to the EndBlock message with changes to the
-   existing validator set.
+2. For further blocks, the ABCI app responds to the GetValidatorSet message
+ with the new validator set.
 
 Committing a Block
 ------------------

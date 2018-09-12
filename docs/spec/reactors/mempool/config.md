@@ -8,7 +8,7 @@ following are all equivalent:
 
 Flag: `--mempool.recheck_empty=false`
 
-Environment: `TM_MEMPOOL_RECHECK_EMPTY=false`
+Environment: `DM_MEMPOOL_RECHECK_EMPTY=false`
 
 Config:
 ```
@@ -43,17 +43,3 @@ that arrive in mempool. Default is to gossip anything that
 passes checktx. If this is disabled, transactions are not
 gossiped, but instead stored locally and added to the next
 block this node is the proposer.
-
-## WalDir
-
-`--mempool.wal_dir=/tmp/gaia/mempool.wal` (default: $TM_HOME/data/mempool.wal)
-
-This defines the directory where mempool writes the write-ahead
-logs. These files can be used to reload unbroadcasted
-transactions if the node crashes.
-
-If the directory passed in is an absolute path, the wal file is
-created there. If the directory is a relative path, the path is
-appended to home directory of the tendermint process to
-generate an absolute path to the wal directory
-(default `$HOME/.tendermint` or set via `TM_HOME` or `--home``)

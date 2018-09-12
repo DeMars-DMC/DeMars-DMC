@@ -1,13 +1,9 @@
 # crypto
 
-crypto is the cryptographic package adapted for Tendermint's uses
+crypto is the cryptographic package adapted for DéMars's uses
 
 ## Importing it
-`import "github.com/tendermint/tendermint/crypto"`
-
-## Binary encoding
-
-For Binary encoding, please refer to the [Tendermint encoding spec](https://github.com/tendermint/tendermint/blob/master/docs/spec/blockchain/encoding.md).
+`import "github.com/demars-dmc/demars-dmc/crypto"`
 
 ## JSON Encoding
 

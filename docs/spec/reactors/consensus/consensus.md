@@ -1,7 +1,7 @@
-# Tendermint Consensus Reactor
+# DéMars Consensus Reactor
 
-Tendermint Consensus is a distributed protocol executed by validator processes to agree on
-the next block to be added to the Tendermint blockchain. The protocol proceeds in rounds, where
+DéMars Consensus is a distributed protocol executed by validator processes to agree on
+the next block to be added to the DéMars blockchain. The protocol proceeds in rounds, where
 each round is a try to reach agreement on the next block. A round starts by having a dedicated
 process (called proposer) suggesting to other processes what should be the next block with
 the `ProposalMessage`.
@@ -13,15 +13,14 @@ added to the blockchain. `ProposalMessage` and `VoteMessage` are signed by the p
 validator. The internals of the protocol and how it ensures safety and liveness properties are
 explained in a forthcoming document.
 
-For efficiency reasons, validators in Tendermint consensus protocol do not agree directly on the
+For efficiency reasons, validators in DéMars consensus protocol do not agree directly on the
 block as the block size is big, i.e., they don't embed the block inside `Proposal` and
-`VoteMessage`. Instead, they reach agreement on the `BlockID` (see `BlockID` definition in
-[Blockchain](https://github.com/tendermint/tendermint/blob/master/docs/spec/blockchain/blockchain.md#blockid) section) that uniquely identifies each block. The block itself is
+`VoteMessage`. Instead, they reach agreement on the `BlockID` that uniquely identifies each block. The block itself is
 disseminated to validator processes using peer-to-peer gossiping protocol. It starts by having a
 proposer first splitting a block into a number of block parts, that are then gossiped between
 processes using `BlockPartMessage`.
 
-Validators in Tendermint communicate by peer-to-peer gossiping protocol. Each validator is connected
+Validators in DéMars communicate by peer-to-peer gossiping protocol. Each validator is connected
 only to a subset of processes called peers. By the gossiping protocol, a validator send to its peers
 all needed  information (`ProposalMessage`, `VoteMessage` and `BlockPartMessage`) so they can
 reach agreement on some block, and also obtain the content of the chosen block (block parts). As
@@ -31,7 +30,7 @@ also messages that inform peers what votes the process has seen (`HasVoteMessage
 `VoteSetMaj23Message` and `VoteSetBitsMessage`). These messages are then used in the gossiping
 protocol to determine what messages a process should send to its peers.
 
-We now describe the content of each message exchanged during Tendermint consensus protocol.
+We now describe the content of each message exchanged during DéMars consensus protocol.
 
 ## ProposalMessage
 
@@ -62,14 +61,10 @@ type Proposal struct {
 }
 ```
 
-NOTE: In the current version of the Tendermint, the consensus value in proposal is represented with
-PartSetHeader, and with BlockID in vote message. It should be aligned as suggested in this spec as
-BlockID contains PartSetHeader.
-
 ## VoteMessage
 
 VoteMessage is sent to vote for some block (or to inform others that a process does not vote in the
-current round). Vote is defined in the [Blockchain](https://github.com/tendermint/tendermint/blob/master/docs/spec/blockchain/blockchain.md#blockid) section and contains validator's
+current round). Vote contains validator's
 information (validator address and index), height and round for which the vote is sent, vote type,
 blockID if process vote for some block (`nil` otherwise) and a timestamp when the vote is sent. The
 message is signed by the validator private key.
@@ -123,7 +118,7 @@ type Heartbeat struct {
 ## NewRoundStepMessage
 
 NewRoundStepMessage is sent for every step transition during the core consensus algorithm execution.
-It is used in the gossip part of the Tendermint protocol to inform peers about a current
+It is used in the gossip part of the DéMars protocol to inform peers about a current
 height/round/step a process is in.
 
 ```go

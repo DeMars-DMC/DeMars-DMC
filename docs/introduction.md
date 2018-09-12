@@ -1,5 +1,7 @@
-# What is Tendermint?
+TODO: Update based on whitepaper
+# What is DéMars?
 
+<!--
 Tendermint is software for securely and consistently replicating an
 application on many machines. By securely, we mean that Tendermint works
 even if up to 1/3 of machines fail in arbitrary ways. By consistently,
@@ -329,3 +331,4 @@ for high resolution
 version](https://github.com/mobfoundry/hackatom/blob/master/tminfo.pdf).
 
 ![](assets/tm-transaction-flow.png)
+-->
