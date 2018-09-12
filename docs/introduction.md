@@ -1,4 +1,7 @@
 TODO: Update based on whitepaper
+TODO: Add Buckets
+TODO: Add segments in peers
+
 # What is DéMars?
 
 <!--

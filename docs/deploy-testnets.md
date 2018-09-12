@@ -11,7 +11,7 @@ requirements for a particular DéMars node are a private key for the
 validator, stored as `priv_validator.json`, a node key, stored as
 `node_key.json` and a list of the public keys of all validators, stored
 as `genesis.json`. These files should be stored in
-`~/.tendermint/config`, or wherever the `$TMHOME` variable might be set
+`~/.demars/config`, or wherever the `$TMHOME` variable might be set
 to.
 
 Here are the steps to setting up a testnet manually:
@@ -26,7 +26,7 @@ Here are the steps to setting up a testnet manually:
     `demars node --proxy_app=dmccoin --p2p.persistent_peers=< peer addresses >`
     on each node, where `< peer addresses >` is a comma separated list
     of the IP:PORT combination for each node. The default port for
-    Tendermint is `26656`. Thus, if the IP addresses of your nodes were
+    DéMars is `26656`. Thus, if the IP addresses of your nodes were
     `192.168.0.1, 192.168.0.2, 192.168.0.3, 192.168.0.4`, the command
     would look like:
 
@@ -34,5 +34,5 @@ Here are the steps to setting up a testnet manually:
     demars node --proxy_app=dmccoin --p2p.persistent_peers=96663a3dd0d7b9d17d4c8211b191af259621c693@192.168.0.1:26656, 429fcf25974313b95673f58d77eacdd434402665@192.168.0.2:26656, 0491d373a8e0fcf1023aaf18c51d6a1d0d4f31bd@192.168.0.3:26656, f9baeaa15fedf5e1ef7448dd60f46c01f1a9e9c4@192.168.0.4:26656
 
 After a few seconds, all the nodes should connect to each other and
-start making blocks! For more information, see the Tendermint Networks
+start making blocks! For more information, see the DéMars Networks
 section of [the guide to using DéMars](./using-demars.md).

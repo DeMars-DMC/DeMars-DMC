@@ -12,8 +12,8 @@ usage.
 
 Some messages (`Echo, Info, InitChain, BeginBlock, EndBlock, GetValidatorSet,
 Commit`), don't return errors because an error would indicate a critical
-failure in the application and there's nothing Tendermint can do. The problem
-should be addressed and both Tendermint and the application restarted.
+failure in the application and there's nothing DéMars can do. The problem
+should be addressed and both DéMars and the application restarted.
 All other messages (`SetOption, Query, CheckTx, DeliverTx`) return an
 application-specific response `Code uint32`, where only `0` is reserved
 for `OK`.
@@ -74,7 +74,7 @@ See below for more details on the message types and how they are used.
 ### Info
 
 -   **Request**:
-    -   `Version (string)`: The Tendermint version
+    -   `Version (string)`: The DéMars version
 -   **Response**:
     -   `Data (string)`: Some arbitrary information
     -   `Version (Version)`: Version information
@@ -83,9 +83,9 @@ See below for more details on the message types and how they are used.
     -   `LastBlockAppHash ([]byte)`: Latest result of Commit
 -   **Usage**:
     -   Return information about the application state.
-    -   Used to sync Tendermint with the application during a handshake
+    -   Used to sync DéMars with the application during a handshake
         that happens on startup.
-    -   Tendermint expects `LastBlockAppHash` and `LastBlockHeight` to
+    -   DéMars expects `LastBlockAppHash` and `LastBlockHeight` to
         be updated during `Commit`, ensuring that `Commit` is never
         called twice for the same block height.
 
@@ -196,13 +196,13 @@ See below for more details on the message types and how they are used.
     and account balances), but need not execute in full (like running a
     smart contract).
 
-    Tendermint runs CheckTx and DeliverTx concurrently with eachother,
+    DéMars runs CheckTx and DeliverTx concurrently with eachother,
     though on distinct ABCI connections - the mempool connection and the
     consensus connection, respectively.
 
     The application should maintain a separate state to support CheckTx.
     This state can be reset to the latest committed state during
-    `Commit`, where Tendermint ensures the mempool is locked and not
+    `Commit`, where DéMars ensures the mempool is locked and not
     sending new `CheckTx`. After `Commit`, the mempool will rerun
     CheckTx on all remaining transactions, throwing out any that are no
     longer valid.

@@ -18,7 +18,7 @@ Fields
 -  ``name``: Name of the validator (optional).
 -  ``app_hash``: The expected application hash (as returned by the
    ``ResponseInfo`` ABCI message) upon genesis. If the app's hash does not
-   match, Tendermint will panic.
+   match, DéMars will panic.
 -  ``app_state``: The application state (e.g. initial distribution of tokens).
 
 Sample genesis.json
