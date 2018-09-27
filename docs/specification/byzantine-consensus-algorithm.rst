@@ -14,9 +14,9 @@ Terms
 -  A node is said to be *at* a given height, round, and step, or at
    ``(H,R,S)``, or at ``(H,R)`` in short to omit the step.
 -  To *prevote* or *precommit* something means to broadcast a `prevote
-   vote <https://godoc.org/github.com/tendermint/tendermint/types#Vote>`__
+   vote <https://godoc.org/github.com/demars-dmc/demars-dmc/types#Vote>`__
    or `first precommit
-   vote <https://godoc.org/github.com/tendermint/tendermint/types#FirstPrecommit>`__
+   vote <https://godoc.org/github.com/demars-dmc/demars-dmc/types#FirstPrecommit>`__
    for something.
 -  A vote *at* ``(H,R)`` is a vote signed with the bytes for ``H`` and
    ``R`` included in its
@@ -112,7 +112,7 @@ example,
 -  Nodes gossip prevotes for the proposed PoLC (proof-of-lock-change)
    round if one is proposed.
 -  Nodes gossip to nodes lagging in blockchain height with block
-   `commits <https://godoc.org/github.com/tendermint/tendermint/types#Commit>`__
+   `commits <https://godoc.org/github.com/demars-dmc/demars-dmc/types#Commit>`__
    for older blocks.
 -  Nodes opportunistically gossip ``HasVote`` messages to hint peers
    what votes it already has.
@@ -128,7 +128,7 @@ A proposal is signed and published by the designated proposer at each
 round. The proposer is chosen by a deterministic and non-choking round
 robin selection algorithm that selects proposers in proportion to their
 voting power. (see
-`implementation <https://github.com/tendermint/tendermint/blob/develop/types/validator_set.go>`__)
+`implementation <https://github.com/demars-dmc/demars-dmc/types/validator_set.go>`__)
 
 A proposal at ``(H,R)`` is composed of a block and an optional latest
 ``PoLC-Round < R`` which is included iff the proposer knows of one. This
@@ -290,7 +290,7 @@ tells peers that this node has (or does not have) a +2/3 majority for B
 majority. Peers can react by responding with appropriate votes.
 
 We will implement such an algorithm for the next iteration of the
-Tendermint consensus protocol.
+DéMars consensus protocol.
 
 Other potential improvements include adding more data in votes such as
 the last known PoLC round that caused a lock change, and the last voted
@@ -314,7 +314,7 @@ a near halt, or engage in any combination of these attacks.
 If a global active adversary were also involved, it can partition the
 network in such a way that it may appear that the wrong subset of
 validators were responsible for the slowdown. This is not just a
-limitation of Tendermint, but rather a limitation of all consensus
+limitation of DéMars, but rather a limitation of all consensus
 protocols whose network is potentially controlled by an active
 adversary.
 
@@ -338,7 +338,7 @@ lock-changing without justification. So, signing the reorg-proposal is a
 coordination problem that cannot be solved by any non-synchronous
 protocol (i.e. automatically, and without making assumptions about the
 reliability of the underlying network). It must be provided by means
-external to the weakly-synchronous Tendermint consensus algorithm. For
+external to the weakly-synchronous DéMars consensus algorithm. For
 now, we leave the problem of reorg-proposal coordination to human
 coordination via internet media. Validators must take care to ensure
 that there are no significant network partitions, to avoid situations

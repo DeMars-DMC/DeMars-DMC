@@ -56,7 +56,7 @@ remove the worst peer from that bucket to make room.
 
 When a peer is first added, it is unvetted.
 Marking a peer as vetted is outside the scope of the `p2p` package.
-For Tendermint, a Peer becomes vetted once it has contributed sufficiently
+For DéMars, a Peer becomes vetted once it has contributed sufficiently
 at the consensus layer; ie. once it has sent us valid and not-yet-known
 votes and/or block parts for `NumBlocksForVetted` blocks.
 Other users of the p2p package can determine their own conditions for when a peer is marked vetted.
@@ -107,17 +107,3 @@ so it can remove and mark the peer.
 In the PEX, if a peer sends us an unsolicited list of peers,
 or if the peer sends a request too soon after another one,
 we Disconnect and MarkBad.
-
-## Trust Metric
-
-The quality of peers can be tracked in more fine-grained detail using a
-Proportional-Integral-Derivative (PID) controller that incorporates
-current, past, and rate-of-change data to inform peer quality.
-
-While a PID trust metric has been implemented, it remains for future work
-to use it in the PEX.
-
-See the [trustmetric](https://github.com/tendermint/tendermint/blob/master/docs/architecture/adr-006-trust-metric.md)
-and [trustmetric useage](https://github.com/tendermint/tendermint/blob/master/docs/architecture/adr-007-trust-metric-usage.md)
-architecture docs for more details.
-

@@ -1,29 +1,33 @@
-# Tendermint Blockchain
+# DéMars Blockchain
 
-Here we describe the data structures in the Tendermint blockchain and the rules for validating them.
+Here we describe the data structures in the DéMars blockchain and the rules for validating them.
 
 ## Data Structures
 
-The Tendermint blockchains consists of a short list of basic data types:
+The DéMars blockchains consists of a short list of basic data types:
 
 - `Block`
 - `Header`
 - `Vote`
 - `BlockID`
 - `Signature`
-- `Evidence`
 
 ## Block
 
-A block consists of a header, a list of transactions, a list of votes (the commit),
+A block consists of a header, a list of transactions (inside buckets), a list of votes (the commit),
 and a list of evidence of malfeasance (ie. signing conflicting votes).
 
 ```go
 type Block struct {
-    Header      Header
-    Txs         [][]byte
-    LastCommit  []Vote
-    Evidence    []Evidence
+	*Header
+	*Data
+	Commit *Commit
+}
+
+type Data struct {
+	TxBuckets TxBuckets
+
+	hash cmn.HexBytes
 }
 ```
 
@@ -57,30 +61,6 @@ type Header struct {
 
     // consensus
     Proposer            []byte  // Address of the block proposer
-    EvidenceHash        []byte  // SimpleMerkle of []Evidence
-}
-```
-
-Further details on each of these fields is described below.
-
-## BlockID
-
-The `BlockID` contains two distinct Merkle roots of the block.
-The first, used as the block's main hash, is the Merkle root
-of all the fields in the header. The second, used for secure gossipping of
-the block during consensus, is the Merkle root of the complete serialized block
-cut into parts. The `BlockID` includes these two hashes, as well as the number of
-parts.
-
-```go
-type BlockID struct {
-    Hash []byte
-    Parts PartsHeader
-}
-
-type PartsHeader struct {
-    Hash []byte
-    Total int32
 }
 ```
 
@@ -108,9 +88,9 @@ a *precommit* has `vote.Type == 2`.
 
 ## Signature
 
-Tendermint allows for multiple signature schemes to be used by prepending a single type-byte
+DéMars allows for multiple signature schemes to be used by prepending a single type-byte
 to the signature bytes. Different signatures may also come with fixed or variable lengths.
-Currently, Tendermint supports Ed25519 and Secp256k1.
+Currently, DéMars supports Ed25519 and Secp256k1.
 
 ### ED25519
 
@@ -143,252 +123,6 @@ where `Signature` is the DER encoded signature, ie:
 ```hex
 0x30 <length of whole message> <0x02> <length of R> <R> 0x2 <length of S> <S>.
 ```
-
-## Evidence
-
-TODO
-
-## Validation
-
-Here we describe the validation rules for every element in a block.
-Blocks which do not satisfy these rules are considered invalid.
-
-We abuse notation by using something that looks like Go, supplemented with English.
-A statement such as `x == y` is an assertion - if it fails, the item is invalid.
-
-We refer to certain globally available objects:
-`block` is the block under consideration,
-`prevBlock` is the `block` at the previous height,
-and `state` keeps track of the validator set, the consensus parameters
-and other results from the application.
-Elements of an object are accessed as expected,
-ie. `block.Header`. See [here](https://github.com/tendermint/tendermint/blob/master/docs/spec/blockchain/state.md) for the definition of `state`.
-
-### Header
-
-A Header is valid if its corresponding fields are valid.
-
-### Version
-
-Arbitrary string.
-
-### ChainID
-
-Arbitrary constant string.
-
-### Height
-
-```go
-block.Header.Height > 0
-block.Header.Height == prevBlock.Header.Height + 1
-```
-
-The height is an incrementing integer. The first block has `block.Header.Height == 1`.
-
-### Time
-
-The median of the timestamps of the valid votes in the block.LastCommit.
-Corresponds to the number of nanoseconds, with millisecond resolution, since January 1, 1970.
-
-Note: the timestamp of a vote must be greater by at least one millisecond than that of the
-block being voted on.
-
-### NumTxs
-
-```go
-block.Header.NumTxs == len(block.Txs)
-```
-
-Number of transactions included in the block.
-
-### TxHash
-
-```go
-block.Header.TxHash == SimpleMerkleRoot(block.Txs)
-```
-
-Simple Merkle root of the transactions in the block.
-
-### LastCommitHash
-
-```go
-block.Header.LastCommitHash == SimpleMerkleRoot(block.LastCommit)
-```
-
-Simple Merkle root of the votes included in the block.
-These are the votes that committed the previous block.
-
-The first block has `block.Header.LastCommitHash == []byte{}`
-
-### TotalTxs
-
-```go
-block.Header.TotalTxs == prevBlock.Header.TotalTxs + block.Header.NumTxs
-```
-
-The cumulative sum of all transactions included in this blockchain.
-
-The first block has `block.Header.TotalTxs = block.Header.NumberTxs`.
-
-### LastBlockID
-
-LastBlockID is the previous block's BlockID:
-
-```go
-prevBlockParts := MakeParts(prevBlock, state.LastConsensusParams.BlockGossip.BlockPartSize)
-block.Header.LastBlockID == BlockID {
-    Hash: SimpleMerkleRoot(prevBlock.Header),
-    PartsHeader{
-        Hash: SimpleMerkleRoot(prevBlockParts),
-        Total: len(prevBlockParts),
-    },
-}
-```
-
-Note: it depends on the ConsensusParams,
-which are held in the `state` and may be updated by the application.
-
-The first block has `block.Header.LastBlockID == BlockID{}`.
-
-### ResultsHash
-
-```go
-block.ResultsHash == SimpleMerkleRoot(state.LastResults)
-```
-
-Simple Merkle root of the results of the transactions in the previous block.
-
-The first block has `block.Header.ResultsHash == []byte{}`.
-
-### AppHash
-
-```go
-block.AppHash == state.AppHash
-```
-
-Arbitrary byte array returned by the application after executing and commiting the previous block.
-
-The first block has `block.Header.AppHash == []byte{}`.
-
-### ValidatorsHash
-
-```go
-block.ValidatorsHash == SimpleMerkleRoot(state.Validators)
-```
-
-Simple Merkle root of the current validator set that is committing the block.
-This can be used to validate the `LastCommit` included in the next block.
-May be updated by the application.
-
-### ConsensusParamsHash
-
-```go
-block.ConsensusParamsHash == SimpleMerkleRoot(state.ConsensusParams)
-```
-
-Simple Merkle root of the consensus parameters.
-May be updated by the application.
-
-### Proposer
-
-```go
-block.Header.Proposer in state.Validators
-```
-
-Original proposer of the block. Must be a current validator.
-
-NOTE: we also need to track the round.
-
-## EvidenceHash
-
-```go
-block.EvidenceHash == SimpleMerkleRoot(block.Evidence)
-```
-
-Simple Merkle root of the evidence of Byzantine behaviour included in this block.
-
-## Txs
-
-Arbitrary length array of arbitrary length byte-arrays.
-
-## LastCommit
-
-The first height is an exception - it requires the LastCommit to be empty:
-
-```go
-if block.Header.Height == 1 {
-    len(b.LastCommit) == 0
-}
-```
-
-Otherwise, we require:
-
-```go
-len(block.LastCommit) == len(state.LastValidators)
-talliedVotingPower := 0
-for i, vote := range block.LastCommit{
-    if vote == nil{
-        continue
-    }
-    vote.Type == 2
-    vote.Height == block.LastCommit.Height()
-    vote.Round == block.LastCommit.Round()
-    vote.BlockID == block.LastBlockID
-
-    val := state.LastValidators[i]
-    vote.Verify(block.ChainID, val.PubKey) == true
-
-    talliedVotingPower += val.VotingPower
-}
-
-talliedVotingPower > (2/3) * TotalVotingPower(state.LastValidators)
-```
-
-Includes one (possibly nil) vote for every current validator.
-Non-nil votes must be Precommits.
-All votes must be for the same height and round.
-All votes must be for the previous block.
-All votes must have a valid signature from the corresponding validator.
-The sum total of the voting power of the validators that voted
-must be greater than 2/3 of the total voting power of the complete validator set.
-
-### Vote
-
-A vote is a signed message broadcast in the consensus for a particular block at a particular height and round.
-When stored in the blockchain or propagated over the network, votes are encoded in TMBIN.
-For signing, votes are encoded in JSON, and the ChainID is included, in the form of the `CanonicalSignBytes`.
-
-We define a method `Verify` that returns `true` if the signature verifies against the pubkey for the CanonicalSignBytes
-using the given ChainID:
-
-```go
-func (v Vote) Verify(chainID string, pubKey PubKey) bool {
-    return pubKey.Verify(v.Signature, CanonicalSignBytes(chainID, v))
-}
-```
-
-where `pubKey.Verify` performs the appropriate digital signature verification of the `pubKey`
-against the given signature and message bytes.
-
-## Evidence
-
-There is currently only one kind of evidence:
-
-```
-// amino: "tendermint/DuplicateVoteEvidence"
-type DuplicateVoteEvidence struct {
-	PubKey crypto.PubKey
-	VoteA  *Vote
-	VoteB  *Vote
-}
-```
-
-DuplicateVoteEvidence `ev` is valid if
-
-- `ev.VoteA` and `ev.VoteB` can be verified with `ev.PubKey`
-- `ev.VoteA` and `ev.VoteB` have the same `Height, Round, Address, Index, Type`
-- `ev.VoteA.BlockID != ev.VoteB.BlockID`
-- `(block.Height - ev.VoteA.Height) < MAX_EVIDENCE_AGE`
 
 # Execution
 
@@ -427,5 +161,3 @@ type ABCIResponses struct {
     AppHash                 []byte
 }
 ```
-
-

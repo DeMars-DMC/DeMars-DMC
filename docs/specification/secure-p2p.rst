@@ -1,7 +1,7 @@
 Secure P2P
 ==========
 
-The Tendermint p2p protocol uses an authenticated encryption scheme
+The DéMars p2p protocol uses an authenticated encryption scheme
 based on the `Station-to-Station
 Protocol <https://en.wikipedia.org/wiki/Station-to-Station_protocol>`__.
 The implementation uses
@@ -70,7 +70,6 @@ Authenticated encryption is enabled by default.
 Additional Reading
 ------------------
 
--  `Implementation <https://github.com/tendermint/go-p2p/blob/master/secret_connection.go#L49>`__
 -  `Original STS paper by Whitfield Diffie, Paul C. van Oorschot and
    Michael J.
    Wiener <http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.216.6107&rep=rep1&type=pdf>`__

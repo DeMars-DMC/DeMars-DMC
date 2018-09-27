@@ -1,14 +1,14 @@
-# Tendermint Encoding
+# DéMars Encoding
 
 ## Amino
 
-Tendermint uses the proto3 derivative [Amino](https://github.com/tendermint/go-amino) for all data structures.
+DéMars uses the proto3 derivative [Amino](https://github.com/demars-dmc/go-amino) for all data structures.
 Think of Amino as an object-oriented proto3 with native JSON support.
 The goal of the Amino encoding protocol is to bring parity between application
 logic objects and persistence objects.
 
 Please see the [Amino
-specification](https://github.com/tendermint/go-amino#amino-encoding-for-go) for
+specification](https://github.com/demars-dmc/go-amino#amino-encoding-for-go) for
 more details.
 
 Notably, every object that satisfies an interface (eg. a particular kind of p2p message,
@@ -32,8 +32,8 @@ be encoded as `0xAC020A0B...` where `0xAC02` is the UVarint encoding of 300.
 
 ## Public Key Cryptography
 
-Tendermint uses Amino to distinguish between different types of private keys,
-public keys, and signatures. Additionally, for each public key, Tendermint
+DéMars uses Amino to distinguish between different types of private keys,
+public keys, and signatures. Additionally, for each public key, DéMars
 defines an Address function that can be used as a more compact identifier in
 place of the public key. Here we list the concrete types, their names,
 and prefix bytes for public keys and signatures, as well as the address schemes
@@ -44,7 +44,7 @@ derived the same way as the others using Amino.
 All registered objects are encoded by Amino using a 4-byte PrefixBytes that
 uniquely identifies the object and includes information about its underlying
 type. For details on how PrefixBytes are computed, see the [Amino
-spec](https://github.com/tendermint/go-amino#computing-the-prefix-and-disambiguation-bytes).
+spec](https://github.com/demars-dmc/go-amino#computing-the-prefix-and-disambiguation-bytes).
 
 In what follows, we provide the type names and prefix bytes directly.
 Notice that when encoding byte-arrays, the length of the byte-array is appended
@@ -56,12 +56,12 @@ You can simply use below table and concatenate Prefix || Length (of raw bytes) |
 
 | Type | Name | Prefix | Length | Notes |
 | ---- | ---- | ------ | ----- | ------ |
-| PubKeyEd25519 | tendermint/PubKeyEd25519 | 0x1624DE64 | 0x20 |  |
-| PubKeySecp256k1 | tendermint/PubKeySecp256k1 | 0xEB5AE987 | 0x21 |  |
-| PrivKeyEd25519 | tendermint/PrivKeyEd25519 | 0xA3288910 | 0x40 |  |
-| PrivKeySecp256k1 | tendermint/PrivKeySecp256k1 | 0xE1B0F79B | 0x20 |  |
-| SignatureEd25519 | tendermint/SignatureEd25519 | 0x2031EA53 | 0x40 |  |
-| SignatureSecp256k1 | tendermint/SignatureSecp256k1 | 0x7FC4A495 | variable |
+| PubKeyEd25519 | demars/PubKeyEd25519 | 0x1624DE64 | 0x20 |  |
+| PubKeySecp256k1 | demars/PubKeySecp256k1 | 0xEB5AE987 | 0x21 |  |
+| PrivKeyEd25519 | demars/PrivKeyEd25519 | 0xA3288910 | 0x40 |  |
+| PrivKeySecp256k1 | demars/PrivKeySecp256k1 | 0xE1B0F79B | 0x20 |  |
+| SignatureEd25519 | demars/SignatureEd25519 | 0x2031EA53 | 0x40 |  |
+| SignatureSecp256k1 | demars/SignatureSecp256k1 | 0x7FC4A495 | variable |
 |
 
 ### Examples
@@ -75,30 +75,6 @@ would be encoded as
 `304402201CD4B8C764D2FD8AF23ECFE6666CA8A53886D47754D951295D2D311E1FEA33BF02201E0F906BB1CF2C30EAACFFB032A7129358AFF96B9F79B06ACFFB18AC90C2ADD7`
 would be encoded as
 `16E1FEEA46304402201CD4B8C764D2FD8AF23ECFE6666CA8A53886D47754D951295D2D311E1FEA33BF02201E0F906BB1CF2C30EAACFFB032A7129358AFF96B9F79B06ACFFB18AC90C2ADD7`
-
-### Addresses
-
-Addresses for each public key types are computed as follows:
-
-#### Ed25519
-
-First 20-bytes of the SHA256 hash of the raw 32-byte public key:
-
-```
-address = SHA256(pubkey)[:20]
-```
-
-NOTE: before v0.22.0, this was the RIPEMD160 of the Amino encoded public key.
-
-#### Secp256k1
-
-RIPEMD160 hash of the SHA256 hash of the OpenSSL compressed public key:
-
-```
-address = RIPEMD160(SHA256(pubkey))
-```
-
-This is the same as Bitcoin.
 
 ## Other Common Types
 
@@ -122,119 +98,6 @@ Note BitArray receives a special JSON encoding in the form of `x` and `_`
 representing `1` and `0`. Ie. the BitArray `10110` would be JSON encoded as
 `"x_xx_"`
 
-### Part
-
-Part is used to break up blocks into pieces that can be gossiped in parallel
-and securely verified using a Merkle tree of the parts.
-
-Part contains the index of the part in the larger set (`Index`), the actual
-underlying data of the part (`Bytes`), and a simple Merkle proof that the part is contained in
-the larger set (`Proof`).
-
-```go
-type Part struct {
-    Index int
-    Bytes byte[]
-    Proof byte[]
-}
-```
-
-### MakeParts
-
-Encode an object using Amino and slice it into parts.
-
-```go
-func MakeParts(obj interface{}, partSize int) []Part
-```
-
-## Merkle Trees
-
-Simple Merkle trees are used in numerous places in Tendermint to compute a cryptographic digest of a data structure.
-
-Tendermint always uses the `TMHASH` hash function, which is the first 20-bytes
-of the SHA256:
-
-```
-func TMHASH(bz []byte) []byte {
-    shasum := SHA256(bz)
-    return shasum[:20]
-}
-```
-
-### Simple Merkle Root
-
-The function `SimpleMerkleRoot` is a simple recursive function defined as follows:
-
-```go
-func SimpleMerkleRoot(hashes [][]byte) []byte{
-    switch len(hashes) {
-    case 0:
-        return nil
-    case 1:
-        return hashes[0]
-    default:
-        left := SimpleMerkleRoot(hashes[:(len(hashes)+1)/2])
-        right := SimpleMerkleRoot(hashes[(len(hashes)+1)/2:])
-        return SimpleConcatHash(left, right)
-    }
-}
-
-func SimpleConcatHash(left, right []byte) []byte{
-    left = encodeByteSlice(left)
-    right = encodeByteSlice(right)
-    return TMHASH(append(left, right))
-}
-```
-
-Note that the leaves are Amino encoded as byte-arrays (ie. simple Uvarint length
-prefix) before being concatenated together and hashed.
-
-Note: we will abuse notion and invoke `SimpleMerkleRoot` with arguments of type `struct` or type `[]struct`.
-For `struct` arguments, we compute a `[][]byte` containing the hash of each
-field in the struct sorted by the hash of the field name.
-For `[]struct` arguments, we compute a `[][]byte` by hashing the individual `struct` elements.
-
-### Simple Merkle Proof
-
-Proof that a leaf is in a Merkle tree consists of a simple structure:
-
-
-```
-type SimpleProof struct {
-        Aunts [][]byte
-}
-```
-
-Which is verified using the following:
-
-```
-func (proof SimpleProof) Verify(index, total int, leafHash, rootHash []byte) bool {
-	computedHash := computeHashFromAunts(index, total, leafHash, proof.Aunts)
-    return computedHash == rootHash
-}
-
-func computeHashFromAunts(index, total int, leafHash []byte, innerHashes [][]byte) []byte{
-	assert(index < total && index >= 0 && total > 0)
-
-	if total == 1{
-		assert(len(proof.Aunts) == 0)
-		return leafHash
-	}
-
-	assert(len(innerHashes) > 0)
-
-	numLeft := (total + 1) / 2
-	if index < numLeft {
-		leftHash := computeHashFromAunts(index, numLeft, leafHash, innerHashes[:len(innerHashes)-1])
-		assert(leftHash != nil)
-		return SimpleHashFromTwoHashes(leftHash, innerHashes[len(innerHashes)-1])
-	}
-	rightHash := computeHashFromAunts(index-numLeft, total-numLeft, leafHash, innerHashes[:len(innerHashes)-1])
-	assert(rightHash != nil)
-	return SimpleHashFromTwoHashes(innerHashes[len(innerHashes)-1], rightHash)
-}
-```
-
 ## JSON
 
 ### Amino
@@ -254,7 +117,7 @@ For instance, an ED25519 PubKey would look like:
 
 ```
 {
-  "type": "tendermint/PubKeyEd25519",
+  "type": "demars/PubKeyEd25519",
   "value": "uZ4h63OFWuQ36ZZ4Bd6NF+/w9fWUwrOncrQsackrsTk="
 }
 ```

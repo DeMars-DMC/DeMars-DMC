@@ -3,18 +3,18 @@
 ## Walkabout example
 
 We first create three connections (mempool, consensus and query) to the
-application (running `kvstore` locally in this case).
+application (running `dmccoin` locally in this case).
 
     I[10-04|13:54:27.364] Starting multiAppConn                        module=proxy impl=multiAppConn
     I[10-04|13:54:27.366] Starting localClient                         module=abci-client connection=query impl=localClient
     I[10-04|13:54:27.366] Starting localClient                         module=abci-client connection=mempool impl=localClient
     I[10-04|13:54:27.367] Starting localClient                         module=abci-client connection=consensus impl=localClient
 
-Then Tendermint Core and the application perform a handshake.
+Then DéMars and the application perform a handshake.
 
     I[10-04|13:54:27.367] ABCI Handshake                               module=consensus appHeight=90 appHash=E0FBAFBF6FCED8B9786DDFEB1A0D4FA2501BADAD
     I[10-04|13:54:27.368] ABCI Replay Blocks                           module=consensus appHeight=90 storeHeight=90 stateHeight=90
-    I[10-04|13:54:27.368] Completed ABCI Handshake - Tendermint and App are synced module=consensus appHeight=90 appHash=E0FBAFBF6FCED8B9786DDFEB1A0D4FA2501BADAD
+    I[10-04|13:54:27.368] Completed ABCI Handshake - DéMars and App are synced module=consensus appHeight=90 appHash=E0FBAFBF6FCED8B9786DDFEB1A0D4FA2501BADAD
 
 After that, we start a few more things like the event switch, reactors,
 and perform UPNP discover in order to detect the IP address.
@@ -35,7 +35,7 @@ and perform UPNP discover in order to detect the IP address.
     I[10-04|13:54:30.387] Starting WAL                                 module=consensus wal=/home/vagrant/.tendermint/data/cs.wal/wal impl=WAL
     I[10-04|13:54:30.388] Starting TimeoutTicker                       module=consensus impl=TimeoutTicker
 
-Notice the second row where Tendermint Core reports that "This node is a
+Notice the second row where DéMars reports that "This node is a
 validator". It also could be just an observer (regular node).
 
 Next we replay all the messages from the WAL.
@@ -52,8 +52,7 @@ Next we replay all the messages from the WAL.
 Next follows a standard block creation cycle, where we enter a new
 round, propose a block, receive more than 2/3 of prevotes, then
 precommits and finally have a chance to commit a block. For details,
-please refer to [Consensus
-Overview](./introduction.md#consensus-overview) or [Byzantine Consensus
+please refer to [Byzantine Consensus
 Algorithm](./spec/consensus).
 
     I[10-04|13:54:30.393] enterNewRound(91/0). Current: 91/0/RoundStepNewHeight module=consensus
@@ -95,9 +94,10 @@ Algorithm](./spec/consensus).
     I[10-04|13:54:30.410] Committed state                              module=state height=91 txs=0 hash=E0FBAFBF6FCED8B9786DDFEB1A0D4FA2501BADAD
     I[10-04|13:54:30.410] Recheck txs                                  module=mempool numtxs=0 height=91
 
+<!--
 ## List of modules
 
-Here is the list of modules you may encounter in Tendermint's log and a
+Here is the list of modules you may encounter in DéMars's log and a
 little overview what they do.
 
 -   `abci-client` As mentioned in [Application Development Guide](./app-development.md),    Tendermint acts as an ABCI
@@ -128,3 +128,4 @@ little overview what they do.
     executes blocks against the application.
 -   `types` A collection of the publicly exposed types and methods to
     work with them.
+-->

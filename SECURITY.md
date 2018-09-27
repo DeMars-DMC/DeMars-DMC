@@ -1,4 +1,6 @@
 # Security
+<!--
+Keep for the format/template
 
 As part of our [Coordinated Vulnerability Disclosure
 Policy](https://tendermint.com/security), we operate a bug bounty.
@@ -69,3 +71,4 @@ Attacks may come through the P2P network or the RPC:
 - Syncing validator set changes
 
 
+-->

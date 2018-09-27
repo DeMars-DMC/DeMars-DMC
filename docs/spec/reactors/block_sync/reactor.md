@@ -5,7 +5,7 @@ far behind the current state of the consensus to quickly catch up by downloading
 many blocks in parallel, verifying their commits, and executing them against the
 ABCI application.
 
-Tendermint full nodes run the Blockchain Reactor as a service to provide blocks
+DéMars nodes run the Blockchain Reactor as a service to provide blocks and buckets
 to new nodes. New nodes run the Blockchain Reactor in "fast_sync" mode,
 where they actively make requests for more blocks until they sync up.
 Once caught up, "fast_sync" mode is disabled and the node switches to
@@ -46,10 +46,10 @@ type bcStatusResponseMessage struct {
 
 ## Architecture and algorithm
 
-The Blockchain reactor is organised as a set of concurrent tasks: 
-    - Receive routine of Blockchain Reactor 
+The Blockchain reactor is organised as a set of concurrent tasks:
+    - Receive routine of Blockchain Reactor
     - Task for creating Requesters
-    - Set of Requesters tasks and 
+    - Set of Requesters tasks and
     - Controller task.        
 
 ![Blockchain Reactor Architecture Diagram](img/bc-reactor.png)
@@ -58,41 +58,41 @@ The Blockchain reactor is organised as a set of concurrent tasks:
 
 These are the core data structures necessarily to provide the Blockchain Reactor logic.
 
-Requester data structure is used to track assignment of request for `block` at position `height` to a 
-peer with id equals to `peerID`. 
+Requester data structure is used to track assignment of request for `block` at position `height` to a
+peer with id equals to `peerID`.
 
 ```go
 type Requester {
   mtx          Mutex		
   block        Block
   height       int64  
-   peerID       p2p.ID
+  peerID       p2p.ID
   redoChannel  chan struct{}
 }
 ```
-Pool is core data structure that stores last executed block (`height`), assignment of requests to peers (`requesters`), 
-current height for each peer and number of pending requests for each peer (`peers`), maximum peer height, etc. 
+Pool is core data structure that stores last executed block (`height`), assignment of requests to peers (`requesters`),
+current height for each peer and number of pending requests for each peer (`peers`), maximum peer height, etc.
 
 ```go
 type Pool {
-  mtx Mutex	
+  mtx Mutex
   requesters       map[int64]*Requester
-   height           int64  
+ height           int64  
   peers            map[p2p.ID]*Peer
-   maxPeerHeight    int64    
-   numPending       int32   
+ maxPeerHeight    int64    
+ numPending       int32   
   store            BlockStore
-   requestsChannel  chan<- BlockRequest
-   errorsChannel    chan<- peerError
+ requestsChannel  chan<- BlockRequest
+ errorsChannel    chan<- peerError
 }
 ```
 
-Peer data structure stores for each peer current `height` and number of pending requests sent to 
+Peer data structure stores for each peer current `height` and number of pending requests sent to
 the peer (`numPending`), etc.
 
 ```go
 type Peer struct {
-  id         p2p.ID	
+  id         p2p.ID
   height     int64
   numPending int32
   timeout    *time.Timer
@@ -100,9 +100,9 @@ type Peer struct {
 }
 ```
 
-BlockRequest is internal data structure used to denote current mapping of request for a block at some `height` to 
+BlockRequest is internal data structure used to denote current mapping of request for a block at some `height` to
 a peer (`PeerID`).
-	
+
 ```go
 type BlockRequest {
   Height int64
@@ -112,7 +112,7 @@ type BlockRequest {
 
 ### Receive routine of Blockchain Reactor
 
-It is executed upon message reception on the BlockchainChannel inside p2p receive routine. There is a separate p2p 
+It is executed upon message reception on the BlockchainChannel inside p2p receive routine. There is a separate p2p
 receive routine (and therefore receive routine of the Blockchain Reactor) executed for each peer. Note that
 try to send will not block (returns immediately) if outgoing buffer is full.    
 
@@ -144,8 +144,8 @@ handleMsg(pool, m):
         else                 		  
           trigger peer timeout to expire after peerTimeout          
       pool.mtx.Unlock()          	  
-		
-		
+
+
     upon receiving bcStatusRequestMessage m from peer p:
       try to send bcStatusResponseMessage(pool.store.Height)    	
 
@@ -161,7 +161,7 @@ handleMsg(pool, m):
       if m.Height > pool.maxPeerHeight then       
         pool.maxPeerHeight = m.Height		    
       pool.mtx.Unlock()    
-	    
+
 onTimeout(p):
   send error message to pool error channel  
   peer = pool.peers[p]  
@@ -175,14 +175,14 @@ Requester task is responsible for fetching a single block at position `height`.
 ```go
 fetchBlock(height, pool):
   while true do    
-    peerID = nil	
+    peerID = nil
     block = nil
     peer = pickAvailablePeer(height)    
-    peerId = peer.id	
+    peerId = peer.id
 
     enqueue BlockRequest(height, peerID) to pool.requestsChannel
     redo = false    
-    while !redo do	
+    while !redo do
       select { 	  
         upon receiving Quit message do
           return        
@@ -194,16 +194,16 @@ fetchBlock(height, pool):
       }          
 
 pickAvailablePeer(height):
-  selectedPeer = nil	
-  while selectedPeer = nil do	
+  selectedPeer = nil
+  while selectedPeer = nil do
     pool.mtx.Lock()	  
     for each peer in pool.peers do 		
       if !peer.didTimeout and peer.numPending < maxPendingRequestsPerPeer and peer.height >= height then		  
         peer.numPending++		    
         selectedPeer = peer		    
-        break 
+        break
     pool.mtx.Unlock()                	
-    
+
     if selectedPeer = nil then          
       sleep requestIntervalMS	        		
 
@@ -215,7 +215,7 @@ sleep for requestIntervalMS
 This task is responsible for continuously creating and starting Requester tasks.
 ```go
 createRequesters(pool):
-  while true do	
+  while true do
     if !pool.isRunning then break  
     if pool.numPending < maxPendingRequests or size(pool.requesters) < maxTotalRequesters then  
       pool.mtx.Lock()
@@ -239,31 +239,31 @@ createRequesters(pool):
           delete(pool.peers, peerID)                  
       pool.mtx.Unlock()        
 ```
-  
 
-### Main blockchain reactor controller task 
+
+### Main blockchain reactor controller task
 ```go
 main(pool):
-  create trySyncTicker with interval trySyncIntervalMS 
+  create trySyncTicker with interval trySyncIntervalMS
   create statusUpdateTicker with interval statusUpdateIntervalSeconds   	
   create switchToConsensusTicker with interbal switchToConsensusIntervalSeconds   	
-  
-  while true do	
+
+  while true do
     select {  		
 	  upon receiving BlockRequest(Height, Peer) on pool.requestsChannel:
-	    try to send bcBlockRequestMessage(Height) to Peer	
+	    try to send bcBlockRequestMessage(Height) to Peer
 
 	  upon receiving error(peer) on errorsChannel:
-	    stop peer for error	
+	    stop peer for error
 
 	  upon receiving message on statusUpdateTickerChannel:
-	    broadcast bcStatusRequestMessage(bcR.store.Height) // message sent in a separate routine	
+	    broadcast bcStatusRequestMessage(bcR.store.Height) // message sent in a separate routine
 
 	  upon receiving message on switchToConsensusTickerChannel:
-	    pool.mtx.Lock()	
-	    receivedBlockOrTimedOut = pool.height > 0 || (time.Now() - pool.startTime) > 5 Seconds	
-	    ourChainIsLongestAmongPeers = pool.maxPeerHeight == 0 || pool.height >= pool.maxPeerHeight	
-	    haveSomePeers = size of pool.peers > 0	
+	    pool.mtx.Lock()
+	    receivedBlockOrTimedOut = pool.height > 0 || (time.Now() - pool.startTime) > 5 Seconds
+	    ourChainIsLongestAmongPeers = pool.maxPeerHeight == 0 || pool.height >= pool.maxPeerHeight
+	    haveSomePeers = size of pool.peers > 0
 	    pool.mtx.Unlock()
 	    if haveSomePeers && receivedBlockOrTimedOut && ourChainIsLongestAmongPeers then
 	      switch to consensus mode	    
@@ -289,13 +289,13 @@ main(pool):
                 pool.height++                        
                 execute firstBlock            
     }
-    
+
 redoRequestsForPeer(pool, peerId):
   for each requester in pool.requesters do        
     if requester.getPeerID() == peerID 		         
   	  enqueue msg on redoChannel for requester 	             
 ```
-                
+
 ## Channels
 
 Defines `maxMsgSize` for the maximum size of incoming messages,

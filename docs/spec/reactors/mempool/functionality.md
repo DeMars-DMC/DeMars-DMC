@@ -21,7 +21,7 @@ to potentially untrusted actors.
 ## Internal functionality
 
 Internal functionality is exposed via method calls to other
-code compiled into the tendermint binary.
+code compiled into the DéMars binary.
 
 * Reap - get tx to propose in next block
 * Update - remove tx that were included in last block
@@ -30,8 +30,3 @@ code compiled into the tendermint binary.
 What does it provide the consensus reactor?
 What guarantees does it need from the ABCI app?
 (talk about interleaving processes in concurrency)
-
-## Optimizations
-
-Talk about the LRU cache to make sure we don't process any
-tx that we have seen before

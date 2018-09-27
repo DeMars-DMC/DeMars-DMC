@@ -61,7 +61,7 @@ See the [install instructions](/docs/install.md)
 -->
 ## Resources
 
-### Tendermint Core
+### DéMars
 
 For details about the blockchain data structures and the p2p protocols, see the
 the [DMC specification](/docs/spec).
@@ -91,16 +91,16 @@ Additional information about some - and eventually all - of the sub-projects bel
 * [Master's Thesis on Tendermint](https://atrium.lib.uoguelph.ca/xmlui/handle/10214/9769)
 * -->
 
-* [Original Whitepaper](https://tendermint.com/static/docs/tendermint.pdf)
+* [Original Whitepaper](https://github.com/DeMars-DMC/DeMars-DMC/blob/master/whitepaper/demars.pdf)
 
 <!--
 * [Tendermint Blog](https://blog.cosmos.network/tendermint/home)
 * [Cosmos Blog](https://blog.cosmos.network)
--->
+
 ## Contributing
 
 Yay open source! Please see our [contributing guidelines](CONTRIBUTING.md).
-
+-->
 <!--
 ## Versioning
 
@@ -136,7 +136,8 @@ data into the new chain.
 
 However, any bump in the PATCH version should be compatible with existing histories
 (if not please open an [issue](https://github.com/tendermint/tendermint/issues)).
--->
+
 ## Code of Conduct
 
 Please read, understand and adhere to our [code of conduct](CODE_OF_CONDUCT.md).
+-->

@@ -1,17 +1,17 @@
 # Configuration
 
-Tendermint Core can be configured via a TOML file in
-`$TMHOME/config/config.toml`. Some of these parameters can be overridden by
+DéMars can be configured via a TOML file in
+`$DMHOME/config/config.toml`. Some of these parameters can be overridden by
 command-line flags. For most users, the options in the `##### main
 base configuration options #####` are intended to be modified while
 config options further below are intended for advance power users.
 
 ## Options
 
-The default configuration file create by `tendermint init` has all
+The default configuration file create by `demars init` has all
 the parameters set with their default values. It will look something
 like the file below, however, double check by inspecting the
-`config.toml` created with your version of `tendermint` installed:
+`config.toml` created with your version of `demars` installed:
 
 ```
 # This is a TOML config file.
@@ -20,7 +20,7 @@ like the file below, however, double check by inspecting the
 ##### main base config options #####
 
 # TCP or UNIX socket address of the ABCI application,
-# or the name of an ABCI application compiled in with the Tendermint binary
+# or the name of an ABCI application compiled in with the DéMars binary
 proxy_app = "tcp://127.0.0.1:26658"
 
 # A custom human readable name for this node
@@ -177,37 +177,3 @@ create_empty_blocks_interval = 0
 # Reactor sleep duration parameters are in milliseconds
 peer_gossip_sleep_duration = 100
 peer_query_maj23_sleep_duration = 2000
-
-##### transactions indexer configuration options #####
-[tx_index]
-
-# What indexer to use for transactions
-#
-# Options:
-#   1) "null"
-#   2) "kv" (default) - the simplest possible indexer, backed by key-value storage (defaults to levelDB; see DBBackend).
-indexer = "kv"
-
-# Comma-separated list of tags to index (by default the only tag is tx hash)
-#
-# It's recommended to index only a subset of tags due to possible memory
-# bloat. This is, of course, depends on the indexer's DB and the volume of
-# transactions.
-index_tags = ""
-
-# When set to true, tells indexer to index all tags. Note this may be not
-# desirable (see the comment above). IndexTags has a precedence over
-# IndexAllTags (i.e. when given both, IndexTags will be indexed).
-index_all_tags = false
-
-##### instrumentation configuration options #####
-[instrumentation]
-
-# When true, Prometheus metrics are served under /metrics on
-# PrometheusListenAddr.
-# Check out the documentation for the list of available metrics.
-prometheus = false
-
-# Address to listen for Prometheus collector(s) connections
-prometheus_listen_addr = ":26660"
-```
