@@ -199,10 +199,12 @@ func (bcR *BlockchainReactor) Receive(chID byte, src p2p.Peer, msgBytes []byte) 
 
 	switch msg := msg.(type) {
 	case *bcBlockRequestMessage:
+		bcR.Logger.Debug("Received block request message")
 		if queued := bcR.respondToPeer(msg, src); !queued {
 			// Unfortunately not queued since the queue is full.
 		}
 	case *bcBlockResponseMessage:
+		bcR.Logger.Debug("Received block response message")
 		if msg.Bucket != nil && msg.Bucket.BucketId != "" {
 			// Got a bucket. The bucket height is in msg.Block.Height
 			bcR.pool.AddBucket(src.ID(), msg.Bucket, msg.Block.Height, msg.Block.Commit, bcR.store)
@@ -217,6 +219,7 @@ func (bcR *BlockchainReactor) Receive(chID byte, src p2p.Peer, msgBytes []byte) 
 		}
 
 	case *bcStatusRequestMessage:
+		bcR.Logger.Debug("Received status request message")
 		// Send peer our state.
 		msgBytes := cdc.MustMarshalBinaryBare(&bcStatusResponseMessage{bcR.store.Height()})
 		queued := src.TrySend(BlockchainChannel, msgBytes)
@@ -224,6 +227,7 @@ func (bcR *BlockchainReactor) Receive(chID byte, src p2p.Peer, msgBytes []byte) 
 			// sorry
 		}
 	case *bcStatusResponseMessage:
+		bcR.Logger.Debug("Received status response message")
 		// Got a peer status. Unverified.
 		bcR.pool.SetPeerHeight(src.ID(), msg.Height)
 	default:

@@ -11,7 +11,6 @@ import (
 	"strconv"
 	"strings"
 	"time"
-	"errors"
 
 	cmn "github.com/tendermint/tendermint/libs/common"
 	"encoding/hex"
@@ -77,12 +76,13 @@ func (n *NodeID) UnmarshalText(text []byte) error {
 // It returns an error if the ID is not a point on the curve.
 func (id NodeID) Pubkey() (*ecdsa.PublicKey, error) {
 	p := &ecdsa.PublicKey{Curve: crypto.S256(), X: new(big.Int), Y: new(big.Int)}
-	half := len(id.ID) / 2
-	p.X.SetBytes(id.ID[:half])
-	p.Y.SetBytes(id.ID[half:])
-	if !p.Curve.IsOnCurve(p.X, p.Y) {
-		return nil, errors.New("id is invalid secp256k1 curve point")
-	}
+	quarter := len(id.ID) / 4
+	p.X.SetBytes(id.ID[:quarter])
+	p.Y.SetBytes(id.ID[quarter:2*quarter])
+	// FIXME
+	// if !p.Curve.IsOnCurve(p.X, p.Y) {
+	//  	return nil, errors.New("id is invalid secp256k1 curve point")
+	// }
 	return p, nil
 }
 

@@ -104,11 +104,6 @@ func (info NodeInfo) CompatibleWith(other NodeInfo) error {
 		// ok
 	}
 
-	// nodes must be on the same network
-	if info.Network != other.Network {
-		return fmt.Errorf("Peer is on a different network. Got %v, expected %v", other.Network, info.Network)
-	}
-
 	// if we have no channels, we're just testing
 	if len(info.Channels) == 0 {
 		return nil

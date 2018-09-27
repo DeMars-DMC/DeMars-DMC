@@ -1,12 +1,12 @@
 package node
 
 import (
-	"bytes"
 	"context"
 	"errors"
 	"fmt"
 	"net"
 	"net/http"
+	"strings"
 
 	amino "github.com/tendermint/go-amino"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
@@ -210,13 +210,14 @@ func NewNode(config *cfg.Config,
 
 	// Decide whether to fast-sync or not
 	// We don't fast-sync when the only validator is us.
-	fastSync := config.FastSync
-	if state.Validators.Size() == 1 {
-		addr, _ := state.Validators.GetByIndex(0)
-		if bytes.Equal(privValidator.GetAddress(), addr) {
-			fastSync = false
-		}
-	}
+//	fastSync := config.FastSync
+//	if state.Validators.Size() == 1 {
+//		addr, _ := state.Validators.GetByIndex(0)
+//		if bytes.Equal(privValidator.GetAddress(), addr) {
+//			fastSync = false
+//		}
+//	}
+	fastSync := false
 
 	// Log whether this node is a validator or an observer
 	if state.Validators.HasAddress(privValidator.GetAddress()) {
@@ -290,7 +291,11 @@ func NewNode(config *cfg.Config,
 	sw.AddReactor("CONSENSUS", consensusReactor)
 
 	// Start the KademliaReactor
-	kademliaReactor := kademlia.NewKademliaReactor()
+	seedAddresses := strings.Split(config.P2P.Seeds, ",")
+	netAddrs, _ := p2p.NewNetAddressStrings(seedAddresses)
+	p2pLogger.Debug("Seed net addresses", "count", len(netAddrs))
+	
+	kademliaReactor := kademlia.NewKademliaReactor(netAddrs)
 	kademliaReactor.SetLogger(p2pLogger)
 	sw.AddReactor("KADEMLIA", kademliaReactor)
 

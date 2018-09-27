@@ -191,7 +191,7 @@ build-docker:
 
 # Build linux binary on other platforms
 build-linux:
-	GOOS=linux GOARCH=amd64 $(MAKE) build
+	GOOS=darwin GOARCH=amd64 $(MAKE) build
 
 build-docker-localnode:
 	cd networks/local

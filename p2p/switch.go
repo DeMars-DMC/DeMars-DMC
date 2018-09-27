@@ -509,11 +509,12 @@ func (sw *Switch) addInboundPeerWithConfig(
 	conn net.Conn,
 	config *config.P2PConfig,
 ) error {
-	peerConn, err := newInboundPeerConn(conn, config, sw.nodeKey.PrivKey)
+	peerConn, err := newInboundPeerConn(sw.Logger, conn, config, sw.nodeKey.PrivKey)
 	if err != nil {
 		conn.Close() // peer is nil
 		return err
 	}
+	sw.Logger.Debug("Adding peer")
 	if err = sw.addPeer(peerConn); err != nil {
 		peerConn.CloseConn()
 		return err
@@ -534,6 +535,7 @@ func (sw *Switch) addOutboundPeerWithConfig(
 ) error {
 	sw.Logger.Info("Dialing peer", "address", addr)
 	peerConn, err := newOutboundPeerConn(
+		sw.Logger,
 		addr,
 		config,
 		persistent,
@@ -561,12 +563,14 @@ func (sw *Switch) addOutboundPeerWithConfig(
 // peer.CloseConn()
 func (sw *Switch) addPeer(pc peerConn) error {
 
+	sw.Logger.Debug("Filtering connection by addr")
 	addr := pc.conn.RemoteAddr()
 	if err := sw.FilterConnByAddr(addr); err != nil {
 		return err
 	}
 
 	// Exchange NodeInfo on the conn
+	sw.Logger.Debug("Exchange NodeInfo")
 	peerNodeInfo, err := pc.HandshakeTimeout(sw.nodeInfo, time.Duration(sw.config.HandshakeTimeout))
 	if err != nil {
 		return err
@@ -574,23 +578,14 @@ func (sw *Switch) addPeer(pc peerConn) error {
 
 	peerID := peerNodeInfo.ID
 
-	// ensure connection key matches self reported key
-	connID := pc.ID()
-
-	if peerID != connID {
-		return fmt.Errorf(
-			"nodeInfo.ID() (%v) doesn't match conn.ID() (%v)",
-			peerID,
-			connID,
-		)
-	}
-
+	sw.Logger.Debug("Validating peers nodeInfo")
 	// Validate the peers nodeInfo
 	if err := peerNodeInfo.Validate(); err != nil {
 		return err
 	}
 
 	// Avoid self
+	sw.Logger.Debug("Avoid self check")
 	if sw.nodeKey.ID() == peerID {
 		addr := peerNodeInfo.NetAddress()
 		// remove the given address from the address book
@@ -601,11 +596,13 @@ func (sw *Switch) addPeer(pc peerConn) error {
 	}
 
 	// Avoid duplicate
+	sw.Logger.Debug("Avoid duplicate check")
 	if sw.peers.Has(peerID) {
 		return ErrSwitchDuplicatePeerID{peerID}
 	}
 
 	// Check for duplicate connection or peer info IP.
+	sw.Logger.Debug("Avoid dup connection")
 	if !sw.config.AllowDuplicateIP &&
 		(sw.peers.HasIP(pc.RemoteIP()) ||
 			sw.peers.HasIP(peerNodeInfo.NetAddress().IP)) {
@@ -613,11 +610,13 @@ func (sw *Switch) addPeer(pc peerConn) error {
 	}
 
 	// Filter peer against ID white list
+	sw.Logger.Debug("Whitelist check")
 	if err := sw.FilterConnByID(peerID); err != nil {
 		return err
 	}
 
 	// Check version, chain id
+	sw.Logger.Debug("Version, chain check")
 	if err := sw.nodeInfo.CompatibleWith(peerNodeInfo); err != nil {
 		return err
 	}

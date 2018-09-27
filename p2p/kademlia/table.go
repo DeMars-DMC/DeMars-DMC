@@ -33,7 +33,7 @@ import (
 	"time"
 
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/ethereum/go-ethereum/log"
+	"github.com/tendermint/tendermint/libs/log"
 	"github.com/ethereum/go-ethereum/p2p/netutil"
 	"github.com/tendermint/tendermint/p2p"
 	"encoding/hex"
@@ -80,6 +80,7 @@ type Table struct {
 
 	net  transport
 	self *Node // metadata of the local node
+	logger log.Logger
 }
 
 // transport is implemented by the UDP transport.
@@ -99,8 +100,9 @@ type bucket struct {
 	ips          netutil.DistinctNetSet
 }
 
-func newTable(t transport, ourID p2p.NodeInfo, nodeDBPath string, bootnodes []*Node) (*Table, error) {
+func newTable(t transport, ourID p2p.NodeInfo, nodeDBPath string, bootnodes []*Node, logger log.Logger) (*Table, error) {
 	// If no node database was given, use an in-memory one
+	logger.Debug("Initializing node DB")
 	db, err := newNodeDB(nodeDBPath, nodeDBVersion, ourID.ID)
 	if err != nil {
 		return nil, err
@@ -115,7 +117,9 @@ func newTable(t transport, ourID p2p.NodeInfo, nodeDBPath string, bootnodes []*N
 		closed:     make(chan struct{}),
 		rand:       mrand.New(mrand.NewSource(0)),
 		ips:        netutil.DistinctNetSet{Subnet: tableSubnet, Limit: tableIPLimit},
+		logger:     logger,
 	}
+	logger.Debug("Setting boot nodes", "count", len(bootnodes))
 	if err := tab.setFallbackNodes(bootnodes); err != nil {
 		return nil, err
 	}
@@ -317,9 +321,9 @@ func (tab *Table) findnode(n *Node, targetID p2p.NodeID, reply chan<- []*Node) {
 	if err != nil || len(r) == 0 {
 		fails++
 		tab.db.updateFindFails(n.ID, fails)
-		log.Trace("Findnode failed", "id", n.ID, "failcount", fails, "err", err)
+		tab.logger.Debug("Findnode failed", "id", n.ID, "failcount", fails, "err", err)
 		if fails >= maxFindnodeFailures {
-			log.Trace("Too many findnode failures, dropping", "id", n.ID, "failcount", fails)
+			tab.logger.Debug("Too many findnode failures, dropping", "id", n.ID, "failcount", fails)
 			tab.delete(n)
 		}
 	} else if fails > 0 {
@@ -434,11 +438,12 @@ func (tab *Table) doRefresh(done chan struct{}) {
 
 func (tab *Table) loadSeedNodes() {
 	seeds := tab.db.querySeeds(seedCount, seedMaxAge)
+	tab.logger.Debug("Retrieved seed nodes from DB", "count", len(seeds))
 	seeds = append(seeds, tab.nursery...)
 	for i := range seeds {
 		seed := seeds[i]
-		age := log.Lazy{Fn: func() interface{} { return time.Since(tab.db.lastPongReceived(seed.ID)) }}
-		log.Debug("Found seed node in database", "id", seed.ID, "addr", seed.addr(), "age", age)
+		age := time.Since(tab.db.lastPongReceived(seed.ID))
+		tab.logger.Debug("Found seed node in database", "id", seed.ID, "addr", seed.addr(), "age", age)
 		tab.add(seed)
 	}
 }
@@ -462,16 +467,16 @@ func (tab *Table) doRevalidate(done chan<- struct{}) {
 	b := tab.buckets[bi]
 	if err == nil {
 		// The node responded, move it to the front.
-		log.Trace("Revalidated node", "b", bi, "id", last.ID)
+		tab.logger.Debug("Revalidated node", "b", bi, "id", last.ID)
 		b.bump(last)
 		return
 	}
 	// No reply received, pick a replacement or delete the node if there aren't
 	// any replacements.
 	if r := tab.replace(b, last); r != nil {
-		log.Trace("Replaced dead node", "b", bi, "id", last.ID, "ip", last.IP, "r", r.ID, "rip", r.IP)
+		tab.logger.Debug("Replaced dead node", "b", bi, "id", last.ID, "ip", last.IP, "r", r.ID, "rip", r.IP)
 	} else {
-		log.Trace("Removed dead node", "b", bi, "id", last.ID, "ip", last.IP)
+		tab.logger.Debug("Removed dead node", "b", bi, "id", last.ID, "ip", last.IP)
 	}
 }
 
@@ -603,11 +608,11 @@ func (tab *Table) addIP(b *bucket, ip net.IP) bool {
 		return true
 	}
 	if !tab.ips.Add(ip) {
-		log.Debug("IP exceeds table limit", "ip", ip)
+		tab.logger.Debug("IP exceeds table limit", "ip", ip)
 		return false
 	}
 	if !b.ips.Add(ip) {
-		log.Debug("IP exceeds bucket limit", "ip", ip)
+		tab.logger.Debug("IP exceeds bucket limit", "ip", ip)
 		tab.ips.Remove(ip)
 		return false
 	}

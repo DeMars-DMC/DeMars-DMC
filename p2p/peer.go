@@ -43,12 +43,6 @@ type peerConn struct {
 	ip         net.IP
 }
 
-// ID only exists for SecretConnection.
-// NOTE: Will panic if conn is not *SecretConnection.
-func (pc peerConn) ID() NodeID {
-	return PubKeyToID(pc.conn.(*tmconn.SecretConnection).RemotePubKey())
-}
-
 // Return the IP from the connection RemoteAddr
 func (pc peerConn) RemoteIP() net.IP {
 	if pc.ip != nil {
@@ -127,6 +121,7 @@ func newPeer(
 }
 
 func newOutboundPeerConn(
+	logger log.Logger,
 	addr *NetAddress,
 	config *config.P2PConfig,
 	persistent bool,
@@ -137,26 +132,18 @@ func newOutboundPeerConn(
 		return peerConn{}, cmn.ErrorWrap(err, "Error creating peer")
 	}
 
-	pc, err := newPeerConn(conn, config, true, persistent, ourNodePrivKey)
+	pc, err := newPeerConn(logger, conn, config, true, persistent, ourNodePrivKey)
 	if err != nil {
 		if cerr := conn.Close(); cerr != nil {
 			return peerConn{}, cmn.ErrorWrap(err, cerr.Error())
 		}
 		return peerConn{}, err
 	}
-
-	// ensure dialed ID matches connection ID
-	if addr.ID != pc.ID() {
-		if cerr := conn.Close(); cerr != nil {
-			return peerConn{}, cmn.ErrorWrap(err, cerr.Error())
-		}
-		return peerConn{}, ErrSwitchAuthenticationFailure{addr, pc.ID()}
-	}
-
 	return pc, nil
 }
 
 func newInboundPeerConn(
+	logger log.Logger,
 	conn net.Conn,
 	config *config.P2PConfig,
 	ourNodePrivKey crypto.PrivKey,
@@ -164,10 +151,11 @@ func newInboundPeerConn(
 
 	// TODO: issue PoW challenge
 
-	return newPeerConn(conn, config, false, false, ourNodePrivKey)
+	return newPeerConn(logger, conn, config, false, false, ourNodePrivKey)
 }
 
 func newPeerConn(
+	log log.Logger,
 	rawConn net.Conn,
 	cfg *config.P2PConfig,
 	outbound, persistent bool,
@@ -175,12 +163,14 @@ func newPeerConn(
 ) (pc peerConn, err error) {
 	conn := rawConn
 
+	log.Debug("Fuzz connection")
 	// Fuzz connection
 	if cfg.TestFuzz {
 		// so we have time to do peer handshakes and get set up
 		conn = FuzzConnAfterFromConfig(conn, 10*time.Second, cfg.TestFuzzConfig)
 	}
 
+	log.Debug("Setting deadline for secret handshake")
 	// Set deadline for secret handshake
 	dl := time.Now().Add(cfg.HandshakeTimeout)
 	if err := conn.SetDeadline(dl); err != nil {
@@ -191,10 +181,10 @@ func newPeerConn(
 	}
 
 	// Encrypt connection
-	conn, err = tmconn.MakeSecretConnection(conn, ourNodePrivKey)
-	if err != nil {
-		return pc, cmn.ErrorWrap(err, "Error creating peer")
-	}
+	//conn, err = tmconn.MakeSecretConnection(conn, ourNodePrivKey)
+	//if err != nil {
+	//	return pc, cmn.ErrorWrap(err, "Error creating peer")
+	//}
 
 	// Only the information we already have
 	return peerConn{

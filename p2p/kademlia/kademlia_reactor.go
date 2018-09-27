@@ -83,12 +83,8 @@ type KademliaReactor struct {
 	attemptsToDial sync.Map // address (string) -> {number of attempts (int), last time dialed (time.Time)}
 
 	netrestrict *netutil.Netlist
-}
-
-// KademliaReactorConfig holds reactor specific configuration data.
-type KademliaReactorConfig struct {
-	NodeDBPath string
-	Bootnodes []*Node
+	bootNodes []*Node
+	bootNodesAddresses []*p2p.NetAddress
 }
 
 type _attemptsToDial struct {
@@ -175,10 +171,27 @@ type reply struct {
 
 
 // NewKademliaReactor creates new Kademlia reactor.
-func NewKademliaReactor() *KademliaReactor {
+func NewKademliaReactor(seedNetAddresses []*p2p.NetAddress) *KademliaReactor {
 	r := new(KademliaReactor)
+	r.bootNodes = convertToNodes(seedNetAddresses)
+	r.bootNodesAddresses = seedNetAddresses
 	r.BaseReactor = *p2p.NewBaseReactor("KademliaReactor", r)
 	return r
+}
+
+func convertToNodes(seedNetAddresses []*p2p.NetAddress) []*Node {
+	seeds := make([]*Node, 0)
+	for i := 0; i < len(seedNetAddresses); i++ {
+		node := Node {
+			addedAt: time.Now(),
+			IP: seedNetAddresses[i].IP,
+			ID: seedNetAddresses[i].ID,
+			UDP: seedNetAddresses[i].Port,
+			TCP: seedNetAddresses[i].Port,
+		}
+		seeds = append(seeds, &node)
+	}
+	return seeds
 }
 
 // OnStart implements BaseService
@@ -187,7 +200,11 @@ func (r *KademliaReactor) OnStart() error {
 		return err
 	}
 
-	tab, err := newTable(r, r.Switch.NodeInfo(), nodeDBPath, nil)
+	r.Logger.Debug("Initializing routing table", "boot_count", r.bootNodes)
+	for _, addr := range r.bootNodesAddresses {
+		r.Switch.DialPeerWithAddress(addr, true)
+	}
+	tab, err := newTable(r, r.Switch.NodeInfo(), nodeDBPath, r.bootNodes, r.Logger)
 	if err != nil {
 		return err
 	}
@@ -236,22 +253,23 @@ func (r *KademliaReactor) GetChannels() []*p2pconn.ChannelDescriptor {
 // AddPeer implements Reactor by adding peer to the address book (if inbound)
 // or by requesting more addresses (if outbound).
 func (r *KademliaReactor) AddPeer(p p2p.Peer) {
-
+	r.Logger.Debug("AddPeer invoked on KademliaReactor [ignored]")
 }
 
 // RemovePeer implements Reactor.
 func (r *KademliaReactor) RemovePeer(p p2p.Peer, reason interface{}) {
-
+	r.Logger.Debug("RemovePeer invoked on KademliaReactor [ignored]")
 }
 
 
 // Receive implements Reactor by handling incoming Kademlia messages.
 func (r *KademliaReactor) Receive(chID byte, src p2p.Peer, msgBytes []byte) {
+	r.Logger.Debug("Received message on KademliaReactor")
 	r.handlePacket(src, msgBytes)
 }
 
 func (t *KademliaReactor) handlePacket(from Peer, buf []byte) error {
-	packet, hash, err := decodePacket(buf)
+	packet, hash, err := decodePacket(t, buf)
 	if err != nil {
 		t.Logger.Debug("Bad discv4 packet", "addr", from, "err", err)
 		return err
@@ -261,7 +279,7 @@ func (t *KademliaReactor) handlePacket(from Peer, buf []byte) error {
 	return err
 }
 
-func decodePacket(buf []byte) (packet, []byte, error) {
+func decodePacket(t *KademliaReactor, buf []byte) (packet, []byte, error) {
 	if len(buf) < headSize+1 {
 		return nil, nil, errPacketTooSmall
 	}
@@ -273,12 +291,16 @@ func decodePacket(buf []byte) (packet, []byte, error) {
 	var req packet
 	switch ptype := sigdata[0]; ptype {
 	case pingPacket:
+		t.Logger.Debug("Received ping message on KademliaReactor")
 		req = new(ping)
 	case pongPacket:
+		t.Logger.Debug("Received pong message on KademliaReactor")
 		req = new(pong)
 	case findnodePacket:
+		t.Logger.Debug("Received findNode message on KademliaReactor")
 		req = new(findnode)
 	case neighborsPacket:
+		t.Logger.Debug("Received neighbours message on KademliaReactor")
 		req = new(neighbors)
 	default:
 		return nil, hash, fmt.Errorf("unknown type: %d", ptype)
