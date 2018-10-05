@@ -11,17 +11,17 @@ import (
 	"time"
 
 	fail "github.com/ebuchman/fail-test"
-	"github.com/tendermint/tendermint/abci/app/dmccoin"
-	cmn "github.com/tendermint/tendermint/libs/common"
-	"github.com/tendermint/tendermint/libs/log"
+	"github.com/Demars-DMC/Demars-DMC/abci/app/dmccoin"
+	cmn "github.com/Demars-DMC/Demars-DMC/libs/common"
+	"github.com/Demars-DMC/Demars-DMC/libs/log"
 
-	abci "github.com/tendermint/tendermint/abci/types"
-	cfg "github.com/tendermint/tendermint/config"
-	cstypes "github.com/tendermint/tendermint/consensus/types"
-	tmevents "github.com/tendermint/tendermint/libs/events"
-	"github.com/tendermint/tendermint/p2p"
-	sm "github.com/tendermint/tendermint/state"
-	"github.com/tendermint/tendermint/types"
+	abci "github.com/Demars-DMC/Demars-DMC/abci/types"
+	cfg "github.com/Demars-DMC/Demars-DMC/config"
+	cstypes "github.com/Demars-DMC/Demars-DMC/consensus/types"
+	tmevents "github.com/Demars-DMC/Demars-DMC/libs/events"
+	"github.com/Demars-DMC/Demars-DMC/p2p"
+	sm "github.com/Demars-DMC/Demars-DMC/state"
+	"github.com/Demars-DMC/Demars-DMC/types"
 )
 
 //-----------------------------------------------------------------------------
@@ -636,7 +636,7 @@ func (cs *ConsensusState) handleMsg(mi msgInfo) {
 			// We probably don't want to stop the peer here. The vote does not
 			// necessarily comes from a malicious peer but can be just broadcasted by
 			// a typical peer.
-			// https://github.com/tendermint/tendermint/issues/1281
+			// https://github.com/Demars-DMC/Demars-DMC/issues/1281
 		}
 
 		// NOTE: the vote is broadcast to peers by the reactor listening
@@ -1314,7 +1314,7 @@ func (cs *ConsensusState) finalizeCommit(height int64) {
 	cs.Logger.Info("Applying Block")
 	stateCopy, err = cs.blockExec.ApplyBlock(stateCopy, types.BlockID{block.Hash(), blockParts.Header()}, block)
 	if err != nil {
-		cs.Logger.Error("Error on ApplyBlock. Did the application crash? Please restart tendermint", "err", err)
+		cs.Logger.Error("Error on ApplyBlock. Did the application crash? Please restart Demars-DMC", "err", err)
 		err := cmn.Kill()
 		if err != nil {
 			cs.Logger.Error("Failed to kill this process - please do so manually", "err", err)

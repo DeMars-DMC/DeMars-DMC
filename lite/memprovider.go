@@ -5,7 +5,7 @@ import (
 	"sort"
 	"sync"
 
-	liteErr "github.com/tendermint/tendermint/lite/errors"
+	liteErr "github.com/Demars-DMC/Demars-DMC/lite/errors"
 )
 
 type memStoreProvider struct {
@@ -62,7 +62,7 @@ func (m *memStoreProvider) StoreCommit(fc FullCommit) error {
 func (m *memStoreProvider) GetByHeight(h int64) (FullCommit, error) {
 	// By heuristics, GetByHeight with linearsearch is fast enough
 	// for about 50 keys but after that, it needs binary search.
-	// See https://github.com/tendermint/tendermint/pull/1043#issue-285188242
+	// See https://github.com/Demars-DMC/Demars-DMC/pull/1043#issue-285188242
 	m.mtx.RLock()
 	n := len(m.byHeight)
 	m.mtx.RUnlock()

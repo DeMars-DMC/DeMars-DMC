@@ -33,9 +33,9 @@ import (
 	"time"
 
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/tendermint/tendermint/libs/log"
+	"github.com/Demars-DMC/Demars-DMC/libs/log"
 	"github.com/ethereum/go-ethereum/p2p/netutil"
-	"github.com/tendermint/tendermint/p2p"
+	"github.com/Demars-DMC/Demars-DMC/p2p"
 	"encoding/hex"
 )
 

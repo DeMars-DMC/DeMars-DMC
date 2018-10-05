@@ -13,7 +13,7 @@ git commit -m "move all files to common/ to begin repo merge"
 
 for repo in "${REPOS[@]}"; do 
 	# add and fetch the repo
-	git remote add -f "$repo" "https://github.com/tendermint/go-${repo}"
+	git remote add -f "$repo" "https://github.com/Demars-DMC/go-${repo}"
 
 	# merge master and move into subdir
 	git merge "$repo/master" --no-edit
@@ -37,13 +37,13 @@ for repo in "${REPOS[@]}"; do
 done
 
 go get github.com/ebuchman/got
-got replace "tendermint/go-common" "tendermint/go-common/common"
+got replace "Demars-DMC/go-common" "Demars-DMC/go-common/common"
 for repo in "${REPOS[@]}"; do 
 
 	if [[ "$repo" != "flowrate" ]]; then
-		got replace "tendermint/go-${repo}" "tendermint/go-common/${repo}"
+		got replace "Demars-DMC/go-${repo}" "Demars-DMC/go-common/${repo}"
 	else
-		got replace "tendermint/go-${repo}/flowrate" "tendermint/go-common/flowrate"
+		got replace "Demars-DMC/go-${repo}/flowrate" "Demars-DMC/go-common/flowrate"
 	fi
 done
 

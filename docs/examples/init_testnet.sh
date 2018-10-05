@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
 
 # make all the files
-tendermint init --home ./tester/node0
-tendermint init --home ./tester/node1
-tendermint init --home ./tester/node2
-tendermint init --home ./tester/node3
+Demars-DMC init --home ./tester/node0
+Demars-DMC init --home ./tester/node1
+Demars-DMC init --home ./tester/node2
+Demars-DMC init --home ./tester/node3
 
 file0=./tester/node0/config/genesis.json
 file1=./tester/node1/config/genesis.json
@@ -30,7 +30,7 @@ echo "{
   \"validators\": [
     {
      \"pub_key\": {
-       \"type\": \"tendermint/PubKeyEd25519\",
+       \"type\": \"Demars-DMC/PubKeyEd25519\",
        \"value\": $value0
      },
       \"power:\": 10,
@@ -38,7 +38,7 @@ echo "{
     },
     {
      \"pub_key\": {
-       \"type\": \"tendermint/PubKeyEd25519\",
+       \"type\": \"Demars-DMC/PubKeyEd25519\",
        \"value\": $value1
      },
       \"power:\": 10,
@@ -46,7 +46,7 @@ echo "{
     },
     {
      \"pub_key\": {
-       \"type\": \"tendermint/PubKeyEd25519\",
+       \"type\": \"Demars-DMC/PubKeyEd25519\",
        \"value\": $value2
      },
       \"power:\": 10,
@@ -54,7 +54,7 @@ echo "{
     },
     {
      \"pub_key\": {
-       \"type\": \"tendermint/PubKeyEd25519\",
+       \"type\": \"Demars-DMC/PubKeyEd25519\",
        \"value\": $value3
      },
       \"power:\": 10,

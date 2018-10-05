@@ -5,7 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"github.com/tendermint/tendermint/crypto"
+	"github.com/Demars-DMC/Demars-DMC/crypto"
 
 	wire "github.com/tendermint/go-wire"
 	"github.com/tendermint/go-wire/data"

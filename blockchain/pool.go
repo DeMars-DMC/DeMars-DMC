@@ -8,12 +8,12 @@ import (
 	"sync/atomic"
 	"time"
 
-	cmn "github.com/tendermint/tendermint/libs/common"
-	flow "github.com/tendermint/tendermint/libs/flowrate"
-	"github.com/tendermint/tendermint/libs/log"
+	cmn "github.com/Demars-DMC/Demars-DMC/libs/common"
+	flow "github.com/Demars-DMC/Demars-DMC/libs/flowrate"
+	"github.com/Demars-DMC/Demars-DMC/libs/log"
 
-	"github.com/tendermint/tendermint/p2p"
-	"github.com/tendermint/tendermint/types"
+	"github.com/Demars-DMC/Demars-DMC/p2p"
+	"github.com/Demars-DMC/Demars-DMC/types"
 )
 
 /*
@@ -464,7 +464,7 @@ func (pool *BlockPool) SubmitBucketChainRequest(bucketID string, height int64) {
 }
 
 
-// unused by tendermint; left for debugging purposes
+// unused by Demars-DMC; left for debugging purposes
 func (pool *BlockPool) debug() string {
 	pool.mtx.Lock()
 	defer pool.mtx.Unlock()

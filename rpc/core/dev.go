@@ -4,7 +4,7 @@ import (
 	"os"
 	"runtime/pprof"
 
-	ctypes "github.com/tendermint/tendermint/rpc/core/types"
+	ctypes "github.com/Demars-DMC/Demars-DMC/rpc/core/types"
 )
 
 func UnsafeFlushMempool() (*ctypes.ResultUnsafeFlushMempool, error) {

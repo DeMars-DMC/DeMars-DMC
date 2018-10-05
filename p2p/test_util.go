@@ -4,12 +4,12 @@ import (
 	"fmt"
 	"net"
 
-	crypto "github.com/tendermint/tendermint/crypto"
-	cmn "github.com/tendermint/tendermint/libs/common"
-	"github.com/tendermint/tendermint/libs/log"
+	crypto "github.com/Demars-DMC/Demars-DMC/crypto"
+	cmn "github.com/Demars-DMC/Demars-DMC/libs/common"
+	"github.com/Demars-DMC/Demars-DMC/libs/log"
 
-	"github.com/tendermint/tendermint/config"
-	"github.com/tendermint/tendermint/p2p/conn"
+	"github.com/Demars-DMC/Demars-DMC/config"
+	"github.com/Demars-DMC/Demars-DMC/p2p/conn"
 )
 
 func AddPeerToSwitch(sw *Switch, peer Peer) {

@@ -2,7 +2,7 @@ package p2p
 
 import (
 	"fmt"
-	cmn "github.com/tendermint/tendermint/libs/common"
+	cmn "github.com/Demars-DMC/Demars-DMC/libs/common"
 	"strings"
 )
 
@@ -17,7 +17,7 @@ func MaxNodeInfoSize() int {
 }
 
 // NodeInfo is the basic node information exchanged
-// between two peers during the Tendermint P2P handshake.
+// between two peers during the Demars-DMC P2P handshake.
 type NodeInfo struct {
 	// Authenticate
 	// TODO: replace with NetAddress

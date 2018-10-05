@@ -1,8 +1,8 @@
 package state
 
 import (
-	abci "github.com/tendermint/tendermint/abci/types"
-	"github.com/tendermint/tendermint/types"
+	abci "github.com/Demars-DMC/Demars-DMC/abci/types"
+	"github.com/Demars-DMC/Demars-DMC/types"
 )
 
 //------------------------------------------------------

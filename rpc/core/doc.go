@@ -1,13 +1,13 @@
 /*
 # Introduction
 
-Tendermint supports the following RPC protocols:
+Demars-DMC supports the following RPC protocols:
 
 * URI over HTTP
 * JSONRPC over HTTP
 * JSONRPC over websockets
 
-Tendermint RPC is built using [our own RPC library](https://github.com/tendermint/tendermint/tree/master/rpc/lib) which contains its own set of documentation and tests.
+Demars-DMC RPC is built using [our own RPC library](https://github.com/Demars-DMC/Demars-DMC/tree/master/rpc/lib) which contains its own set of documentation and tests.
 
 ## Configuration
 
@@ -39,7 +39,7 @@ curl 'localhost:26657/broadcast_tx_sync?tx="abc"'
 }
 ```
 
-The first entry in the result-array (`96`) is the method this response correlates with. `96` refers to "ResultTypeBroadcastTx", see [responses.go](https://github.com/tendermint/tendermint/blob/master/rpc/core/types/responses.go) for a complete overview.
+The first entry in the result-array (`96`) is the method this response correlates with. `96` refers to "ResultTypeBroadcastTx", see [responses.go](https://github.com/Demars-DMC/Demars-DMC/blob/master/rpc/core/types/responses.go) for a complete overview.
 
 ## JSONRPC/HTTP
 

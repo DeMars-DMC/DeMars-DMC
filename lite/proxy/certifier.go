@@ -1,9 +1,9 @@
 package proxy
 
 import (
-	"github.com/tendermint/tendermint/lite"
-	certclient "github.com/tendermint/tendermint/lite/client"
-	"github.com/tendermint/tendermint/lite/files"
+	"github.com/Demars-DMC/Demars-DMC/lite"
+	certclient "github.com/Demars-DMC/Demars-DMC/lite/client"
+	"github.com/Demars-DMC/Demars-DMC/lite/files"
 )
 
 func GetCertifier(chainID, rootDir, nodeAddr string) (*lite.InquiringCertifier, error) {

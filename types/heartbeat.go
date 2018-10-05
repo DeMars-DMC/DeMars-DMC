@@ -3,8 +3,8 @@ package types
 import (
 	"fmt"
 
-	"github.com/tendermint/tendermint/crypto"
-	cmn "github.com/tendermint/tendermint/libs/common"
+	"github.com/Demars-DMC/Demars-DMC/crypto"
+	cmn "github.com/Demars-DMC/Demars-DMC/libs/common"
 )
 
 // Heartbeat is a simple vote-like structure so validators can

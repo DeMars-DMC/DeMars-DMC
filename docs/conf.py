@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Tendermint documentation build configuration file, created by
+# Demars-DMC documentation build configuration file, created by
 # sphinx-quickstart on Mon Aug  7 04:55:09 2017.
 #
 # This file is execfile()d with the current directory set to its
@@ -55,9 +55,9 @@ source_suffix = ['.rst', '.md']
 master_doc = 'index'
 
 # General information about the project.
-project = u'Tendermint'
+project = u'Demars-DMC'
 copyright = u'2018, The Authors'
-author = u'Tendermint'
+author = u'Demars-DMC'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
@@ -125,7 +125,7 @@ html_sidebars = {
 # -- Options for HTMLHelp output ------------------------------------------
 
 # Output file base name for HTML help builder.
-htmlhelp_basename = 'Tendermintdoc'
+htmlhelp_basename = 'Demars-DMCdoc'
 
 
 # -- Options for LaTeX output ---------------------------------------------
@@ -152,7 +152,7 @@ latex_elements = {
 # (source start file, target name, title,
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
-    (master_doc, 'Tendermint.tex', u'Tendermint Documentation',
+    (master_doc, 'Demars-DMC.tex', u'Demars-DMC Documentation',
      u'The Authors', 'manual'),
 ]
 
@@ -162,7 +162,7 @@ latex_documents = [
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    (master_doc, 'Tendermint', u'Tendermint Documentation',
+    (master_doc, 'Demars-DMC', u'Demars-DMC Documentation',
      [author], 1)
 ]
 
@@ -173,8 +173,8 @@ man_pages = [
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-    (master_doc, 'Tendermint', u'Tendermint Documentation',
-     author, 'Tendermint', 'Byzantine Fault Tolerant Consensus.',
+    (master_doc, 'Demars-DMC', u'Demars-DMC Documentation',
+     author, 'Demars-DMC', 'Byzantine Fault Tolerant Consensus.',
      'Database'),
 ]
 
@@ -184,7 +184,7 @@ texinfo_documents = [
 from shutil import copyfile
 
 # tm-bench and tm-monitor
-tools_repo = "https://raw.githubusercontent.com/tendermint/tools/"
+tools_repo = "https://raw.githubusercontent.com/Demars-DMC/tools/"
 tools_branch = "master"
 
 tools_dir = "./tools"

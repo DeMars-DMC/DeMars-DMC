@@ -4,7 +4,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"sort"
-	crypto "github.com/tendermint/tendermint/crypto"
+
+	crypto "github.com/Demars-DMC/Demars-DMC/crypto"
 	wire "github.com/tendermint/go-wire"
 	"github.com/tendermint/go-wire/data"
 )
@@ -30,7 +31,7 @@ func TopkAccounts(acc []Account, k int) []Account {
 	sort.Slice(accounts, func(i int, j int) bool {
 		return accounts[i].Balance < accounts[j].Balance
 	})
-	if (k < len(accounts)) {
+	if k < len(accounts) {
 		return accounts[0:k]
 	}
 	return accounts[:]

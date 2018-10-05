@@ -8,7 +8,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
-	cmn "github.com/tendermint/tendermint/libs/common"
+	cmn "github.com/Demars-DMC/Demars-DMC/libs/common"
 )
 
 func BenchmarkRandomReadsWrites2(b *testing.B) {

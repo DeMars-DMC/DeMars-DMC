@@ -9,9 +9,9 @@ import (
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-	"github.com/tendermint/tendermint/crypto"
-	"github.com/tendermint/tendermint/types"
-	cmn "github.com/tendermint/tendermint/libs/common"
+	"github.com/Demars-DMC/Demars-DMC/crypto"
+	"github.com/Demars-DMC/Demars-DMC/types"
+	cmn "github.com/Demars-DMC/Demars-DMC/libs/common"
 )
 
 func TestGenLoadValidator(t *testing.T) {
@@ -60,14 +60,14 @@ func TestUnmarshalValidator(t *testing.T) {
 	serialized := fmt.Sprintf(`{
   "address": "%s",
   "pub_key": {
-    "type": "tendermint/PubKeyEd25519",
+    "type": "Demars-DMC/PubKeyEd25519",
     "value": "%s"
   },
   "last_height": "0",
   "last_round": "0",
   "last_step": 0,
   "priv_key": {
-    "type": "tendermint/PrivKeyEd25519",
+    "type": "Demars-DMC/PrivKeyEd25519",
     "value": "%s"
   }
 }`, addr, pubB64, privB64)

@@ -3,10 +3,10 @@ package core
 import (
 	"fmt"
 
-	ctypes "github.com/tendermint/tendermint/rpc/core/types"
-	sm "github.com/tendermint/tendermint/state"
-	"github.com/tendermint/tendermint/types"
-	cmn "github.com/tendermint/tendermint/libs/common"
+	ctypes "github.com/Demars-DMC/Demars-DMC/rpc/core/types"
+	sm "github.com/Demars-DMC/Demars-DMC/state"
+	"github.com/Demars-DMC/Demars-DMC/types"
+	cmn "github.com/Demars-DMC/Demars-DMC/libs/common"
 )
 
 // Get block headers for minHeight <= height <= maxHeight.

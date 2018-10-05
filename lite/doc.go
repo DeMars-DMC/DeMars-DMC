@@ -8,7 +8,7 @@ validator set, one can get indisputable proof that data is in
 the chain (current state) or detect if the node is lying to
 the client.
 
-Tendermint RPC exposes a lot of info, but a malicious node
+Demars-DMC RPC exposes a lot of info, but a malicious node
 could return any data it wants to queries, or even to block
 headers, even making up fake signatures from non-existent
 validators to justify it. This is a lot of logic to get
@@ -16,7 +16,7 @@ right, to be contained in a small, easy to use library,
 that does this for you, so you can just build nice UI.
 
 We design for clients who have no strong trust relationship
-with any tendermint node, just the validator set as a whole.
+with any Demars-DMC node, just the validator set as a whole.
 Beyond building nice mobile or desktop applications, the
 cosmos hub is another important example of a client,
 that needs undeniable proof without syncing the full chain,
@@ -26,7 +26,7 @@ Commits
 
 There are two main data structures that we pass around - Commit
 and FullCommit. Both of them mirror what information is
-exposed in tendermint rpc.
+exposed in Demars-DMC rpc.
 
 Commit is a block header along with enough validator signatures
 to prove its validity (> 2/3 of the voting power). A FullCommit
@@ -66,7 +66,7 @@ NewMemStoreProvider - in-memory cache.
 
 files.NewProvider - disk backed storage.
 
-client.NewHTTPProvider - query tendermint rpc.
+client.NewHTTPProvider - query Demars-DMC rpc.
 
 NewCacheProvider - combine multiple providers.
 
@@ -87,7 +87,7 @@ and check against that every time.
 Once there is a dynamic validator set, the issue of
 verifying a block becomes a bit more tricky. There is
 background information in a
-github issue (https://github.com/tendermint/tendermint/issues/377).
+github issue (https://github.com/Demars-DMC/Demars-DMC/issues/377).
 
 In short, if there is a block at height H with a known
 (trusted) validator set V, and another block at height H'

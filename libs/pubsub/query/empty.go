@@ -1,6 +1,6 @@
 package query
 
-import "github.com/tendermint/tendermint/libs/pubsub"
+import "github.com/Demars-DMC/Demars-DMC/libs/pubsub"
 
 // Empty query matches any set of tags.
 type Empty struct {

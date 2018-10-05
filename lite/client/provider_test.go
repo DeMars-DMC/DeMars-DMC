@@ -6,11 +6,11 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/tendermint/tendermint/lite"
-	liteErr "github.com/tendermint/tendermint/lite/errors"
-	rpcclient "github.com/tendermint/tendermint/rpc/client"
-	rpctest "github.com/tendermint/tendermint/rpc/test"
-	"github.com/tendermint/tendermint/types"
+	"github.com/Demars-DMC/Demars-DMC/lite"
+	liteErr "github.com/Demars-DMC/Demars-DMC/lite/errors"
+	rpcclient "github.com/Demars-DMC/Demars-DMC/rpc/client"
+	rpctest "github.com/Demars-DMC/Demars-DMC/rpc/test"
+	"github.com/Demars-DMC/Demars-DMC/types"
 )
 
 func TestProvider(t *testing.T) {

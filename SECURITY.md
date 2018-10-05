@@ -3,7 +3,7 @@
 Keep for the format/template
 
 As part of our [Coordinated Vulnerability Disclosure
-Policy](https://tendermint.com/security), we operate a bug bounty.
+Policy](https://Demars-DMC.com/security), we operate a bug bounty.
 See the policy for more details on submissions and rewards.
 
 Here is a list of examples of the kinds of bugs we're most interested in:

@@ -4,7 +4,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
-	"github.com/tendermint/tendermint/crypto"
+	"github.com/Demars-DMC/Demars-DMC/crypto"
 )
 
 func TestGeneratePrivKey(t *testing.T) {

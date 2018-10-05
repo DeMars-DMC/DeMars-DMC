@@ -6,9 +6,9 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	"github.com/tendermint/tendermint/lite"
-	"github.com/tendermint/tendermint/lite/proxy"
-	"github.com/tendermint/tendermint/types"
+	"github.com/Demars-DMC/Demars-DMC/lite"
+	"github.com/Demars-DMC/Demars-DMC/lite/proxy"
+	"github.com/Demars-DMC/Demars-DMC/types"
 )
 
 var (
@@ -21,7 +21,7 @@ var (
 var hdrHeight11 = &types.Header{
 	Height:         11,
 	Time:           testTime1,
-	ValidatorsHash: []byte("Tendermint"),
+	ValidatorsHash: []byte("Demars-DMC"),
 }
 
 func TestValidateBlock(t *testing.T) {
@@ -166,14 +166,14 @@ func TestValidateBlockMeta(t *testing.T) {
 			meta: &types.BlockMeta{
 				Header: &types.Header{
 					Height: 11, DataHash: deadBeefHash,
-					ValidatorsHash: []byte("Tendermint"),
+					ValidatorsHash: []byte("Demars-DMC"),
 					Time:           testTime1,
 				},
 			},
 			commit: lite.Commit{
 				Header: &types.Header{
 					Height: 11, DataHash: deadBeefHash,
-					ValidatorsHash: []byte("Tendermint"),
+					ValidatorsHash: []byte("Demars-DMC"),
 					Time:           testTime2,
 				},
 				Commit: &types.Commit{BlockID: types.BlockID{Hash: []byte("DEADBEEF")}},
@@ -185,14 +185,14 @@ func TestValidateBlockMeta(t *testing.T) {
 			meta: &types.BlockMeta{
 				Header: &types.Header{
 					Height: 11, DataHash: deadBeefHash,
-					ValidatorsHash: []byte("Tendermint"),
+					ValidatorsHash: []byte("Demars-DMC"),
 					Time:           testTime2,
 				},
 			},
 			commit: lite.Commit{
 				Header: &types.Header{
 					Height: 11, DataHash: deadBeefHash,
-					ValidatorsHash: []byte("Tendermint-x"),
+					ValidatorsHash: []byte("Demars-DMC-x"),
 					Time:           testTime2,
 				},
 				Commit: &types.Commit{BlockID: types.BlockID{Hash: []byte("DEADBEEF")}},

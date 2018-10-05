@@ -5,7 +5,7 @@ import (
 
 	"crypto/subtle"
 
-	. "github.com/tendermint/tendermint/libs/common"
+	. "github.com/Demars-DMC/Demars-DMC/libs/common"
 )
 
 func SignatureFromBytes(pubKeyBytes []byte) (pubKey Signature, err error) {

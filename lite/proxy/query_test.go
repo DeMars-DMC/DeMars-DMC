@@ -8,14 +8,14 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/tendermint/tendermint/abci/example/kvstore"
+	"github.com/Demars-DMC/Demars-DMC/abci/example/kvstore"
 
-	"github.com/tendermint/tendermint/lite"
-	certclient "github.com/tendermint/tendermint/lite/client"
-	nm "github.com/tendermint/tendermint/node"
-	"github.com/tendermint/tendermint/rpc/client"
-	rpctest "github.com/tendermint/tendermint/rpc/test"
-	"github.com/tendermint/tendermint/types"
+	"github.com/Demars-DMC/Demars-DMC/lite"
+	certclient "github.com/Demars-DMC/Demars-DMC/lite/client"
+	nm "github.com/Demars-DMC/Demars-DMC/node"
+	"github.com/Demars-DMC/Demars-DMC/rpc/client"
+	rpctest "github.com/Demars-DMC/Demars-DMC/rpc/test"
+	"github.com/Demars-DMC/Demars-DMC/types"
 )
 
 var node *nm.Node
@@ -25,7 +25,7 @@ var node *nm.Node
 func TestMain(m *testing.M) {
 	app := kvstore.NewKVStoreApplication()
 
-	node = rpctest.StartTendermint(app)
+	node = rpctest.StartDemars-DMC(app)
 
 	code := m.Run()
 

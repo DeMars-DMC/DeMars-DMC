@@ -4,4 +4,4 @@
 if [ -z $VERSION ]; then
 	VERSION=$(awk -F\" '/Version =/ { print $2; exit }' < version/version.go)
 fi
-aws s3 cp --recursive build/dist s3://tendermint/binaries/abci/v${VERSION} --acl public-read
+aws s3 cp --recursive build/dist s3://Demars-DMC/binaries/abci/v${VERSION} --acl public-read

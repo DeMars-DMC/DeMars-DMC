@@ -1,10 +1,10 @@
 package core
 
 import (
-	abci "github.com/tendermint/tendermint/abci/types"
-	ctypes "github.com/tendermint/tendermint/rpc/core/types"
-	"github.com/tendermint/tendermint/version"
-	cmn "github.com/tendermint/tendermint/libs/common"
+	abci "github.com/Demars-DMC/Demars-DMC/abci/types"
+	ctypes "github.com/Demars-DMC/Demars-DMC/rpc/core/types"
+	"github.com/Demars-DMC/Demars-DMC/version"
+	cmn "github.com/Demars-DMC/Demars-DMC/libs/common"
 )
 
 // Query the application for some information.

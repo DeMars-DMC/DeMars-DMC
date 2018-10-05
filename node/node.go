@@ -11,33 +11,33 @@ import (
 	amino "github.com/tendermint/go-amino"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 
-	cmn "github.com/tendermint/tendermint/libs/common"
-	dbm "github.com/tendermint/tendermint/libs/db"
-	"github.com/tendermint/tendermint/libs/log"
+	cmn "github.com/Demars-DMC/Demars-DMC/libs/common"
+	dbm "github.com/Demars-DMC/Demars-DMC/libs/db"
+	"github.com/Demars-DMC/Demars-DMC/libs/log"
 
-	bc "github.com/tendermint/tendermint/blockchain"
-	cfg "github.com/tendermint/tendermint/config"
-	cs "github.com/tendermint/tendermint/consensus"
-	"github.com/tendermint/tendermint/crypto"
-	mempl "github.com/tendermint/tendermint/mempool"
-	"github.com/tendermint/tendermint/p2p"
-	"github.com/tendermint/tendermint/privval"
-	"github.com/tendermint/tendermint/proxy"
-	rpccore "github.com/tendermint/tendermint/rpc/core"
-	ctypes "github.com/tendermint/tendermint/rpc/core/types"
-	grpccore "github.com/tendermint/tendermint/rpc/grpc"
-	"github.com/tendermint/tendermint/rpc/lib"
-	"github.com/tendermint/tendermint/rpc/lib/server"
-	sm "github.com/tendermint/tendermint/state"
-	"github.com/tendermint/tendermint/state/txindex"
-	"github.com/tendermint/tendermint/state/txindex/null"
-	"github.com/tendermint/tendermint/types"
-	"github.com/tendermint/tendermint/version"
-	"github.com/tendermint/tendermint/p2p/kademlia"
-	abci "github.com/tendermint/tendermint/abci/types"
+	bc "github.com/Demars-DMC/Demars-DMC/blockchain"
+	cfg "github.com/Demars-DMC/Demars-DMC/config"
+	cs "github.com/Demars-DMC/Demars-DMC/consensus"
+	"github.com/Demars-DMC/Demars-DMC/crypto"
+	mempl "github.com/Demars-DMC/Demars-DMC/mempool"
+	"github.com/Demars-DMC/Demars-DMC/p2p"
+	"github.com/Demars-DMC/Demars-DMC/privval"
+	"github.com/Demars-DMC/Demars-DMC/proxy"
+	rpccore "github.com/Demars-DMC/Demars-DMC/rpc/core"
+	ctypes "github.com/Demars-DMC/Demars-DMC/rpc/core/types"
+	grpccore "github.com/Demars-DMC/Demars-DMC/rpc/grpc"
+	"github.com/Demars-DMC/Demars-DMC/rpc/lib"
+	"github.com/Demars-DMC/Demars-DMC/rpc/lib/server"
+	sm "github.com/Demars-DMC/Demars-DMC/state"
+	"github.com/Demars-DMC/Demars-DMC/state/txindex"
+	"github.com/Demars-DMC/Demars-DMC/state/txindex/null"
+	"github.com/Demars-DMC/Demars-DMC/types"
+	"github.com/Demars-DMC/Demars-DMC/version"
+	"github.com/Demars-DMC/Demars-DMC/p2p/kademlia"
+	abci "github.com/Demars-DMC/Demars-DMC/abci/types"
 
 	_ "net/http/pprof"
-	"github.com/tendermint/tendermint/state/txindex/kv"
+	"github.com/Demars-DMC/Demars-DMC/state/txindex/kv"
 )
 
 //------------------------------------------------------------------------------
@@ -74,7 +74,7 @@ func DefaultGenesisDocProviderFunc(config *cfg.Config) GenesisDocProvider {
 // NodeProvider takes a config and a logger and returns a ready to go Node.
 type NodeProvider func(*cfg.Config, log.Logger) (*Node, error)
 
-// DefaultNewNode returns a Tendermint node with default settings for the
+// DefaultNewNode returns a Demars-DMC node with default settings for the
 // PrivValidator, ClientCreator, GenesisDoc, and DBProvider.
 // It implements NodeProvider.
 func DefaultNewNode(config *cfg.Config, logger log.Logger) (*Node, error) {
@@ -104,7 +104,7 @@ func NopMetricsProvider() (*cs.Metrics, *p2p.Metrics, *mempl.Metrics) {
 
 //------------------------------------------------------------------------------
 
-// Node is the highest level interface to a full Tendermint node.
+// Node is the highest level interface to a full Demars-DMC node.
 // It includes all configuration information and running services.
 type Node struct {
 	cmn.BaseService
@@ -132,7 +132,7 @@ type Node struct {
 	prometheusSrv    *http.Server
 }
 
-// NewNode returns a new, ready to go, Tendermint Node.
+// NewNode returns a new, ready to go, Demars-DMC Node.
 func NewNode(config *cfg.Config,
 	privValidator types.PrivValidator,
 	clientCreator proxy.ClientCreator,
@@ -173,7 +173,7 @@ func NewNode(config *cfg.Config,
 	}
 
 	// Create the proxyApp, which manages connections (consensus, mempool, query)
-	// and sync tendermint and the app by performing a handshake
+	// and sync Demars-DMC and the app by performing a handshake
 	// and replaying any necessary blocks
 	consensusLogger := logger.With("module", "consensus")
 	handshaker := cs.NewHandshaker(stateDB, state, blockStore, genDoc)

@@ -6,8 +6,8 @@ Gopkg.lock
 *.bak
 .DS_Store
 build/*
-rpc/test/.tendermint
-.tendermint
+rpc/test/.demars
+.demars
 remote_dump
 .revision
 vendor

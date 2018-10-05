@@ -2,10 +2,10 @@ package client
 
 /*
 The client package provides a general purpose interface (Client) for connecting
-to a tendermint node, as well as higher-level functionality.
+to a Demars-DMC node, as well as higher-level functionality.
 
 The main implementation for production code is client.HTTP, which
-connects via http to the jsonrpc interface of the tendermint node.
+connects via http to the jsonrpc interface of the Demars-DMC node.
 
 For connecting to a node running in the same process (eg. when
 compiling the abci app in the same process), you can use the client.Local
@@ -21,9 +21,9 @@ implementation.
 */
 
 import (
-	ctypes "github.com/tendermint/tendermint/rpc/core/types"
-	"github.com/tendermint/tendermint/types"
-	cmn "github.com/tendermint/tendermint/libs/common"
+	ctypes "github.com/Demars-DMC/Demars-DMC/rpc/core/types"
+	"github.com/Demars-DMC/Demars-DMC/types"
+	cmn "github.com/Demars-DMC/Demars-DMC/libs/common"
 )
 
 // ABCIClient groups together the functionality that principally
@@ -89,7 +89,7 @@ type NetworkClient interface {
 }
 
 // EventsClient is reactive, you can subscribe to any message, given the proper
-// string. see tendermint/types/events.go
+// string. see Demars-DMC/types/events.go
 type EventsClient interface {
 	types.EventBusSubscriber
 }

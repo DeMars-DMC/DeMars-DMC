@@ -1,12 +1,12 @@
 package proxy
 
 import (
-	cmn "github.com/tendermint/tendermint/libs/common"
+	cmn "github.com/Demars-DMC/Demars-DMC/libs/common"
 
-	"github.com/tendermint/tendermint/lite"
-	certclient "github.com/tendermint/tendermint/lite/client"
-	rpcclient "github.com/tendermint/tendermint/rpc/client"
-	ctypes "github.com/tendermint/tendermint/rpc/core/types"
+	"github.com/Demars-DMC/Demars-DMC/lite"
+	certclient "github.com/Demars-DMC/Demars-DMC/lite/client"
+	rpcclient "github.com/Demars-DMC/Demars-DMC/rpc/client"
+	ctypes "github.com/Demars-DMC/Demars-DMC/rpc/core/types"
 )
 
 var _ rpcclient.Client = Wrapper{}

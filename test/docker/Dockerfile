@@ -8,8 +8,8 @@ RUN apt-get update && \
   apt-get install -y --no-install-recommends \
   jq bsdmainutils vim-common psmisc netcat curl
 
-# Setup tendermint repo
-ENV REPO $GOPATH/src/github.com/tendermint/tendermint
+# Setup Demars-DMC repo
+ENV REPO $GOPATH/src/github.com/Demars-DMC/Demars-DMC
 ENV GOBIN $GOPATH/bin
 WORKDIR $REPO
 
@@ -29,7 +29,7 @@ RUN bash scripts/install_abci_apps.sh
 # NOTE: this will overwrite whatever is in vendor/
 COPY . $REPO
 
-RUN go install ./cmd/tendermint
+RUN go install ./cmd/Demars-DMC
 
 # expose the volume for debugging
 VOLUME $REPO

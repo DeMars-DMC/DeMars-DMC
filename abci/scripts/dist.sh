@@ -28,8 +28,8 @@ mkdir -p build/pkg
 
 
 # Do a hermetic build inside a Docker container.
-docker build -t tendermint/${REPO_NAME}-builder scripts/${REPO_NAME}-builder/
-docker run --rm -e "BUILD_TAGS=$BUILD_TAGS" -v "$(pwd)":/go/src/github.com/tendermint/${REPO_NAME} tendermint/${REPO_NAME}-builder ./scripts/dist_build.sh
+docker build -t demars/${REPO_NAME}-builder scripts/${REPO_NAME}-builder/
+docker run --rm -e "BUILD_TAGS=$BUILD_TAGS" -v "$(pwd)":/go/src/github.com/Demars-DMC/${REPO_NAME} demars/${REPO_NAME}-builder ./scripts/dist_build.sh
 
 # Add $REPO_NAME and $VERSION prefix to package name.
 rm -rf ./build/dist

@@ -5,11 +5,11 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/tendermint/tendermint/privval"
-	"github.com/tendermint/tendermint/libs/log"
+	"github.com/Demars-DMC/Demars-DMC/privval"
+	"github.com/Demars-DMC/Demars-DMC/libs/log"
 )
 
-// ResetAllCmd removes the database of this Tendermint core
+// ResetAllCmd removes the database of this Demars-DMC core
 // instance.
 var ResetAllCmd = &cobra.Command{
 	Use:   "unsafe_reset_all",

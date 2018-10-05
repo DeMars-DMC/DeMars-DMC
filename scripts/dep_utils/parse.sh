@@ -2,7 +2,7 @@
 
 set +u
 if [[ "$DEP" == "" ]]; then
-	DEP=$GOPATH/src/github.com/tendermint/tendermint/Gopkg.lock
+	DEP=$GOPATH/src/github.com/Demars-DMC/Demars-DMC/Gopkg.lock
 fi
 set -u
 

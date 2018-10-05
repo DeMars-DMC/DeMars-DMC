@@ -4,12 +4,12 @@ import (
 	"net/http"
 
 	amino "github.com/tendermint/go-amino"
-	"github.com/tendermint/tendermint/libs/log"
+	"github.com/Demars-DMC/Demars-DMC/libs/log"
 
-	rpcclient "github.com/tendermint/tendermint/rpc/client"
-	"github.com/tendermint/tendermint/rpc/core"
-	ctypes "github.com/tendermint/tendermint/rpc/core/types"
-	rpc "github.com/tendermint/tendermint/rpc/lib/server"
+	rpcclient "github.com/Demars-DMC/Demars-DMC/rpc/client"
+	"github.com/Demars-DMC/Demars-DMC/rpc/core"
+	ctypes "github.com/Demars-DMC/Demars-DMC/rpc/core/types"
+	rpc "github.com/Demars-DMC/Demars-DMC/rpc/lib/server"
 )
 
 const (
@@ -45,14 +45,14 @@ func StartProxy(c rpcclient.Client, listenAddr string, logger log.Logger) error 
 }
 
 // RPCRoutes just routes everything to the given client, as if it were
-// a tendermint fullnode.
+// a Demars-DMC fullnode.
 //
 // if we want security, the client must implement it as a secure client
 func RPCRoutes(c rpcclient.Client) map[string]*rpc.RPCFunc {
 
 	return map[string]*rpc.RPCFunc{
 		// Subscribe/unsubscribe are reserved for websocket events.
-		// We can just use the core tendermint impl, which uses the
+		// We can just use the core Demars-DMC impl, which uses the
 		// EventSwitch we registered in NewWebsocketManager above
 		"subscribe":   rpc.NewWSRPCFunc(core.Subscribe, "query"),
 		"unsubscribe": rpc.NewWSRPCFunc(core.Unsubscribe, "query"),

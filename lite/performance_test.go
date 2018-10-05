@@ -9,7 +9,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	liteErr "github.com/tendermint/tendermint/lite/errors"
+	liteErr "github.com/Demars-DMC/Demars-DMC/lite/errors"
 )
 
 func TestMemStoreProvidergetByHeightBinaryAndLinearSameResult(t *testing.T) {

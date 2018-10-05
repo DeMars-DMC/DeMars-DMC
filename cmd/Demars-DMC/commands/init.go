@@ -5,17 +5,17 @@ import (
 
 	"github.com/spf13/cobra"
 
-	cfg "github.com/tendermint/tendermint/config"
-	"github.com/tendermint/tendermint/p2p"
-	"github.com/tendermint/tendermint/privval"
-	"github.com/tendermint/tendermint/types"
-	cmn "github.com/tendermint/tendermint/libs/common"
+	cfg "github.com/Demars-DMC/Demars-DMC/config"
+	cmn "github.com/Demars-DMC/Demars-DMC/libs/common"
+	"github.com/Demars-DMC/Demars-DMC/p2p"
+	"github.com/Demars-DMC/Demars-DMC/privval"
+	"github.com/Demars-DMC/Demars-DMC/types"
 )
 
-// InitFilesCmd initialises a fresh Tendermint Core instance.
+// InitFilesCmd initialises a fresh Demars-DMC Core instance.
 var InitFilesCmd = &cobra.Command{
 	Use:   "init",
-	Short: "Initialize Tendermint",
+	Short: "Initialize Demars",
 	RunE:  initFiles,
 }
 

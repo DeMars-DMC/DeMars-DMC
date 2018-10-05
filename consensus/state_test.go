@@ -7,12 +7,12 @@ import (
 	"testing"
 	"time"
 
-	cstypes "github.com/tendermint/tendermint/consensus/types"
-	tmpubsub "github.com/tendermint/tendermint/libs/pubsub"
-	"github.com/tendermint/tendermint/types"
-	cmn "github.com/tendermint/tendermint/libs/common"
-	"github.com/tendermint/tendermint/libs/log"
-	"github.com/tendermint/tendermint/p2p"
+	cstypes "github.com/Demars-DMC/Demars-DMC/consensus/types"
+	tmpubsub "github.com/Demars-DMC/Demars-DMC/libs/pubsub"
+	"github.com/Demars-DMC/Demars-DMC/types"
+	cmn "github.com/Demars-DMC/Demars-DMC/libs/common"
+	"github.com/Demars-DMC/Demars-DMC/libs/log"
+	"github.com/Demars-DMC/Demars-DMC/p2p"
 )
 
 func init() {

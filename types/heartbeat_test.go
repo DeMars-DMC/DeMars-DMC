@@ -5,7 +5,7 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/tendermint/tendermint/crypto"
+	"github.com/Demars-DMC/Demars-DMC/crypto"
 )
 
 func TestHeartbeatCopy(t *testing.T) {
@@ -28,7 +28,7 @@ func TestHeartbeatString(t *testing.T) {
 	require.Equal(t, hb.String(), "Heartbeat{1:000000000000 11/02 (0) <nil>}")
 
 	var key crypto.PrivKeyEd25519
-	sig, err := key.Sign([]byte("Tendermint"))
+	sig, err := key.Sign([]byte("Demars-DMC"))
 	require.NoError(t, err)
 	hb.Signature = sig
 	require.Equal(t, hb.String(), "Heartbeat{1:000000000000 11/02 (0) /FF41E371B9BF.../}")

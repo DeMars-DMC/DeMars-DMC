@@ -1,4 +1,4 @@
-// Copyright 2017 Tendermint. All Rights Reserved.
+// Copyright 2017 Demars-DMC. All Rights Reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -17,18 +17,18 @@ package crypto_test
 import (
 	"fmt"
 
-	"github.com/tendermint/tendermint/crypto"
+	"github.com/Demars-DMC/Demars-DMC/crypto"
 )
 
 func ExampleSha256() {
-	sum := crypto.Sha256([]byte("This is Tendermint"))
+	sum := crypto.Sha256([]byte("This is Demars-DMC"))
 	fmt.Printf("%x\n", sum)
 	// Output:
 	// f91afb642f3d1c87c17eb01aae5cb65c242dfdbe7cf1066cc260f4ce5d33b94e
 }
 
 func ExampleRipemd160() {
-	sum := crypto.Ripemd160([]byte("This is Tendermint"))
+	sum := crypto.Ripemd160([]byte("This is Demars-DMC"))
 	fmt.Printf("%x\n", sum)
 	// Output:
 	// 051e22663e8f0fd2f2302f1210f954adff009005

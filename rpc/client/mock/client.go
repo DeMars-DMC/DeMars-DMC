@@ -8,7 +8,7 @@ the server response you want to mock (eg. error handling),
 or if you just want to record the calls to verify in your tests.
 
 For real clients, you probably want the "http" package.  If you
-want to directly call a tendermint node in process, you can use the
+want to directly call a Demars-DMC node in process, you can use the
 "local" package.
 */
 package mock
@@ -16,11 +16,11 @@ package mock
 import (
 	"reflect"
 
-	"github.com/tendermint/tendermint/rpc/client"
-	"github.com/tendermint/tendermint/rpc/core"
-	ctypes "github.com/tendermint/tendermint/rpc/core/types"
-	"github.com/tendermint/tendermint/types"
-	cmn "github.com/tendermint/tendermint/libs/common"
+	"github.com/Demars-DMC/Demars-DMC/rpc/client"
+	"github.com/Demars-DMC/Demars-DMC/rpc/core"
+	ctypes "github.com/Demars-DMC/Demars-DMC/rpc/core/types"
+	"github.com/Demars-DMC/Demars-DMC/types"
+	cmn "github.com/Demars-DMC/Demars-DMC/libs/common"
 )
 
 // Client wraps arbitrary implementations of the various interfaces.

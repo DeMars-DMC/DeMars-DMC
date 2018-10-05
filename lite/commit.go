@@ -5,9 +5,9 @@ import (
 
 	"github.com/pkg/errors"
 
-	"github.com/tendermint/tendermint/types"
+	"github.com/Demars-DMC/Demars-DMC/types"
 
-	liteErr "github.com/tendermint/tendermint/lite/errors"
+	liteErr "github.com/Demars-DMC/Demars-DMC/lite/errors"
 )
 
 // Certifier checks the votes to make sure the block really is signed properly.

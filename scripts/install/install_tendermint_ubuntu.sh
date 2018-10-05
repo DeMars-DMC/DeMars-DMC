@@ -7,8 +7,8 @@
 # your terminal or run `source ~/.profile`
 
 # as written, this script will install
-# tendermint core from master branch
-REPO=github.com/tendermint/tendermint
+# Demars-DMC core from master branch
+REPO=github.com/Demars-DMC/Demars-DMC
 
 # change this to a specific release or branch
 BRANCH=master

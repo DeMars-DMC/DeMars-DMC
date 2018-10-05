@@ -3,15 +3,15 @@ package core
 import (
 	"time"
 
-	"github.com/tendermint/tendermint/consensus"
-	crypto "github.com/tendermint/tendermint/crypto"
-	"github.com/tendermint/tendermint/p2p"
-	"github.com/tendermint/tendermint/proxy"
-	sm "github.com/tendermint/tendermint/state"
-	"github.com/tendermint/tendermint/state/txindex"
-	"github.com/tendermint/tendermint/types"
-	dbm "github.com/tendermint/tendermint/libs/db"
-	"github.com/tendermint/tendermint/libs/log"
+	"github.com/Demars-DMC/Demars-DMC/consensus"
+	crypto "github.com/Demars-DMC/Demars-DMC/crypto"
+	"github.com/Demars-DMC/Demars-DMC/p2p"
+	"github.com/Demars-DMC/Demars-DMC/proxy"
+	sm "github.com/Demars-DMC/Demars-DMC/state"
+	"github.com/Demars-DMC/Demars-DMC/state/txindex"
+	"github.com/Demars-DMC/Demars-DMC/types"
+	dbm "github.com/Demars-DMC/Demars-DMC/libs/db"
+	"github.com/Demars-DMC/Demars-DMC/libs/log"
 )
 
 const (

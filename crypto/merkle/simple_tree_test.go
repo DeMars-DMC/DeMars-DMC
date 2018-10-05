@@ -3,10 +3,10 @@ package merkle
 import (
 	"bytes"
 
-	cmn "github.com/tendermint/tendermint/libs/common"
-	. "github.com/tendermint/tendermint/libs/test"
+	cmn "github.com/Demars-DMC/Demars-DMC/libs/common"
+	. "github.com/Demars-DMC/Demars-DMC/libs/test"
 
-	"github.com/tendermint/tendermint/crypto/tmhash"
+	"github.com/Demars-DMC/Demars-DMC/crypto/tmhash"
 	"testing"
 )
 

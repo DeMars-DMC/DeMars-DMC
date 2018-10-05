@@ -1,4 +1,4 @@
-// Copyright 2017 Tendermint. All rights reserved.
+// Copyright 2017 Demars-DMC. All rights reserved.
 // Use of this source code is governed by Apache 2 LICENSE that can be found in the LICENSE file.
 
 package trust
@@ -10,8 +10,8 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
-	dbm "github.com/tendermint/tendermint/libs/db"
-	"github.com/tendermint/tendermint/libs/log"
+	dbm "github.com/Demars-DMC/Demars-DMC/libs/db"
+	"github.com/Demars-DMC/Demars-DMC/libs/log"
 )
 
 func TestTrustMetricStoreSaveLoad(t *testing.T) {

@@ -6,7 +6,7 @@ import (
 	"path/filepath"
 	"text/template"
 
-	cmn "github.com/tendermint/tendermint/libs/common"
+	cmn "github.com/Demars-DMC/Demars-DMC/libs/common"
 )
 
 var configTemplate *template.Template
@@ -41,7 +41,7 @@ func EnsureRoot(rootDir string) {
 	}
 }
 
-// XXX: this func should probably be called by cmd/tendermint/commands/init.go
+// XXX: this func should probably be called by cmd/Demars-DMC/commands/init.go
 // alongside the writing of the genesis.json and priv_validator.json
 func writeDefaultConfigFile(configFilePath string) {
 	WriteConfigFile(configFilePath, DefaultConfig())
@@ -66,7 +66,7 @@ const defaultConfigTemplate = `# This is a TOML config file.
 ##### main base config options #####
 
 # TCP or UNIX socket address of the ABCI application,
-# or the name of an ABCI application compiled in with the Tendermint binary
+# or the name of an ABCI application compiled in with the Demars-DMC binary
 proxy_app = "{{ .BaseConfig.ProxyApp }}"
 
 # A custom human readable name for this node
@@ -267,15 +267,15 @@ prometheus_listen_addr = "{{ .Instrumentation.PrometheusListenAddr }}"
 /****** these are for test settings ***********/
 
 func ResetTestRoot(testName string) *Config {
-	rootDir := os.ExpandEnv("$HOME/.tendermint_test")
+	rootDir := os.ExpandEnv("$HOME/.Demars-DMC_test")
 	rootDir = filepath.Join(rootDir, testName)
-	// Remove ~/.tendermint_test_bak
+	// Remove ~/.Demars-DMC_test_bak
 	if cmn.FileExists(rootDir + "_bak") {
 		if err := os.RemoveAll(rootDir + "_bak"); err != nil {
 			cmn.PanicSanity(err.Error())
 		}
 	}
-	// Move ~/.tendermint_test to ~/.tendermint_test_bak
+	// Move ~/.Demars-DMC_test to ~/.Demars-DMC_test_bak
 	if cmn.FileExists(rootDir) {
 		if err := os.Rename(rootDir, rootDir+"_bak"); err != nil {
 			cmn.PanicSanity(err.Error())
@@ -313,11 +313,11 @@ func ResetTestRoot(testName string) *Config {
 
 var testGenesis = `{
   "genesis_time": "0001-01-01T00:00:00.000Z",
-  "chain_id": "tendermint_test",
+  "chain_id": "Demars-DMC_test",
   "validators": [
     {
       "pub_key": {
-        "type": "tendermint/PubKeyEd25519",
+        "type": "Demars-DMC/PubKeyEd25519",
         "value":"AT/+aaL1eB0477Mud9JMm8Sh8BIvOYlPGC9KkIUmFaE="
       },
       "power": "10",
@@ -330,11 +330,11 @@ var testGenesis = `{
 var testPrivValidator = `{
   "address": "A3258DCBF45DCA0DF052981870F2D1441A36D145",
   "pub_key": {
-    "type": "tendermint/PubKeyEd25519",
+    "type": "Demars-DMC/PubKeyEd25519",
     "value": "AT/+aaL1eB0477Mud9JMm8Sh8BIvOYlPGC9KkIUmFaE="
   },
   "priv_key": {
-    "type": "tendermint/PrivKeyEd25519",
+    "type": "Demars-DMC/PrivKeyEd25519",
     "value": "EVkqJO/jIXp3rkASXfh9YnyToYXRXhBr6g9cQVxPFnQBP/5povV4HTjvsy530kybxKHwEi85iU8YL0qQhSYVoQ=="
   },
   "last_height": "0",

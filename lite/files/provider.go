@@ -24,8 +24,8 @@ import (
 
 	"github.com/pkg/errors"
 
-	"github.com/tendermint/tendermint/lite"
-	liteErr "github.com/tendermint/tendermint/lite/errors"
+	"github.com/Demars-DMC/Demars-DMC/lite"
+	liteErr "github.com/Demars-DMC/Demars-DMC/lite/errors"
 )
 
 // nolint

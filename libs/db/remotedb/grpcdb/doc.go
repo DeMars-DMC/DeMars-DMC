@@ -1,5 +1,5 @@
 /*
-grpcdb is the distribution of Tendermint's db.DB instances using
+grpcdb is the distribution of Demars-DMC's db.DB instances using
 the gRPC transport to decouple local db.DB usages from applications,
 to using them over a network in a highly performant manner.
 

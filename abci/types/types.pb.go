@@ -8,7 +8,7 @@ import proto "github.com/gogo/protobuf/proto"
 import fmt "fmt"
 import math "math"
 import _ "github.com/gogo/protobuf/gogoproto"
-import common "github.com/tendermint/tendermint/libs/common"
+import common "github.com/Demars-DMC/Demars-DMC/libs/common"
 
 import (
 	context "golang.org/x/net/context"

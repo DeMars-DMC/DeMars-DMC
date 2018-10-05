@@ -3,41 +3,48 @@
 [XOR-segmented](https://en.wikipedia.org/wiki/Kademlia) [Byzantine-Fault Tolerant](https://en.wikipedia.org/wiki/Byzantine_fault_tolerance) [Blockchain](https://en.wikipedia.org/wiki/Blockchain_(database))
 
 <!---
-[![version](https://img.shields.io/github/tag/tendermint/tendermint.svg)](https://github.com/tendermint/tendermint/releases/latest)
+[![version](https://img.shields.io/github/tag/Demars-DMC/Demars-DMC.svg)](https://github.com/Demars-DMC/Demars-DMC/releases/latest)
 [![API Reference](
 https://camo.githubusercontent.com/915b7be44ada53c290eb157634330494ebe3e30a/68747470733a2f2f676f646f632e6f72672f6769746875622e636f6d2f676f6c616e672f6764646f3f7374617475732e737667
-)](https://godoc.org/github.com/tendermint/tendermint)
+)](https://godoc.org/github.com/Demars-DMC/Demars-DMC)
 [![Go version](https://img.shields.io/badge/go-1.9.2-blue.svg)](https://github.com/moovweb/gvm)
-[![riot.im](https://img.shields.io/badge/riot.im-JOIN%20CHAT-green.svg)](https://riot.im/app/#/room/#tendermint:matrix.org)
-[![license](https://img.shields.io/github/license/tendermint/tendermint.svg)](https://github.com/tendermint/tendermint/blob/master/LICENSE)
+[![riot.im](https://img.shields.io/badge/riot.im-JOIN%20CHAT-green.svg)](https://riot.im/app/#/room/#Demars-DMC:matrix.org)
+[![license](https://img.shields.io/github/license/Demars-DMC/Demars-DMC.svg)](https://github.com/Demars-DMC/Demars-DMC/blob/master/LICENSE)
 [![](https://tokei.rs/b1/github.com/DeMars-DMC/DeMars-DMC?category=lines)](https://github.com/DeMars-DMC/DeMars-DMC)
 
 
 Branch    | Tests | Coverage
 ----------|-------|----------
-master    | [![CircleCI](https://circleci.com/gh/tendermint/tendermint/tree/master.svg?style=shield)](https://circleci.com/gh/tendermint/tendermint/tree/master) | [![codecov](https://codecov.io/gh/tendermint/tendermint/branch/master/graph/badge.svg)](https://codecov.io/gh/tendermint/tendermint)
-develop   | [![CircleCI](https://circleci.com/gh/tendermint/tendermint/tree/develop.svg?style=shield)](https://circleci.com/gh/tendermint/tendermint/tree/develop) | [![codecov](https://codecov.io/gh/tendermint/tendermint/branch/develop/graph/badge.svg)](https://codecov.io/gh/tendermint/tendermint)
+master    | [![CircleCI](https://circleci.com/gh/Demars-DMC/Demars-DMC/tree/master.svg?style=shield)](https://circleci.com/gh/Demars-DMC/Demars-DMC/tree/master) | [![codecov](https://codecov.io/gh/Demars-DMC/Demars-DMC/branch/master/graph/badge.svg)](https://codecov.io/gh/Demars-DMC/Demars-DMC)
+develop   | [![CircleCI](https://circleci.com/gh/Demars-DMC/Demars-DMC/tree/develop.svg?style=shield)](https://circleci.com/gh/Demars-DMC/Demars-DMC/tree/develop) | [![codecov](https://codecov.io/gh/Demars-DMC/Demars-DMC/branch/develop/graph/badge.svg)](https://codecov.io/gh/Demars-DMC/Demars-DMC)
 -->
 DéMars is Byzantine Fault Tolerant (BFT) blockchain which uses XOR segments to reduce the storage and network transfer costs, thereby enabling it to execute on mobile nodes.
+
+This is only a minimal prototype which has been forked from Tendermint (https://github.com/tendermint/tendermint) and modified to use Kademlia XOR metric. The proof of concept is under development.
+
+## Simplifications (w.r.t. the Whitepaper)
+* The prototype uses a Kademlia XOR P2P network similar to Ethereum (https://github.com/ethereum/wiki/wiki/Kademlia-Peer-Selection). We propose to implement a Hamming distance-based hypercube DHT for optimizing zone selection.
+* The validators and proposer are chosen naively (the top 100 nodes in a zone based on account balances). The final version will be based on cryptographic sortition like Algorand.
+* The distribution condition to ensure that adversaries cannot concentrate wealth in zones is yet to be implemented.
 
 <!--
 For protocol details, see [the specification](/docs/spec).
 
 ## A Note on Production Readiness
 
-While Tendermint is being used in production in private, permissioned
+While Demars-DMC is being used in production in private, permissioned
 environments, we are still working actively to harden and audit it in preparation
 for use in public blockchains, such as the [Cosmos Network](https://cosmos.network/).
 We are also still making breaking changes to the protocol and the APIs.
 Thus we tag the releases as *alpha software*.
 
-In any case, if you intend to run Tendermint in production,
-please [contact us](https://riot.im/app/#/room/#tendermint:matrix.org) :)
+In any case, if you intend to run Demars-DMC in production,
+please [contact us](https://riot.im/app/#/room/#Demars-DMC:matrix.org) :)
 
 ## Security
 
 To report a security vulnerability, see our [bug bounty
-program](https://tendermint.com/security).
+program](https://Demars-DMC.com/security).
 
 For examples of the kinds of bugs we're looking for, see [SECURITY.md](SECURITY.md)
 -->
@@ -54,7 +61,7 @@ See the [install instructions](/docs/install.md)
 <!--
 ## Quick Start
 
-- [Single node](/docs/using-tendermint.md)
+- [Single node](/docs/using-Demars-DMC.md)
 - [Local cluster using docker-compose](/networks/local)
 - [Remote cluster using terraform and ansible](/docs/terraform-and-ansible.md)
 - [Join the public testnet](https://cosmos.network/testnet)
@@ -67,34 +74,34 @@ For details about the blockchain data structures and the p2p protocols, see the
 the [DMC specification](/docs/spec).
 
 <!--
-For details on using the software, [Read The Docs](https://tendermint.readthedocs.io/en/master/).
+For details on using the software, [Read The Docs](https://Demars-DMC.readthedocs.io/en/master/).
 Additional information about some - and eventually all - of the sub-projects below, can be found at Read The Docs.
 
 
 ### Sub-projects
 
 * [Amino](http://github.com/tendermint/go-amino), a reflection-based improvement on proto3
-* [IAVL](http://github.com/tendermint/iavl), Merkleized IAVL+ Tree implementation
+* [IAVL](http://github.com/Demars-DMC/iavl), Merkleized IAVL+ Tree implementation
 
 ### Tools
-* [Deployment, Benchmarking, and Monitoring](http://tendermint.readthedocs.io/projects/tools/en/develop/index.html#tendermint-tools)
+* [Deployment, Benchmarking, and Monitoring](http://Demars-DMC.readthedocs.io/projects/tools/en/develop/index.html#Demars-DMC-tools)
 
 ### Applications
 
 * [Cosmos SDK](http://github.com/cosmos/cosmos-sdk); a cryptocurrency application framework
-* [Ethermint](http://github.com/tendermint/ethermint); Ethereum on Tendermint
-* [Many more](https://tendermint.readthedocs.io/en/master/ecosystem.html#abci-applications)
+* [Ethermint](http://github.com/Demars-DMC/ethermint); Ethereum on Demars-DMC
+* [Many more](https://Demars-DMC.readthedocs.io/en/master/ecosystem.html#abci-applications)
 -->
 ### More
 
 <!--
-* [Master's Thesis on Tendermint](https://atrium.lib.uoguelph.ca/xmlui/handle/10214/9769)
+* [Master's Thesis on Demars-DMC](https://atrium.lib.uoguelph.ca/xmlui/handle/10214/9769)
 * -->
 
 * [Original Whitepaper](https://github.com/DeMars-DMC/DeMars-DMC/blob/master/whitepaper/demars.pdf)
 
 <!--
-* [Tendermint Blog](https://blog.cosmos.network/tendermint/home)
+* [Demars-DMC Blog](https://blog.cosmos.network/Demars-DMC/home)
 * [Cosmos Blog](https://blog.cosmos.network)
 
 ## Contributing
@@ -106,10 +113,10 @@ Yay open source! Please see our [contributing guidelines](CONTRIBUTING.md).
 
 ### SemVer
 
-Tendermint uses [SemVer](http://semver.org/) to determine when and how the version changes.
+Demars-DMC uses [SemVer](http://semver.org/) to determine when and how the version changes.
 According to SemVer, anything in the public API can change at any time before version 1.0.0
 
-To provide some stability to Tendermint users in these 0.X.X days, the MINOR version is used
+To provide some stability to Demars-DMC users in these 0.X.X days, the MINOR version is used
 to signal breaking changes across a subset of the total public API. This subset includes all
 interfaces exposed to other processes (cli, rpc, p2p, etc.), but does not
 include the in-process Go APIs.
@@ -130,12 +137,12 @@ time without notice. Functions, types, and values in any other package may also 
 
 In an effort to avoid accumulating technical debt prior to 1.0.0,
 we do not guarantee that breaking changes (ie. bumps in the MINOR version)
-will work with existing tendermint blockchains. In these cases you will
+will work with existing Demars-DMC blockchains. In these cases you will
 have to start a new blockchain, or write something custom to get the old
 data into the new chain.
 
 However, any bump in the PATCH version should be compatible with existing histories
-(if not please open an [issue](https://github.com/tendermint/tendermint/issues)).
+(if not please open an [issue](https://github.com/Demars-DMC/Demars-DMC/issues)).
 
 ## Code of Conduct
 

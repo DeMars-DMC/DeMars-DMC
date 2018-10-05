@@ -8,15 +8,15 @@ import (
 	"reflect"
 	"time"
 
-	abci "github.com/tendermint/tendermint/abci/types"
-	cmn "github.com/tendermint/tendermint/libs/common"
-	dbm "github.com/tendermint/tendermint/libs/db"
-	"github.com/tendermint/tendermint/libs/log"
+	abci "github.com/Demars-DMC/Demars-DMC/abci/types"
+	cmn "github.com/Demars-DMC/Demars-DMC/libs/common"
+	dbm "github.com/Demars-DMC/Demars-DMC/libs/db"
+	"github.com/Demars-DMC/Demars-DMC/libs/log"
 
-	"github.com/tendermint/tendermint/proxy"
-	sm "github.com/tendermint/tendermint/state"
-	"github.com/tendermint/tendermint/types"
-	"github.com/tendermint/tendermint/version"
+	"github.com/Demars-DMC/Demars-DMC/proxy"
+	sm "github.com/Demars-DMC/Demars-DMC/state"
+	"github.com/Demars-DMC/Demars-DMC/types"
+	"github.com/Demars-DMC/Demars-DMC/version"
 )
 
 var crc32c = crc32.MakeTable(crc32.Castagnoli)
@@ -245,7 +245,7 @@ func (h *Handshaker) Handshake(proxyApp proxy.AppConns) error {
 		return fmt.Errorf("Error on replay: %v", err)
 	}
 
-	h.logger.Info("Completed ABCI Handshake - Tendermint and App are synced",
+	h.logger.Info("Completed ABCI Handshake - Demars-DMC and App are synced",
 		"appHeight", blockHeight, "appHash", fmt.Sprintf("%X", appHash))
 
 	// TODO: (on restart) replay mempool
@@ -302,11 +302,11 @@ func (h *Handshaker) ReplayBlocks(state sm.State, appHash []byte, appBlockHeight
 		return appHash, sm.ErrAppBlockHeightTooHigh{storeBlockHeight, appBlockHeight}
 
 	} else if storeBlockHeight < stateBlockHeight {
-		// the state should never be ahead of the store (this is under tendermint's control)
+		// the state should never be ahead of the store (this is under Demars-DMC's control)
 		cmn.PanicSanity(cmn.Fmt("StateBlockHeight (%d) > StoreBlockHeight (%d)", stateBlockHeight, storeBlockHeight))
 
 	} else if storeBlockHeight > stateBlockHeight+1 {
-		// store should be at most one ahead of the state (this is under tendermint's control)
+		// store should be at most one ahead of the state (this is under Demars-DMC's control)
 		cmn.PanicSanity(cmn.Fmt("StoreBlockHeight (%d) > StateBlockHeight + 1 (%d)", storeBlockHeight, stateBlockHeight+1))
 	}
 
@@ -314,7 +314,7 @@ func (h *Handshaker) ReplayBlocks(state sm.State, appHash []byte, appBlockHeight
 	// Now either store is equal to state, or one ahead.
 	// For each, consider all cases of where the app could be, given app <= store
 	if storeBlockHeight == stateBlockHeight {
-		// Tendermint ran Commit and saved the state.
+		// Demars-DMC ran Commit and saved the state.
 		// Either the app is asking for replay, or we're all synced up.
 		if appBlockHeight < storeBlockHeight {
 			// the app is behind, so replay blocks, but no need to go through WAL (state is already synced to store)
@@ -420,7 +420,7 @@ func (h *Handshaker) replayBlock(state sm.State, height int64, proxyApp proxy.Ap
 
 func checkAppHash(state sm.State, appHash []byte) error {
 	if !bytes.Equal(state.AppHash, appHash) {
-		panic(fmt.Errorf("Tendermint state.AppHash does not match AppHash after replay. Got %X, expected %X", appHash, state.AppHash).Error())
+		panic(fmt.Errorf("Demars-DMC state.AppHash does not match AppHash after replay. Got %X, expected %X", appHash, state.AppHash).Error())
 	}
 	return nil
 }

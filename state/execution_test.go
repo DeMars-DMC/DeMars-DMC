@@ -8,15 +8,15 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/tendermint/tendermint/abci/example/kvstore"
-	abci "github.com/tendermint/tendermint/abci/types"
-	crypto "github.com/tendermint/tendermint/crypto"
-	cmn "github.com/tendermint/tendermint/libs/common"
-	dbm "github.com/tendermint/tendermint/libs/db"
-	"github.com/tendermint/tendermint/libs/log"
+	"github.com/Demars-DMC/Demars-DMC/abci/example/kvstore"
+	abci "github.com/Demars-DMC/Demars-DMC/abci/types"
+	crypto "github.com/Demars-DMC/Demars-DMC/crypto"
+	cmn "github.com/Demars-DMC/Demars-DMC/libs/common"
+	dbm "github.com/Demars-DMC/Demars-DMC/libs/db"
+	"github.com/Demars-DMC/Demars-DMC/libs/log"
 
-	"github.com/tendermint/tendermint/proxy"
-	"github.com/tendermint/tendermint/types"
+	"github.com/Demars-DMC/Demars-DMC/proxy"
+	"github.com/Demars-DMC/Demars-DMC/types"
 )
 
 var (

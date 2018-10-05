@@ -4,11 +4,11 @@ import (
 	"flag"
 	"os"
 
-	crypto "github.com/tendermint/tendermint/crypto"
-	cmn "github.com/tendermint/tendermint/libs/common"
-	"github.com/tendermint/tendermint/libs/log"
+	crypto "github.com/Demars-DMC/Demars-DMC/crypto"
+	cmn "github.com/Demars-DMC/Demars-DMC/libs/common"
+	"github.com/Demars-DMC/Demars-DMC/libs/log"
 
-	"github.com/tendermint/tendermint/privval"
+	"github.com/Demars-DMC/Demars-DMC/privval"
 )
 
 func main() {

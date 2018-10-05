@@ -1,11 +1,11 @@
 package core
 
 import (
-	cm "github.com/tendermint/tendermint/consensus"
-	"github.com/tendermint/tendermint/p2p"
-	ctypes "github.com/tendermint/tendermint/rpc/core/types"
-	sm "github.com/tendermint/tendermint/state"
-	"github.com/tendermint/tendermint/types"
+	cm "github.com/Demars-DMC/Demars-DMC/consensus"
+	"github.com/Demars-DMC/Demars-DMC/p2p"
+	ctypes "github.com/Demars-DMC/Demars-DMC/rpc/core/types"
+	sm "github.com/Demars-DMC/Demars-DMC/state"
+	"github.com/Demars-DMC/Demars-DMC/types"
 )
 
 // Get the validator set at the given block height.
@@ -87,7 +87,7 @@ func Validators(heightPtr *int64) (*ctypes.ResultValidators, error) {
 //           {
 //             "address": "B5B3D40BE53982AD294EF99FF5A34C0C3E5A3244",
 //             "pub_key": {
-//               "type": "tendermint/PubKeyEd25519",
+//               "type": "Demars-DMC/PubKeyEd25519",
 //               "value": "SBctdhRBcXtBgdI/8a/alTsUhGXqGs9k5ylV1u5iKHg="
 //             },
 //             "voting_power": 10,
@@ -97,7 +97,7 @@ func Validators(heightPtr *int64) (*ctypes.ResultValidators, error) {
 //         "proposer": {
 //           "address": "B5B3D40BE53982AD294EF99FF5A34C0C3E5A3244",
 //           "pub_key": {
-//             "type": "tendermint/PubKeyEd25519",
+//             "type": "Demars-DMC/PubKeyEd25519",
 //             "value": "SBctdhRBcXtBgdI/8a/alTsUhGXqGs9k5ylV1u5iKHg="
 //           },
 //           "voting_power": 10,
@@ -133,7 +133,7 @@ func Validators(heightPtr *int64) (*ctypes.ResultValidators, error) {
 //           {
 //             "address": "B5B3D40BE53982AD294EF99FF5A34C0C3E5A3244",
 //             "pub_key": {
-//               "type": "tendermint/PubKeyEd25519",
+//               "type": "Demars-DMC/PubKeyEd25519",
 //               "value": "SBctdhRBcXtBgdI/8a/alTsUhGXqGs9k5ylV1u5iKHg="
 //             },
 //             "voting_power": 10,
@@ -143,7 +143,7 @@ func Validators(heightPtr *int64) (*ctypes.ResultValidators, error) {
 //         "proposer": {
 //           "address": "B5B3D40BE53982AD294EF99FF5A34C0C3E5A3244",
 //           "pub_key": {
-//             "type": "tendermint/PubKeyEd25519",
+//             "type": "Demars-DMC/PubKeyEd25519",
 //             "value": "SBctdhRBcXtBgdI/8a/alTsUhGXqGs9k5ylV1u5iKHg="
 //           },
 //           "voting_power": 10,

@@ -3,12 +3,12 @@ package proxy
 import (
 	"github.com/pkg/errors"
 
-	cmn "github.com/tendermint/tendermint/libs/common"
+	cmn "github.com/Demars-DMC/Demars-DMC/libs/common"
 )
 
 //-----------------------------
 
-// Tendermint's interface to the application consists of multiple connections
+// Demars-DMC's interface to the application consists of multiple connections
 type AppConns interface {
 	cmn.Service
 
@@ -30,7 +30,7 @@ type Handshaker interface {
 
 // a multiAppConn is made of a few appConns (mempool, consensus, query)
 // and manages their underlying abci clients, including the handshake
-// which ensures the app and tendermint are synced.
+// which ensures the app and Demars-DMC are synced.
 // TODO: on app restart, clients must reboot together
 type multiAppConn struct {
 	cmn.BaseService

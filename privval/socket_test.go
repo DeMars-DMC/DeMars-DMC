@@ -9,12 +9,12 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/tendermint/tendermint/crypto"
-	cmn "github.com/tendermint/tendermint/libs/common"
-	"github.com/tendermint/tendermint/libs/log"
+	"github.com/Demars-DMC/Demars-DMC/crypto"
+	cmn "github.com/Demars-DMC/Demars-DMC/libs/common"
+	"github.com/Demars-DMC/Demars-DMC/libs/log"
 
-	p2pconn "github.com/tendermint/tendermint/p2p/conn"
-	"github.com/tendermint/tendermint/types"
+	p2pconn "github.com/Demars-DMC/Demars-DMC/p2p/conn"
+	"github.com/Demars-DMC/Demars-DMC/types"
 )
 
 func TestSocketPVAddress(t *testing.T) {

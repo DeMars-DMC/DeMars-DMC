@@ -5,11 +5,11 @@ import (
 	"net"
 	"sync/atomic"
 	"time"
-	crypto "github.com/tendermint/tendermint/crypto"
-	cmn "github.com/tendermint/tendermint/libs/common"
-	"github.com/tendermint/tendermint/libs/log"
-	"github.com/tendermint/tendermint/config"
-	tmconn "github.com/tendermint/tendermint/p2p/conn"
+	crypto "github.com/Demars-DMC/Demars-DMC/crypto"
+	cmn "github.com/Demars-DMC/Demars-DMC/libs/common"
+	"github.com/Demars-DMC/Demars-DMC/libs/log"
+	"github.com/Demars-DMC/Demars-DMC/config"
+	tmconn "github.com/Demars-DMC/Demars-DMC/p2p/conn"
 )
 
 var testIPSuffix uint32
@@ -310,7 +310,7 @@ func (pc *peerConn) CloseConn() {
 	pc.conn.Close() // nolint: errcheck
 }
 
-// HandshakeTimeout performs the Tendermint P2P handshake between a given node
+// HandshakeTimeout performs the Demars-DMC P2P handshake between a given node
 // and the peer by exchanging their NodeInfo. It sets the received nodeInfo on
 // the peer.
 // NOTE: blocking

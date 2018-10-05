@@ -1,17 +1,17 @@
 package mock
 
 import (
-	abci "github.com/tendermint/tendermint/abci/types"
-	"github.com/tendermint/tendermint/rpc/client"
-	ctypes "github.com/tendermint/tendermint/rpc/core/types"
-	"github.com/tendermint/tendermint/types"
-	"github.com/tendermint/tendermint/version"
-	cmn "github.com/tendermint/tendermint/libs/common"
+	abci "github.com/Demars-DMC/Demars-DMC/abci/types"
+	"github.com/Demars-DMC/Demars-DMC/rpc/client"
+	ctypes "github.com/Demars-DMC/Demars-DMC/rpc/core/types"
+	"github.com/Demars-DMC/Demars-DMC/types"
+	"github.com/Demars-DMC/Demars-DMC/version"
+	cmn "github.com/Demars-DMC/Demars-DMC/libs/common"
 )
 
 // ABCIApp will send all abci related request to the named app,
 // so you can test app behavior from a client without needing
-// an entire tendermint node
+// an entire Demars-DMC node
 type ABCIApp struct {
 	App abci.Application
 }
@@ -65,7 +65,7 @@ func (a ABCIApp) BroadcastTxSync(tx types.Tx) (*ctypes.ResultBroadcastTx, error)
 
 // ABCIMock will send all abci related request to the named app,
 // so you can test app behavior from a client without needing
-// an entire tendermint node
+// an entire Demars-DMC node
 type ABCIMock struct {
 	Info            Call
 	Query           Call

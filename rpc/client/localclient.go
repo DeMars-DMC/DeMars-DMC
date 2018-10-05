@@ -3,12 +3,12 @@ package client
 import (
 	"context"
 
-	tmpubsub "github.com/tendermint/tendermint/libs/pubsub"
-	nm "github.com/tendermint/tendermint/node"
-	"github.com/tendermint/tendermint/rpc/core"
-	ctypes "github.com/tendermint/tendermint/rpc/core/types"
-	"github.com/tendermint/tendermint/types"
-	cmn "github.com/tendermint/tendermint/libs/common"
+	tmpubsub "github.com/Demars-DMC/Demars-DMC/libs/pubsub"
+	nm "github.com/Demars-DMC/Demars-DMC/node"
+	"github.com/Demars-DMC/Demars-DMC/rpc/core"
+	ctypes "github.com/Demars-DMC/Demars-DMC/rpc/core/types"
+	"github.com/Demars-DMC/Demars-DMC/types"
+	cmn "github.com/Demars-DMC/Demars-DMC/libs/common"
 )
 
 /*
@@ -19,7 +19,7 @@ This implementation is useful for:
 
 * Running tests against a node in-process without the overhead
 of going through an http server
-* Communication between an ABCI app and Tendermint core when they
+* Communication between an ABCI app and Demars-DMC core when they
 are compiled in process.
 
 For real clients, you probably want to use client.HTTP.  For more

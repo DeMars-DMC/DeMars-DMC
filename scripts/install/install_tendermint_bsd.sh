@@ -2,7 +2,7 @@
 
 # XXX: this script is intended to be run from
 # a fresh Digital Ocean droplet with FreeBSD
-# Just run tcsh install_tendermint_bsd.sh
+# Just run tcsh install_Demars-DMC_bsd.sh
 
 # upon its completion, you must either reset
 # your terminal or run `source ~/.tcshrc`
@@ -39,7 +39,7 @@ echo "set path=($path $GOPATH/bin)" >> ~/.tcshrc
 source ~/.tcshrc
 
 # get the code and move into repo
-set REPO=github.com/tendermint/tendermint
+set REPO=github.com/Demars-DMC/Demars-DMC
 go get $REPO
 cd $GOPATH/src/$REPO
 

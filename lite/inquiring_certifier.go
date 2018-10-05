@@ -1,9 +1,9 @@
 package lite
 
 import (
-	"github.com/tendermint/tendermint/types"
+	"github.com/Demars-DMC/Demars-DMC/types"
 
-	liteErr "github.com/tendermint/tendermint/lite/errors"
+	liteErr "github.com/Demars-DMC/Demars-DMC/lite/errors"
 )
 
 var _ Certifier = (*InquiringCertifier)(nil)

@@ -5,8 +5,8 @@ import (
 	"net"
 	"time"
 
-	cmn "github.com/tendermint/tendermint/libs/common"
-	"github.com/tendermint/tendermint/libs/log"
+	cmn "github.com/Demars-DMC/Demars-DMC/libs/common"
+	"github.com/Demars-DMC/Demars-DMC/libs/log"
 )
 
 type UPNPCapabilities struct {
@@ -27,7 +27,7 @@ func makeUPNPListener(intPort int, extPort int, logger log.Logger) (NAT, net.Lis
 	}
 	logger.Info(cmn.Fmt("External address: %v", ext))
 
-	port, err := nat.AddPortMapping("tcp", extPort, intPort, "Tendermint UPnP Probe", 0)
+	port, err := nat.AddPortMapping("tcp", extPort, intPort, "Demars-DMC UPnP Probe", 0)
 	if err != nil {
 		return nat, nil, ext, fmt.Errorf("Port mapping error: %v", err)
 	}

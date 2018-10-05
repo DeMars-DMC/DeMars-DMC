@@ -19,7 +19,7 @@ type Application interface {
 	CheckTx(tx []byte, height int64) ResponseCheckTx // Validate a tx for the mempool
 
 	// Consensus Connection
-	InitChain(RequestInitChain) ResponseInitChain                                 // Initialize blockchain with validators and other info from TendermintCore
+	InitChain(RequestInitChain) ResponseInitChain                                 // Initialize blockchain with validators and other info from Demars-DMCCore
 	BeginBlock(RequestBeginBlock) ResponseBeginBlock                              // Signals the beginning of a block
 	DeliverTx(tx []byte, height int64) ResponseDeliverTx                          // Deliver a tx for full processing
 	DeliverBucketedTx(tx []byte, height int64, bucketID string) ResponseDeliverTx // Deliver a tx for full processing

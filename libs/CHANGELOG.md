@@ -5,9 +5,9 @@
 *June 24th, 2018*
 
 BREAKING:
- - [events, pubsub] Removed - moved to github.com/tendermint/tendermint
+ - [events, pubsub] Removed - moved to github.com/Demars-DMC/Demars-DMC
  - [merkle] Use 20-bytes of SHA256 instead of RIPEMD160. NOTE: this package is
-   moving to github.com/tendermint/go-crypto !
+   moving to github.com/Demars-DMC/go-crypto !
  - [common] Remove gogoproto from KVPair types
  - [common] Error simplification, #220
 
@@ -240,7 +240,7 @@ BUG FIXES:
 
 FEATURES:
 
-- [cli] Log level parsing moved here from tendermint repo
+- [cli] Log level parsing moved here from Demars-DMC repo
 
 ## 0.2.0 (May 18, 2017)
 

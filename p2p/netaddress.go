@@ -1,4 +1,4 @@
-// Modified for Tendermint
+// Modified for Demars-DMC
 // Originally Copyright (c) 2013-2014 Conformal Systems LLC.
 // https://github.com/conformal/btcd/blob/master/LICENSE
 
@@ -12,7 +12,7 @@ import (
 	"strings"
 	"time"
 
-	cmn "github.com/tendermint/tendermint/libs/common"
+	cmn "github.com/Demars-DMC/Demars-DMC/libs/common"
 	"encoding/hex"
 	"crypto/ecdsa"
 	"github.com/ethereum/go-ethereum/crypto"

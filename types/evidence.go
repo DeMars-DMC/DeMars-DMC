@@ -6,8 +6,8 @@ import (
 
 	"github.com/tendermint/go-amino"
 
-	"github.com/tendermint/tendermint/crypto"
-	"github.com/tendermint/tendermint/crypto/merkle"
+	"github.com/Demars-DMC/Demars-DMC/crypto"
+	"github.com/Demars-DMC/Demars-DMC/crypto/merkle"
 )
 
 // ErrEvidenceInvalid wraps a piece of evidence and the error denoting how or why it is invalid.
@@ -40,7 +40,7 @@ type Evidence interface {
 
 func RegisterEvidences(cdc *amino.Codec) {
 	cdc.RegisterInterface((*Evidence)(nil), nil)
-	cdc.RegisterConcrete(&DuplicateVoteEvidence{}, "tendermint/DuplicateVoteEvidence", nil)
+	cdc.RegisterConcrete(&DuplicateVoteEvidence{}, "Demars-DMC/DuplicateVoteEvidence", nil)
 }
 
 //-------------------------------------------

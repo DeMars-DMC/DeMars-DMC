@@ -6,10 +6,10 @@ package events
 import (
 	"sync"
 
-	cmn "github.com/tendermint/tendermint/libs/common"
+	cmn "github.com/Demars-DMC/Demars-DMC/libs/common"
 )
 
-// Generic event data can be typed and registered with tendermint/go-amino
+// Generic event data can be typed and registered with Demars-DMC/go-amino
 // via concrete implementation of this interface
 type EventData interface {
 	//AssertIsEventData()

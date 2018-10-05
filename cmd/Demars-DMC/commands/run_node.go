@@ -5,11 +5,11 @@ import (
 
 	"github.com/spf13/cobra"
 
-	nm "github.com/tendermint/tendermint/node"
+	nm "github.com/Demars-DMC/Demars-DMC/node"
 )
 
 // AddNodeFlags exposes some common configuration options on the command-line
-// These are exposed for convenience of commands embedding a tendermint node
+// These are exposed for convenience of commands embedding a Demars-DMC node
 func AddNodeFlags(cmd *cobra.Command) {
 	// bind flags
 	cmd.Flags().String("moniker", config.Moniker, "Node Name")
@@ -47,7 +47,7 @@ func AddNodeFlags(cmd *cobra.Command) {
 func NewRunNodeCmd(nodeProvider nm.NodeProvider) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "node",
-		Short: "Run the tendermint node",
+		Short: "Run the Demars-DMC node",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			// Create & start node
 			n, err := nodeProvider(config, logger)

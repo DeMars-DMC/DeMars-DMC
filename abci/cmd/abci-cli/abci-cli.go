@@ -12,16 +12,16 @@ import (
 
 	"github.com/spf13/cobra"
 
-	cmn "github.com/tendermint/tendermint/libs/common"
-	"github.com/tendermint/tendermint/libs/log"
+	cmn "github.com/Demars-DMC/Demars-DMC/libs/common"
+	"github.com/Demars-DMC/Demars-DMC/libs/log"
 
-	abcicli "github.com/tendermint/tendermint/abci/client"
-	"github.com/tendermint/tendermint/abci/app/code"
-	"github.com/tendermint/tendermint/abci/app/dmccoin"
-	"github.com/tendermint/tendermint/abci/server"
-	servertest "github.com/tendermint/tendermint/abci/tests/server"
-	"github.com/tendermint/tendermint/abci/types"
-	"github.com/tendermint/tendermint/abci/version"
+	abcicli "github.com/Demars-DMC/Demars-DMC/abci/client"
+	"github.com/Demars-DMC/Demars-DMC/abci/app/code"
+	"github.com/Demars-DMC/Demars-DMC/abci/app/dmccoin"
+	"github.com/Demars-DMC/Demars-DMC/abci/server"
+	servertest "github.com/Demars-DMC/Demars-DMC/abci/tests/server"
+	"github.com/Demars-DMC/Demars-DMC/abci/types"
+	"github.com/Demars-DMC/Demars-DMC/abci/version"
 )
 
 // client is a global variable so it can be reused by the console

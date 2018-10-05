@@ -1,4 +1,4 @@
-// Copyright 2017 Tendermint. All rights reserved.
+// Copyright 2017 Demars-DMC. All rights reserved.
 // Use of this source code is governed by Apache 2 LICENSE that can be found in the LICENSE file.
 
 package trust
@@ -8,7 +8,7 @@ import (
 	"sync"
 	"time"
 
-	cmn "github.com/tendermint/tendermint/libs/common"
+	cmn "github.com/Demars-DMC/Demars-DMC/libs/common"
 )
 
 //---------------------------------------------------------------------------------------
@@ -31,7 +31,7 @@ type MetricHistoryJSON struct {
 }
 
 // TrustMetric - keeps track of peer reliability
-// See tendermint/docs/architecture/adr-006-trust-metric.md for details
+// See Demars-DMC/docs/architecture/adr-006-trust-metric.md for details
 type TrustMetric struct {
 	cmn.BaseService
 

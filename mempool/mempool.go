@@ -10,16 +10,16 @@ import (
 
 	"github.com/pkg/errors"
 
-	abci "github.com/tendermint/tendermint/abci/types"
-	auto "github.com/tendermint/tendermint/libs/autofile"
-	"github.com/tendermint/tendermint/libs/clist"
-	cmn "github.com/tendermint/tendermint/libs/common"
-	"github.com/tendermint/tendermint/libs/log"
+	abci "github.com/Demars-DMC/Demars-DMC/abci/types"
+	auto "github.com/Demars-DMC/Demars-DMC/libs/autofile"
+	"github.com/Demars-DMC/Demars-DMC/libs/clist"
+	cmn "github.com/Demars-DMC/Demars-DMC/libs/common"
+	"github.com/Demars-DMC/Demars-DMC/libs/log"
 
-	bc "github.com/tendermint/tendermint/blockchain"
-	cfg "github.com/tendermint/tendermint/config"
-	"github.com/tendermint/tendermint/proxy"
-	"github.com/tendermint/tendermint/types"
+	bc "github.com/Demars-DMC/Demars-DMC/blockchain"
+	cfg "github.com/Demars-DMC/Demars-DMC/config"
+	"github.com/Demars-DMC/Demars-DMC/proxy"
+	"github.com/Demars-DMC/Demars-DMC/types"
 )
 
 /*
@@ -54,7 +54,7 @@ var (
 	// ErrTxInCache is returned to the client if we saw tx earlier
 	ErrTxInCache = errors.New("Tx already exists in cache")
 
-	// ErrMempoolIsFull means Tendermint & an application can't handle that much load
+	// ErrMempoolIsFull means Demars-DMC & an application can't handle that much load
 	ErrMempoolIsFull = errors.New("Mempool is full")
 )
 

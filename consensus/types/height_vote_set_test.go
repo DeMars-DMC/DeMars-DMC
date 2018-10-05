@@ -4,10 +4,10 @@ import (
 	"testing"
 	"time"
 
-	cfg "github.com/tendermint/tendermint/config"
-	"github.com/tendermint/tendermint/types"
-	cmn "github.com/tendermint/tendermint/libs/common"
-	"github.com/tendermint/tendermint/p2p"
+	cfg "github.com/Demars-DMC/Demars-DMC/config"
+	"github.com/Demars-DMC/Demars-DMC/types"
+	cmn "github.com/Demars-DMC/Demars-DMC/libs/common"
+	"github.com/Demars-DMC/Demars-DMC/p2p"
 )
 
 var config *cfg.Config // NOTE: must be reset for each _test.go file

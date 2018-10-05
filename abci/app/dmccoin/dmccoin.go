@@ -3,11 +3,12 @@ package dmccoin
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/tendermint/tendermint/libs/log"
+
+	"github.com/Demars-DMC/Demars-DMC/abci/app/code"
+	"github.com/Demars-DMC/Demars-DMC/abci/types"
+	"github.com/Demars-DMC/Demars-DMC/libs/log"
 	wire "github.com/tendermint/go-wire"
 	"github.com/tendermint/go-wire/data"
-	"github.com/tendermint/tendermint/abci/app/code"
-	"github.com/tendermint/tendermint/abci/types"
 )
 
 var (
@@ -104,9 +105,9 @@ func (app *DMCCoinApplication) CheckTx(txBytes []byte, height int64) types.Respo
 
 	}
 
-	trx := TxUTXO{} 
+	trx := TxUTXO{}
 	trs := DMCTx{}
-	if height % 100 == 1 {
+	if height%100 == 1 {
 		json.Unmarshal(txBytes, &trx)
 		if app.GetState().GetAccount(trx.Address).Height != (int)(height-1) {
 			// get bucketIDs from address and return
@@ -147,13 +148,13 @@ func (app *DMCCoinApplication) GetValidatorSet(height int64) (res types.Response
 		}
 		app.logger.Debug(fmt.Sprintf("Got %d validators", len(allAccounts)))
 		app.logger.Debug(fmt.Sprintf("Val1: %d", allAccounts[0].Balance))
-		
+
 		return types.ResponseGetValidatorSet{ValidatorSet: accBalances}
 	}
 
 	segmentID := height % 100
 	SegmentHex := fmt.Sprintf("%x", segmentID)
-	lastUTXOheight := (height / 100) * 100 + 1
+	lastUTXOheight := (height/100)*100 + 1
 
 	accs := app.GetState().GetAllAccountsInSegment([]byte(SegmentHex), 2)
 	app.logger.Debug(fmt.Sprintf("Number of validators: %d", len(accs)))

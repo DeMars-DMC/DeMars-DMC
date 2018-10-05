@@ -3,13 +3,13 @@ package proxy
 import (
 	"github.com/pkg/errors"
 
-	cmn "github.com/tendermint/tendermint/libs/common"
+	cmn "github.com/Demars-DMC/Demars-DMC/libs/common"
 
-	"github.com/tendermint/tendermint/lite"
-	"github.com/tendermint/tendermint/lite/client"
-	certerr "github.com/tendermint/tendermint/lite/errors"
-	rpcclient "github.com/tendermint/tendermint/rpc/client"
-	ctypes "github.com/tendermint/tendermint/rpc/core/types"
+	"github.com/Demars-DMC/Demars-DMC/lite"
+	"github.com/Demars-DMC/Demars-DMC/lite/client"
+	certerr "github.com/Demars-DMC/Demars-DMC/lite/errors"
+	rpcclient "github.com/Demars-DMC/Demars-DMC/rpc/client"
+	ctypes "github.com/Demars-DMC/Demars-DMC/rpc/core/types"
 )
 
 // KeyProof represents a proof of existence or absence of a single key.
@@ -83,8 +83,8 @@ func GetWithProofOptions(path string, key []byte, opts rpcclient.ABCIQueryOption
 	_ = commit
 	return &ctypes.ResultABCIQuery{Response: resp}, nil, nil
 
-	/* // TODO refactor so iavl stuff is not in tendermint core
-	   // https://github.com/tendermint/tendermint/issues/1183
+	/* // TODO refactor so iavl stuff is not in Demars-DMC core
+	   // https://github.com/Demars-DMC/Demars-DMC/issues/1183
 	if len(resp.Value) > 0 {
 		// The key was found, construct a proof of existence.
 		proof, err := iavl.ReadKeyProof(resp.Proof)
@@ -130,7 +130,7 @@ func GetWithProofOptions(path string, key []byte, opts rpcclient.ABCIQueryOption
 func GetCertifiedCommit(h int64, node rpcclient.Client, cert lite.Certifier) (lite.Commit, error) {
 
 	// FIXME: cannot use cert.GetByHeight for now, as it also requires
-	// Validators and will fail on querying tendermint for non-current height.
+	// Validators and will fail on querying Demars-DMC for non-current height.
 	// When this is supported, we should use it instead...
 	rpcclient.WaitForHeight(node, h, nil)
 	cresp, err := node.Commit(&h)

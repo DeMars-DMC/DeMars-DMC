@@ -1,7 +1,7 @@
 Wire Protocol
 =============
 
-The `DéMars wire protocol <https://github.com/demars-dmc/go-wire>`__
+The `DéMars wire protocol <https://github.com/tendermint/go-wire>`__
 encodes data in `c-style binary <#binary>`__ and `JSON <#json>`__ form.
 
 Supported types

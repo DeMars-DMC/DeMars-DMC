@@ -6,10 +6,10 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 
-	cfg "github.com/tendermint/tendermint/config"
-	"github.com/tendermint/tendermint/libs/cli"
-	tmflags "github.com/tendermint/tendermint/libs/cli/flags"
-	"github.com/tendermint/tendermint/libs/log"
+	cfg "github.com/Demars-DMC/Demars-DMC/config"
+	"github.com/Demars-DMC/Demars-DMC/libs/cli"
+	tmflags "github.com/Demars-DMC/Demars-DMC/libs/cli/flags"
+	"github.com/Demars-DMC/Demars-DMC/libs/log"
 )
 
 var (
@@ -26,7 +26,7 @@ func registerFlagsRootCmd(cmd *cobra.Command) {
 }
 
 // ParseConfig retrieves the default environment configuration,
-// sets up the Tendermint root and ensures that the root exists
+// sets up the Demars-DMC root and ensures that the root exists
 func ParseConfig() (*cfg.Config, error) {
 	conf := cfg.DefaultConfig()
 	err := viper.Unmarshal(conf)
@@ -38,10 +38,10 @@ func ParseConfig() (*cfg.Config, error) {
 	return conf, err
 }
 
-// RootCmd is the root command for Tendermint core.
+// RootCmd is the root command for Demars-DMC core.
 var RootCmd = &cobra.Command{
-	Use:   "tendermint",
-	Short: "Tendermint Core (BFT Consensus) in Go",
+	Use:   "demars",
+	Short: "Demars (BFT Consensus) in Go",
 	PersistentPreRunE: func(cmd *cobra.Command, args []string) (err error) {
 		if cmd.Name() == VersionCmd.Name() {
 			return nil

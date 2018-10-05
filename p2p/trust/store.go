@@ -1,4 +1,4 @@
-// Copyright 2017 Tendermint. All rights reserved.
+// Copyright 2017 Demars-DMC. All rights reserved.
 // Use of this source code is governed by Apache 2 LICENSE that can be found in the LICENSE file.
 
 package trust
@@ -8,8 +8,8 @@ import (
 	"sync"
 	"time"
 
-	cmn "github.com/tendermint/tendermint/libs/common"
-	dbm "github.com/tendermint/tendermint/libs/db"
+	cmn "github.com/Demars-DMC/Demars-DMC/libs/common"
+	dbm "github.com/Demars-DMC/Demars-DMC/libs/db"
 )
 
 const defaultStorePeriodicSaveInterval = 1 * time.Minute

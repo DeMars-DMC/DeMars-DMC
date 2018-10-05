@@ -8,18 +8,18 @@ import (
 	"strings"
 	"time"
 
-	"github.com/tendermint/tendermint/libs/log"
+	"github.com/Demars-DMC/Demars-DMC/libs/log"
 
-	abci "github.com/tendermint/tendermint/abci/types"
-	cmn "github.com/tendermint/tendermint/libs/common"
+	abci "github.com/Demars-DMC/Demars-DMC/abci/types"
+	cmn "github.com/Demars-DMC/Demars-DMC/libs/common"
 
-	cfg "github.com/tendermint/tendermint/config"
-	nm "github.com/tendermint/tendermint/node"
-	"github.com/tendermint/tendermint/privval"
-	"github.com/tendermint/tendermint/proxy"
-	ctypes "github.com/tendermint/tendermint/rpc/core/types"
-	core_grpc "github.com/tendermint/tendermint/rpc/grpc"
-	rpcclient "github.com/tendermint/tendermint/rpc/lib/client"
+	cfg "github.com/Demars-DMC/Demars-DMC/config"
+	nm "github.com/Demars-DMC/Demars-DMC/node"
+	"github.com/Demars-DMC/Demars-DMC/privval"
+	"github.com/Demars-DMC/Demars-DMC/proxy"
+	ctypes "github.com/Demars-DMC/Demars-DMC/rpc/core/types"
+	core_grpc "github.com/Demars-DMC/Demars-DMC/rpc/grpc"
+	rpcclient "github.com/Demars-DMC/Demars-DMC/rpc/lib/client"
 )
 
 var globalConfig *cfg.Config
@@ -94,9 +94,9 @@ func GetGRPCClient() core_grpc.BroadcastAPIClient {
 	return core_grpc.StartGRPCClient(grpcAddr)
 }
 
-// StartTendermint starts a test tendermint server in a go routine and returns when it is initialized
-func StartTendermint(app abci.Application) *nm.Node {
-	node := NewTendermint(app)
+// StartDemars-DMC starts a test Demars-DMC server in a go routine and returns when it is initialized
+func StartDemars-DMC(app abci.Application) *nm.Node {
+	node := NewDemars-DMC(app)
 	err := node.Start()
 	if err != nil {
 		panic(err)
@@ -106,13 +106,13 @@ func StartTendermint(app abci.Application) *nm.Node {
 	waitForRPC()
 	waitForGRPC()
 
-	fmt.Println("Tendermint running!")
+	fmt.Println("Demars-DMC running!")
 
 	return node
 }
 
-// NewTendermint creates a new tendermint server and sleeps forever
-func NewTendermint(app abci.Application) *nm.Node {
+// NewDemars-DMC creates a new Demars-DMC server and sleeps forever
+func NewDemars-DMC(app abci.Application) *nm.Node {
 	// Create & start node
 	config := GetConfig()
 	logger := log.NewTMLogger(log.NewSyncWriter(os.Stdout))

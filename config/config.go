@@ -21,9 +21,9 @@ const (
 // config/toml.go
 // NOTE: tmlibs/cli must know to look in the config dir!
 var (
-	DefaultTendermintDir = ".tendermint"
-	defaultConfigDir     = "config"
-	defaultDataDir       = "data"
+	DefaultDemarsDMCDir = ".demars"
+	defaultConfigDir    = "config"
+	defaultDataDir      = "data"
 
 	defaultConfigFileName  = "config.toml"
 	defaultGenesisJSONName = "genesis.json"
@@ -39,7 +39,7 @@ var (
 	defaultAddrBookPath    = filepath.Join(defaultConfigDir, defaultAddrBookName)
 )
 
-// Config defines the top level configuration for a Tendermint node
+// Config defines the top level configuration for a Demars-DMC node
 type Config struct {
 	// Top level options use an anonymous struct
 	BaseConfig `mapstructure:",squash"`
@@ -53,7 +53,7 @@ type Config struct {
 	Instrumentation *InstrumentationConfig `mapstructure:"instrumentation"`
 }
 
-// DefaultConfig returns a default configuration for a Tendermint node
+// DefaultConfig returns a default configuration for a Demars-DMC node
 func DefaultConfig() *Config {
 	return &Config{
 		BaseConfig:      DefaultBaseConfig(),
@@ -92,7 +92,7 @@ func (cfg *Config) SetRoot(root string) *Config {
 //-----------------------------------------------------------------------------
 // BaseConfig
 
-// BaseConfig defines the base configuration for a Tendermint node
+// BaseConfig defines the base configuration for a Demars-DMC node
 type BaseConfig struct {
 
 	// chainID is unexposed and immutable but here for convenience
@@ -114,12 +114,12 @@ type BaseConfig struct {
 	// A custom human readable name for this node
 	Moniker string `mapstructure:"moniker"`
 
-	// TCP or UNIX socket address for Tendermint to listen on for
+	// TCP or UNIX socket address for Demars-DMC to listen on for
 	// connections from an external PrivValidator process
 	PrivValidatorListenAddr string `mapstructure:"priv_validator_laddr"`
 
 	// TCP or UNIX socket address of the ABCI application,
-	// or the name of an ABCI application compiled in with the Tendermint binary
+	// or the name of an ABCI application compiled in with the Demars-DMC binary
 	ProxyApp string `mapstructure:"proxy_app"`
 
 	// Mechanism to connect to the ABCI application: socket | grpc
@@ -147,7 +147,7 @@ type BaseConfig struct {
 	DBPath string `mapstructure:"db_dir"`
 }
 
-// DefaultBaseConfig returns a default base configuration for a Tendermint node
+// DefaultBaseConfig returns a default base configuration for a Demars-DMC node
 func DefaultBaseConfig() BaseConfig {
 	return BaseConfig{
 		Genesis:           defaultGenesisJSONPath,
@@ -165,10 +165,10 @@ func DefaultBaseConfig() BaseConfig {
 	}
 }
 
-// TestBaseConfig returns a base configuration for testing a Tendermint node
+// TestBaseConfig returns a base configuration for testing a Demars-DMC node
 func TestBaseConfig() BaseConfig {
 	cfg := DefaultBaseConfig()
-	cfg.chainID = "tendermint_test"
+	cfg.chainID = "Demars-DMC_test"
 	cfg.ProxyApp = "kvstore"
 	cfg.FastSync = false
 	cfg.DBBackend = "memdb"
@@ -213,7 +213,7 @@ func DefaultPackageLogLevels() string {
 //-----------------------------------------------------------------------------
 // RPCConfig
 
-// RPCConfig defines the configuration options for the Tendermint RPC server
+// RPCConfig defines the configuration options for the Demars-DMC RPC server
 type RPCConfig struct {
 	RootDir string `mapstructure:"home"`
 
@@ -269,7 +269,7 @@ func TestRPCConfig() *RPCConfig {
 //-----------------------------------------------------------------------------
 // P2PConfig
 
-// P2PConfig defines the configuration options for the Tendermint peer-to-peer networking layer
+// P2PConfig defines the configuration options for the Demars-DMC peer-to-peer networking layer
 type P2PConfig struct {
 	RootDir string `mapstructure:"home"`
 
@@ -400,7 +400,7 @@ func DefaultFuzzConnConfig() *FuzzConnConfig {
 //-----------------------------------------------------------------------------
 // MempoolConfig
 
-// MempoolConfig defines the configuration options for the Tendermint mempool
+// MempoolConfig defines the configuration options for the Demars-DMC mempool
 type MempoolConfig struct {
 	RootDir      string `mapstructure:"home"`
 	Recheck      bool   `mapstructure:"recheck"`
@@ -411,7 +411,7 @@ type MempoolConfig struct {
 	CacheSize    int    `mapstructure:"cache_size"`
 }
 
-// DefaultMempoolConfig returns a default configuration for the Tendermint mempool
+// DefaultMempoolConfig returns a default configuration for the Demars-DMC mempool
 func DefaultMempoolConfig() *MempoolConfig {
 	return &MempoolConfig{
 		Recheck:      true,
@@ -423,7 +423,7 @@ func DefaultMempoolConfig() *MempoolConfig {
 	}
 }
 
-// TestMempoolConfig returns a configuration for testing the Tendermint mempool
+// TestMempoolConfig returns a configuration for testing the Demars-DMC mempool
 func TestMempoolConfig() *MempoolConfig {
 	cfg := DefaultMempoolConfig()
 	cfg.CacheSize = 1000
@@ -438,7 +438,7 @@ func (cfg *MempoolConfig) WalDir() string {
 //-----------------------------------------------------------------------------
 // ConsensusConfig
 
-// ConsensusConfig defines the configuration for the Tendermint consensus service,
+// ConsensusConfig defines the configuration for the Demars-DMC consensus service,
 // including timeouts and details about the WAL and the block structure.
 type ConsensusConfig struct {
 	RootDir string `mapstructure:"home"`

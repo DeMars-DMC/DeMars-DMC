@@ -7,15 +7,15 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/tendermint/tendermint/abci/example/kvstore"
-	"github.com/tendermint/tendermint/rpc/grpc"
-	"github.com/tendermint/tendermint/rpc/test"
+	"github.com/Demars-DMC/Demars-DMC/abci/example/kvstore"
+	"github.com/Demars-DMC/Demars-DMC/rpc/grpc"
+	"github.com/Demars-DMC/Demars-DMC/rpc/test"
 )
 
 func TestMain(m *testing.M) {
-	// start a tendermint node in the background to test against
+	// start a Demars-DMC node in the background to test against
 	app := kvstore.NewKVStoreApplication()
-	node := rpctest.StartTendermint(app)
+	node := rpctest.StartDemars-DMC(app)
 	code := m.Run()
 
 	// and shut down proper at the end

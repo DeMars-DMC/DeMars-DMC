@@ -31,7 +31,7 @@ const (
 	// this differs from plaintext size due to the tag
 	MaxCiphertextSize = (1 << 38) - 48
 	// HkdfInfo is the parameter used internally for Hkdf's info parameter.
-	HkdfInfo = "TENDERMINT_SECRET_CONNECTION_FRAME_KEY_DERIVE"
+	HkdfInfo = "Demars-DMC_SECRET_CONNECTION_FRAME_KEY_DERIVE"
 )
 
 //New xChaChapoly1305 AEAD with 24 byte nonces

@@ -4,13 +4,13 @@ import (
 	"bytes"
 	"time"
 
-	ctypes "github.com/tendermint/tendermint/rpc/core/types"
-	sm "github.com/tendermint/tendermint/state"
-	"github.com/tendermint/tendermint/types"
-	cmn "github.com/tendermint/tendermint/libs/common"
+	ctypes "github.com/Demars-DMC/Demars-DMC/rpc/core/types"
+	sm "github.com/Demars-DMC/Demars-DMC/state"
+	"github.com/Demars-DMC/Demars-DMC/types"
+	cmn "github.com/Demars-DMC/Demars-DMC/libs/common"
 )
 
-// Get Tendermint status including node info, pubkey, latest block
+// Get Demars-DMC status including node info, pubkey, latest block
 // hash, app hash, block height and time.
 //
 // ```shell
@@ -55,7 +55,7 @@ import (
 //    "validator_info": {
 //      "address": "5875562FF0FFDECC895C20E32FC14988952E99E7",
 //      "pub_key": {
-//        "type": "tendermint/PubKeyEd25519",
+//        "type": "Demars-DMC/PubKeyEd25519",
 //        "value": "PpDJRUrLG2RgFqYYjawfn/AcAgacSXpLFrmfYYQnuzE="
 //      },
 //      "voting_power": 10

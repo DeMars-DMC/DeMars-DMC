@@ -11,15 +11,15 @@ import (
 	"testing"
 	"time"
 
-	"github.com/tendermint/tendermint/abci/example/counter"
-	"github.com/tendermint/tendermint/abci/example/kvstore"
-	abci "github.com/tendermint/tendermint/abci/types"
-	cmn "github.com/tendermint/tendermint/libs/common"
-	"github.com/tendermint/tendermint/libs/log"
+	"github.com/Demars-DMC/Demars-DMC/abci/example/counter"
+	"github.com/Demars-DMC/Demars-DMC/abci/example/kvstore"
+	abci "github.com/Demars-DMC/Demars-DMC/abci/types"
+	cmn "github.com/Demars-DMC/Demars-DMC/libs/common"
+	"github.com/Demars-DMC/Demars-DMC/libs/log"
 
-	cfg "github.com/tendermint/tendermint/config"
-	"github.com/tendermint/tendermint/proxy"
-	"github.com/tendermint/tendermint/types"
+	cfg "github.com/Demars-DMC/Demars-DMC/config"
+	"github.com/Demars-DMC/Demars-DMC/proxy"
+	"github.com/Demars-DMC/Demars-DMC/types"
 
 	"github.com/stretchr/testify/require"
 )

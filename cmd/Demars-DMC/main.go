@@ -4,11 +4,11 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/tendermint/tendermint/libs/cli"
+	"github.com/Demars-DMC/Demars-DMC/libs/cli"
 
-	cmd "github.com/tendermint/tendermint/cmd/tendermint/commands"
-	cfg "github.com/tendermint/tendermint/config"
-	nm "github.com/tendermint/tendermint/node"
+	cmd "github.com/Demars-DMC/Demars-DMC/cmd/Demars-DMC/commands"
+	cfg "github.com/Demars-DMC/Demars-DMC/config"
+	nm "github.com/Demars-DMC/Demars-DMC/node"
 )
 
 func main() {
@@ -41,7 +41,7 @@ func main() {
 	// Create & start node
 	rootCmd.AddCommand(cmd.NewRunNodeCmd(nodeFunc))
 
-	cmd := cli.PrepareBaseCmd(rootCmd, "TM", os.ExpandEnv(filepath.Join("$HOME", cfg.DefaultTendermintDir)))
+	cmd := cli.PrepareBaseCmd(rootCmd, "TM", os.ExpandEnv(filepath.Join("$HOME", cfg.DefaultDemarsDMCDir)))
 	if err := cmd.Execute(); err != nil {
 		panic(err)
 	}

@@ -1,7 +1,7 @@
 syntax = "proto3";
 package core_grpc;
 
-import "github.com/tendermint/tendermint/abci/types/types.proto";
+import "github.com/Demars-DMC/Demars-DMC/abci/types/types.proto";
 
 //----------------------------------------
 // Message types

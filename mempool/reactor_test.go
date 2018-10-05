@@ -12,13 +12,13 @@ import (
 
 	"github.com/go-kit/kit/log/term"
 
-	"github.com/tendermint/tendermint/abci/example/kvstore"
-	"github.com/tendermint/tendermint/libs/log"
+	"github.com/Demars-DMC/Demars-DMC/abci/example/kvstore"
+	"github.com/Demars-DMC/Demars-DMC/libs/log"
 
-	cfg "github.com/tendermint/tendermint/config"
-	"github.com/tendermint/tendermint/p2p"
-	"github.com/tendermint/tendermint/proxy"
-	"github.com/tendermint/tendermint/types"
+	cfg "github.com/Demars-DMC/Demars-DMC/config"
+	"github.com/Demars-DMC/Demars-DMC/p2p"
+	"github.com/Demars-DMC/Demars-DMC/proxy"
+	"github.com/Demars-DMC/Demars-DMC/types"
 )
 
 // mempoolLogger is a TestingLogger which uses a different

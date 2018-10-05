@@ -6,10 +6,10 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/tendermint/tendermint/types"
+	"github.com/Demars-DMC/Demars-DMC/types"
 
-	"github.com/tendermint/tendermint/lite"
-	"github.com/tendermint/tendermint/lite/errors"
+	"github.com/Demars-DMC/Demars-DMC/lite"
+	"github.com/Demars-DMC/Demars-DMC/lite/errors"
 )
 
 // TestDynamicCert just makes sure it still works like StaticCert

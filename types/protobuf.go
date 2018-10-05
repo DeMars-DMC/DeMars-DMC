@@ -5,8 +5,8 @@ import (
 	"reflect"
 	"time"
 
-	abci "github.com/tendermint/tendermint/abci/types"
-	crypto "github.com/tendermint/tendermint/crypto"
+	abci "github.com/Demars-DMC/Demars-DMC/abci/types"
+	crypto "github.com/Demars-DMC/Demars-DMC/crypto"
 )
 
 //-------------------------------------------------------
@@ -24,7 +24,7 @@ const (
 
 //-------------------------------------------------------
 
-// TM2PB is used for converting Tendermint ABCI to protobuf ABCI.
+// TM2PB is used for converting Demars-DMC ABCI to protobuf ABCI.
 // UNSTABLE
 var TM2PB = tm2pb{}
 
@@ -144,7 +144,7 @@ func (tm2pb) ValidatorFromPubKeyAndPower(pubkey crypto.PubKey, power int64) abci
 
 //----------------------------------------------------------------------------
 
-// PB2TM is used for converting protobuf ABCI to Tendermint ABCI.
+// PB2TM is used for converting protobuf ABCI to Demars-DMC ABCI.
 // UNSTABLE
 var PB2TM = pb2tm{}
 

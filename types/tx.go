@@ -5,10 +5,10 @@ import (
 	"errors"
 	"fmt"
 
-	abci "github.com/tendermint/tendermint/abci/types"
-	"github.com/tendermint/tendermint/crypto/merkle"
-	"github.com/tendermint/tendermint/crypto/tmhash"
-	cmn "github.com/tendermint/tendermint/libs/common"
+	abci "github.com/Demars-DMC/Demars-DMC/abci/types"
+	"github.com/Demars-DMC/Demars-DMC/crypto/merkle"
+	"github.com/Demars-DMC/Demars-DMC/crypto/tmhash"
+	cmn "github.com/Demars-DMC/Demars-DMC/libs/common"
 )
 
 // Tx is an arbitrary byte array.
@@ -32,7 +32,7 @@ type Txs []Tx
 // Hash returns the simple Merkle root hash of the transactions.
 func (txs Txs) Hash() []byte {
 	// Recursive impl.
-	// Copied from tendermint/crypto/merkle to avoid allocations
+	// Copied from Demars-DMC/crypto/merkle to avoid allocations
 	switch len(txs) {
 	case 0:
 		return nil

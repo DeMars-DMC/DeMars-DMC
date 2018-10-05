@@ -10,14 +10,14 @@ import (
 	"testing"
 	"time"
 
-	"github.com/tendermint/tendermint/abci/example/kvstore"
-	cmn "github.com/tendermint/tendermint/libs/common"
-	"github.com/tendermint/tendermint/libs/log"
+	"github.com/Demars-DMC/Demars-DMC/abci/example/kvstore"
+	cmn "github.com/Demars-DMC/Demars-DMC/libs/common"
+	"github.com/Demars-DMC/Demars-DMC/libs/log"
 
-	cfg "github.com/tendermint/tendermint/config"
-	"github.com/tendermint/tendermint/p2p"
-	p2pdummy "github.com/tendermint/tendermint/p2p/dummy"
-	"github.com/tendermint/tendermint/types"
+	cfg "github.com/Demars-DMC/Demars-DMC/config"
+	"github.com/Demars-DMC/Demars-DMC/p2p"
+	p2pdummy "github.com/Demars-DMC/Demars-DMC/p2p/dummy"
+	"github.com/Demars-DMC/Demars-DMC/types"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"

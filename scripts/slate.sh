@@ -31,7 +31,7 @@ go get github.com/davecheney/godoc2md
 # slate works via forks, and we'll be committing to
 # master branch, which will trigger our fork to run
 # the `./deploy.sh` and publish via the `gh-pages` branch
-slate_repo=github.com/tendermint/slate
+slate_repo=github.com/Demars-DMC/slate
 slate_path="$GOPATH"/src/"$slate_repo"
 
 if [ ! -d "$slate_path" ]; then
@@ -52,7 +52,7 @@ language_tabs:
   - go
 
 toc_footers:
-  - <a href='https://tendermint.com/'>Tendermint</a>
+  - <a href='https://Demars-DMC.com/'>Demars-DMC</a>
   - <a href='https://github.com/lord/slate'>Documentation Powered by Slate</a>
 
 search: true
@@ -62,7 +62,7 @@ search: true
 echo "$header" > "$destination"
 
 # generate a markdown from the godoc comments, using a template
-rpc_docs=$(godoc2md -template rpc/core/doc_template.txt github.com/tendermint/tendermint/rpc/core | grep -v -e "pipe.go" -e "routes.go" -e "dev.go" | sed 's$/src/target$https://github.com/tendermint/tendermint/tree/master/rpc/core$')
+rpc_docs=$(godoc2md -template rpc/core/doc_template.txt github.com/Demars-DMC/Demars-DMC/rpc/core | grep -v -e "pipe.go" -e "routes.go" -e "dev.go" | sed 's$/src/target$https://github.com/Demars-DMC/Demars-DMC/tree/master/rpc/core$')
 
 # append core RPC docs
 echo "$rpc_docs" >> "$destination"
@@ -70,8 +70,8 @@ echo "$rpc_docs" >> "$destination"
 # commit the changes
 cd $slate_path
 
-git config --global user.email "github@tendermint.com"
+git config --global user.email "github@Demars-DMC.com"
 git config --global user.name "tenderbot"
 
-git commit -a -m "Update tendermint RPC docs via CircleCI"
-git push -q https://${GITHUB_ACCESS_TOKEN}@github.com/tendermint/slate.git master
+git commit -a -m "Update Demars-DMC RPC docs via CircleCI"
+git push -q https://${GITHUB_ACCESS_TOKEN}@github.com/Demars-DMC/slate.git master

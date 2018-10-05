@@ -1,7 +1,7 @@
 package state
 
 import (
-	cmn "github.com/tendermint/tendermint/libs/common"
+	cmn "github.com/Demars-DMC/Demars-DMC/libs/common"
 )
 
 type (
@@ -59,7 +59,7 @@ func (e ErrAppBlockHeightTooHigh) Error() string {
 	return cmn.Fmt("App block height (%d) is higher than core (%d)", e.AppHeight, e.CoreHeight)
 }
 func (e ErrLastStateMismatch) Error() string {
-	return cmn.Fmt("Latest tendermint block (%d) LastAppHash (%X) does not match app's AppHash (%X)", e.Height, e.Core, e.App)
+	return cmn.Fmt("Latest Demars-DMC block (%d) LastAppHash (%X) does not match app's AppHash (%X)", e.Height, e.Core, e.App)
 }
 
 func (e ErrStateMismatch) Error() string {

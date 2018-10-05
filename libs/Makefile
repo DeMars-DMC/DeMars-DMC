@@ -68,9 +68,9 @@ get_vendor_deps:
 
 gen_certs: clean_certs
 	## Generating certificates for TLS testing...
-	certstrap init --common-name "tendermint.com" --passphrase ""
+	certstrap init --common-name "Demars-DMC.com" --passphrase ""
 	certstrap request-cert -ip "::" --passphrase ""
-	certstrap sign "::" --CA "tendermint.com" --passphrase ""
+	certstrap sign "::" --CA "Demars-DMC.com" --passphrase ""
 	mv out/::.crt out/::.key db/remotedb
 
 clean_certs:

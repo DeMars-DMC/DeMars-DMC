@@ -5,7 +5,7 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	"github.com/tendermint/tendermint/libs/pubsub/query"
+	"github.com/Demars-DMC/Demars-DMC/libs/pubsub/query"
 )
 
 // TODO: fuzzy testing?

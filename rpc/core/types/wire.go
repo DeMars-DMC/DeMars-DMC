@@ -2,8 +2,8 @@ package core_types
 
 import (
 	"github.com/tendermint/go-amino"
-	"github.com/tendermint/tendermint/crypto"
-	"github.com/tendermint/tendermint/types"
+	"github.com/Demars-DMC/Demars-DMC/crypto"
+	"github.com/Demars-DMC/Demars-DMC/types"
 )
 
 func RegisterAmino(cdc *amino.Codec) {

@@ -3,9 +3,9 @@ package lite
 import (
 	"time"
 
-	crypto "github.com/tendermint/tendermint/crypto"
+	crypto "github.com/Demars-DMC/Demars-DMC/crypto"
 
-	"github.com/tendermint/tendermint/types"
+	"github.com/Demars-DMC/Demars-DMC/types"
 )
 
 // ValKeys is a helper for testing.

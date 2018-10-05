@@ -15,6 +15,6 @@ fi
 echo "==> Copying ${DIST_DIR} to S3..."
 
 # copy to s3
-aws s3 cp --recursive ${DIST_DIR} s3://tendermint/binaries/tendermint/v${VERSION} --acl public-read 
+aws s3 cp --recursive ${DIST_DIR} s3://Demars-DMC/binaries/Demars-DMC/v${VERSION} --acl public-read 
 
 exit 0

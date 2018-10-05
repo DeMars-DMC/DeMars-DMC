@@ -5,8 +5,8 @@ import (
 	"io/ioutil"
 	"time"
 
-	"github.com/tendermint/tendermint/crypto"
-	cmn "github.com/tendermint/tendermint/libs/common"
+	"github.com/Demars-DMC/Demars-DMC/crypto"
+	cmn "github.com/Demars-DMC/Demars-DMC/libs/common"
 )
 
 //------------------------------------------------------------
@@ -19,7 +19,7 @@ type GenesisValidator struct {
 	Name   string        `json:"name"`
 }
 
-// GenesisDoc defines the initial conditions for a tendermint blockchain, in particular its validator set.
+// GenesisDoc defines the initial conditions for a Demars-DMC blockchain, in particular its validator set.
 type GenesisDoc struct {
 	GenesisTime     time.Time          `json:"genesis_time"`
 	ChainID         string             `json:"chain_id"`

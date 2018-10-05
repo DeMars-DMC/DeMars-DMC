@@ -25,7 +25,7 @@ echo "export PATH=\$PATH:\$GOPATH/bin" >> ~/.profile
 source ~/.profile
 
 ## get the code and move into repo
-REPO=github.com/tendermint/tendermint
+REPO=github.com/Demars-DMC/Demars-DMC
 go get $REPO
 cd $GOPATH/src/$REPO
 
@@ -54,7 +54,7 @@ sudo apt-get install ansible -y
 pip install dopy
 
 # the next two commands are directory sensitive
-cd $GOPATH/src/github.com/tendermint/tendermint/networks/remote/terraform
+cd $GOPATH/src/github.com/Demars-DMC/Demars-DMC/networks/remote/terraform
 
 terraform init
 terraform apply -var DO_API_TOKEN="$DO_API_TOKEN" -var SSH_KEY_FILE="$SSH_KEY_FILE" -auto-approve
@@ -82,10 +82,10 @@ ip2=$(strip $ip2)
 ip3=$(strip $ip3)
 
 # all the ansible commands are also directory specific
-cd $GOPATH/src/github.com/tendermint/tendermint/networks/remote/ansible
+cd $GOPATH/src/github.com/Demars-DMC/Demars-DMC/networks/remote/ansible
 
 ansible-playbook -i inventory/digital_ocean.py -l sentrynet install.yml
-ansible-playbook -i inventory/digital_ocean.py -l sentrynet config.yml -e BINARY=$GOPATH/src/github.com/tendermint/tendermint/build/tendermint -e CONFIGDIR=$GOPATH/src/github.com/tendermint/tendermint/docs/examples
+ansible-playbook -i inventory/digital_ocean.py -l sentrynet config.yml -e BINARY=$GOPATH/src/github.com/Demars-DMC/Demars-DMC/build/Demars-DMC -e CONFIGDIR=$GOPATH/src/github.com/Demars-DMC/Demars-DMC/docs/examples
 
 sleep 10
 
@@ -101,7 +101,7 @@ id2=$(strip $id2)
 id3=$(strip $id3)
 
 # remove file we'll re-write to with new info
-old_ansible_file=$GOPATH/src/github.com/tendermint/tendermint/networks/remote/ansible/roles/install/templates/systemd.service.j2
+old_ansible_file=$GOPATH/src/github.com/Demars-DMC/Demars-DMC/networks/remote/ansible/roles/install/templates/systemd.service.j2
 rm $old_ansible_file
 
 # need to populate the `--p2p.persistent_peers` flag
@@ -115,7 +115,7 @@ Restart=on-failure
 User={{service}}
 Group={{service}}
 PermissionsStartOnly=true
-ExecStart=/usr/bin/tendermint node --proxy_app=kvstore --p2p.persistent_peers=$id0@$ip0:26656,$id1@$ip1:26656,$id2@$ip2:26656,$id3@$ip3:26656
+ExecStart=/usr/bin/Demars-DMC node --proxy_app=kvstore --p2p.persistent_peers=$id0@$ip0:26656,$id1@$ip1:26656,$id2@$ip2:26656,$id3@$ip3:26656
 ExecReload=/bin/kill -HUP \$MAINPID
 KillSignal=SIGTERM
 

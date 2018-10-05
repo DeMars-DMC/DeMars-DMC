@@ -1,7 +1,7 @@
 
 
 # events
-`import "github.com/tendermint/tendermint/libs/events"`
+`import "github.com/Demars-DMC/Demars-DMC/libs/events"`
 
 * [Overview](#pkg-overview)
 * [Index](#pkg-index)
@@ -26,7 +26,7 @@ Pub-Sub in go with event caching
 
 
 #### <a name="pkg-files">Package files</a>
-[event_cache.go](/src/github.com/tendermint/tendermint/libs/events/event_cache.go) [events.go](/src/github.com/tendermint/tendermint/libs/events/events.go) 
+[event_cache.go](/src/github.com/Demars-DMC/Demars-DMC/libs/events/event_cache.go) [events.go](/src/github.com/Demars-DMC/Demars-DMC/libs/events/events.go) 
 
 
 
@@ -95,7 +95,7 @@ type EventCallback func(data EventData)
 type EventData interface {
 }
 ```
-Generic event data can be typed and registered with tendermint/go-amino
+Generic event data can be typed and registered with Demars-DMC/go-amino
 via concrete implementation of this interface
 
 

@@ -4,11 +4,11 @@ import (
 	"fmt"
 
 	fail "github.com/ebuchman/fail-test"
-	abci "github.com/tendermint/tendermint/abci/types"
-	dbm "github.com/tendermint/tendermint/libs/db"
-	"github.com/tendermint/tendermint/libs/log"
-	"github.com/tendermint/tendermint/proxy"
-	"github.com/tendermint/tendermint/types"
+	abci "github.com/Demars-DMC/Demars-DMC/abci/types"
+	dbm "github.com/Demars-DMC/Demars-DMC/libs/db"
+	"github.com/Demars-DMC/Demars-DMC/libs/log"
+	"github.com/Demars-DMC/Demars-DMC/proxy"
+	"github.com/Demars-DMC/Demars-DMC/types"
 )
 
 //-----------------------------------------------------------------------------
@@ -313,7 +313,7 @@ func updateValidators(currentSet *types.ValidatorSet, abciUpdates []abci.Validat
 		return err
 	}
 
-	// these are tendermint types now
+	// these are Demars-DMC types now
 	for _, valUpdate := range updates {
 		address := valUpdate.Address
 		_, val := currentSet.GetByAddress(address)
@@ -397,7 +397,7 @@ func updateState(state State, blockID types.BlockID, header *types.Header,
 
 // Fire NewBlock, NewBlockHeader.
 // Fire TxEvent for every tx.
-// NOTE: if Tendermint crashes before commit, some or all of these events may be published again.
+// NOTE: if Demars-DMC crashes before commit, some or all of these events may be published again.
 func fireEvents(logger log.Logger, eventBus types.BlockEventPublisher, block *types.Block, abciResponses *ABCIResponses) {
 	eventBus.PublishEventNewBlock(types.EventDataNewBlock{block})
 	eventBus.PublishEventNewBlockHeader(types.EventDataNewBlockHeader{block.Header})

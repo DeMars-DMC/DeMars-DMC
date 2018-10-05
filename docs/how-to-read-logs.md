@@ -32,7 +32,7 @@ and perform UPNP discover in order to detect the IP address.
     I[10-04|13:54:30.387] Starting ConsensusReactor                    module=consensus impl=ConsensusReactor
     I[10-04|13:54:30.387] ConsensusReactor                             module=consensus fastSync=false
     I[10-04|13:54:30.387] Starting ConsensusState                      module=consensus impl=ConsensusState
-    I[10-04|13:54:30.387] Starting WAL                                 module=consensus wal=/home/vagrant/.tendermint/data/cs.wal/wal impl=WAL
+    I[10-04|13:54:30.387] Starting WAL                                 module=consensus wal=/home/vagrant/.Demars-DMC/data/cs.wal/wal impl=WAL
     I[10-04|13:54:30.388] Starting TimeoutTicker                       module=consensus impl=TimeoutTicker
 
 Notice the second row where DéMars reports that "This node is a
@@ -100,30 +100,30 @@ Algorithm](./spec/consensus).
 Here is the list of modules you may encounter in DéMars's log and a
 little overview what they do.
 
--   `abci-client` As mentioned in [Application Development Guide](./app-development.md),    Tendermint acts as an ABCI
+-   `abci-client` As mentioned in [Application Development Guide](./app-development.md),    Demars-DMC acts as an ABCI
     client with respect to the application and maintains 3 connections:
-    mempool, consensus and query. The code used by Tendermint Core can
-    be found [here](https://github.com/tendermint/tendermint/tree/develop/abci/client).
+    mempool, consensus and query. The code used by Demars-DMC Core can
+    be found [here](https://github.com/Demars-DMC/Demars-DMC/tree/develop/abci/client).
 -   `blockchain` Provides storage, pool (a group of peers), and reactor
     for both storing and exchanging blocks between peers.
--   `consensus` The heart of Tendermint core, which is the
+-   `consensus` The heart of Demars-DMC core, which is the
     implementation of the consensus algorithm. Includes two
     "submodules": `wal` (write-ahead logging) for ensuring data
     integrity and `replay` to replay blocks and messages on recovery
     from a crash.
 -   `events` Simple event notification system. The list of events can be
     found
-    [here](https://github.com/tendermint/tendermint/blob/master/types/events.go).
+    [here](https://github.com/Demars-DMC/Demars-DMC/blob/master/types/events.go).
     You can subscribe to them by calling `subscribe` RPC method. Refer
     to [RPC docs](./specification/rpc.md) for additional information.
 -   `mempool` Mempool module handles all incoming transactions, whenever
     they are coming from peers or the application.
 -   `p2p` Provides an abstraction around peer-to-peer communication. For
     more details, please check out the
-    [README](https://github.com/tendermint/tendermint/blob/master/p2p/README.md).
--   `rpc` [Tendermint's RPC](./specification/rpc.md).
+    [README](https://github.com/Demars-DMC/Demars-DMC/blob/master/p2p/README.md).
+-   `rpc` [Demars-DMC's RPC](./specification/rpc.md).
 -   `rpc-server` RPC server. For implementation details, please read the
-    [README](https://github.com/tendermint/tendermint/blob/master/rpc/lib/README.md).
+    [README](https://github.com/Demars-DMC/Demars-DMC/blob/master/rpc/lib/README.md).
 -   `state` Represents the latest state and execution submodule, which
     executes blocks against the application.
 -   `types` A collection of the publicly exposed types and methods to

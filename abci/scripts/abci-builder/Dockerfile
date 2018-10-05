@@ -8,5 +8,5 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 # switch that off at the highest level.
 ENV CGO_ENABLED 0
 
-RUN mkdir -p $GOPATH/src/github.com/tendermint/abci
-WORKDIR $GOPATH/src/github.com/tendermint/abci
+RUN mkdir -p $GOPATH/src/github.com/Demars-DMC/Demars-DMC/abci
+WORKDIR $GOPATH/src/github.com/Demars-DMC/Demars-DMC/abci

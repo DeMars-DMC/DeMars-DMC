@@ -6,8 +6,8 @@ import (
 	"io/ioutil"
 	"time"
 
-	"github.com/tendermint/tendermint/types"
-	"github.com/tendermint/tendermint/libs/log"
+	"github.com/Demars-DMC/Demars-DMC/types"
+	"github.com/Demars-DMC/Demars-DMC/libs/log"
 )
 
 // database keys
@@ -17,7 +17,7 @@ var (
 
 //-----------------------------------------------------------------------------
 
-// State is a short description of the latest committed block of the Tendermint consensus.
+// State is a short description of the latest committed block of the Demars-DMC consensus.
 // It keeps all information necessary to validate new blocks,
 // including the last validator set and the consensus params.
 // All fields are exposed so the struct can be easily serialized,

@@ -4,9 +4,9 @@ import (
 	"context"
 	"fmt"
 
-	tmpubsub "github.com/tendermint/tendermint/libs/pubsub"
-	cmn "github.com/tendermint/tendermint/libs/common"
-	"github.com/tendermint/tendermint/libs/log"
+	tmpubsub "github.com/Demars-DMC/Demars-DMC/libs/pubsub"
+	cmn "github.com/Demars-DMC/Demars-DMC/libs/common"
+	"github.com/Demars-DMC/Demars-DMC/libs/log"
 )
 
 const defaultCapacity = 0

@@ -8,9 +8,9 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	cmn "github.com/tendermint/tendermint/libs/common"
+	cmn "github.com/Demars-DMC/Demars-DMC/libs/common"
 
-	"github.com/tendermint/tendermint/lite"
+	"github.com/Demars-DMC/Demars-DMC/lite"
 )
 
 func tmpFile() string {

@@ -1,7 +1,7 @@
 package dmccoin
 
 import (
-	"github.com/tendermint/tendermint/libs/log"
+	"github.com/Demars-DMC/Demars-DMC/libs/log"
 )
 
 type State struct {

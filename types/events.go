@@ -4,8 +4,8 @@ import (
 	"fmt"
 
 	amino "github.com/tendermint/go-amino"
-	tmpubsub "github.com/tendermint/tendermint/libs/pubsub"
-	tmquery "github.com/tendermint/tendermint/libs/pubsub/query"
+	tmpubsub "github.com/Demars-DMC/Demars-DMC/libs/pubsub"
+	tmquery "github.com/Demars-DMC/Demars-DMC/libs/pubsub/query"
 )
 
 // Reserved event types
@@ -51,13 +51,13 @@ func (_ EventDataString) AssertIsTMEventData()            {}
 
 func RegisterEventDatas(cdc *amino.Codec) {
 	cdc.RegisterInterface((*TMEventData)(nil), nil)
-	cdc.RegisterConcrete(EventDataNewBlock{}, "tendermint/event/NewBlock", nil)
-	cdc.RegisterConcrete(EventDataNewBlockHeader{}, "tendermint/event/NewBlockHeader", nil)
-	cdc.RegisterConcrete(EventDataTx{}, "tendermint/event/Tx", nil)
-	cdc.RegisterConcrete(EventDataRoundState{}, "tendermint/event/RoundState", nil)
-	cdc.RegisterConcrete(EventDataVote{}, "tendermint/event/Vote", nil)
-	cdc.RegisterConcrete(EventDataProposalHeartbeat{}, "tendermint/event/ProposalHeartbeat", nil)
-	cdc.RegisterConcrete(EventDataString(""), "tendermint/event/ProposalString", nil)
+	cdc.RegisterConcrete(EventDataNewBlock{}, "Demars-DMC/event/NewBlock", nil)
+	cdc.RegisterConcrete(EventDataNewBlockHeader{}, "Demars-DMC/event/NewBlockHeader", nil)
+	cdc.RegisterConcrete(EventDataTx{}, "Demars-DMC/event/Tx", nil)
+	cdc.RegisterConcrete(EventDataRoundState{}, "Demars-DMC/event/RoundState", nil)
+	cdc.RegisterConcrete(EventDataVote{}, "Demars-DMC/event/Vote", nil)
+	cdc.RegisterConcrete(EventDataProposalHeartbeat{}, "Demars-DMC/event/ProposalHeartbeat", nil)
+	cdc.RegisterConcrete(EventDataString(""), "Demars-DMC/event/ProposalString", nil)
 }
 
 // Most event messages are basic types (a block, a transaction)

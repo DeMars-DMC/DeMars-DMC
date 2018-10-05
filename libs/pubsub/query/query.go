@@ -15,7 +15,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/tendermint/tendermint/libs/pubsub"
+	"github.com/Demars-DMC/Demars-DMC/libs/pubsub"
 )
 
 // Query holds the query string and the query parser.

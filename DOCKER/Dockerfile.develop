@@ -1,6 +1,6 @@
 FROM alpine:3.7
 
-ENV DATA_ROOT /tendermint
+ENV DATA_ROOT /Demars-DMC
 ENV TMHOME $DATA_ROOT
 
 RUN addgroup tmuser && \
@@ -13,16 +13,16 @@ RUN apk add --no-cache bash curl jq
 
 ENV GOPATH /go
 ENV PATH "$PATH:/go/bin"
-RUN mkdir -p /go/src/github.com/tendermint/tendermint && \
+RUN mkdir -p /go/src/github.com/Demars-DMC/Demars-DMC && \
     apk add --no-cache go build-base git && \
-    cd /go/src/github.com/tendermint/tendermint && \
-    git clone https://github.com/tendermint/tendermint . && \
+    cd /go/src/github.com/Demars-DMC/Demars-DMC && \
+    git clone https://github.com/Demars-DMC/Demars-DMC . && \
     git checkout develop && \
     make get_tools && \
     make get_vendor_deps && \
     make install && \
     cd - && \
-    rm -rf /go/src/github.com/tendermint/tendermint && \
+    rm -rf /go/src/github.com/Demars-DMC/Demars-DMC && \
     apk del go build-base git
 
 VOLUME $DATA_ROOT
@@ -30,6 +30,6 @@ VOLUME $DATA_ROOT
 EXPOSE 26656
 EXPOSE 26657
 
-ENTRYPOINT ["tendermint"]
+ENTRYPOINT ["Demars-DMC"]
 
 CMD ["node", "--moniker=`hostname`", "--proxy_app=kvstore"]

@@ -9,14 +9,14 @@ import (
 	"github.com/pkg/errors"
 
 	amino "github.com/tendermint/go-amino"
-	cmn "github.com/tendermint/tendermint/libs/common"
-	"github.com/tendermint/tendermint/libs/log"
+	cmn "github.com/Demars-DMC/Demars-DMC/libs/common"
+	"github.com/Demars-DMC/Demars-DMC/libs/log"
 
-	cstypes "github.com/tendermint/tendermint/consensus/types"
-	tmevents "github.com/tendermint/tendermint/libs/events"
-	"github.com/tendermint/tendermint/p2p"
-	sm "github.com/tendermint/tendermint/state"
-	"github.com/tendermint/tendermint/types"
+	cstypes "github.com/Demars-DMC/Demars-DMC/consensus/types"
+	tmevents "github.com/Demars-DMC/Demars-DMC/libs/events"
+	"github.com/Demars-DMC/Demars-DMC/p2p"
+	sm "github.com/Demars-DMC/Demars-DMC/state"
+	"github.com/Demars-DMC/Demars-DMC/types"
 )
 
 const (
@@ -1307,16 +1307,16 @@ type ConsensusMessage interface{}
 
 func RegisterConsensusMessages(cdc *amino.Codec) {
 	cdc.RegisterInterface((*ConsensusMessage)(nil), nil)
-	cdc.RegisterConcrete(&NewRoundStepMessage{}, "tendermint/NewRoundStepMessage", nil)
-	cdc.RegisterConcrete(&CommitStepMessage{}, "tendermint/CommitStep", nil)
-	cdc.RegisterConcrete(&ProposalMessage{}, "tendermint/Proposal", nil)
-	cdc.RegisterConcrete(&ProposalPOLMessage{}, "tendermint/ProposalPOL", nil)
-	cdc.RegisterConcrete(&BlockPartMessage{}, "tendermint/BlockPart", nil)
-	cdc.RegisterConcrete(&VoteMessage{}, "tendermint/Vote", nil)
-	cdc.RegisterConcrete(&HasVoteMessage{}, "tendermint/HasVote", nil)
-	cdc.RegisterConcrete(&VoteSetMaj23Message{}, "tendermint/VoteSetMaj23", nil)
-	cdc.RegisterConcrete(&VoteSetBitsMessage{}, "tendermint/VoteSetBits", nil)
-	cdc.RegisterConcrete(&ProposalHeartbeatMessage{}, "tendermint/ProposalHeartbeat", nil)
+	cdc.RegisterConcrete(&NewRoundStepMessage{}, "Demars-DMC/NewRoundStepMessage", nil)
+	cdc.RegisterConcrete(&CommitStepMessage{}, "Demars-DMC/CommitStep", nil)
+	cdc.RegisterConcrete(&ProposalMessage{}, "Demars-DMC/Proposal", nil)
+	cdc.RegisterConcrete(&ProposalPOLMessage{}, "Demars-DMC/ProposalPOL", nil)
+	cdc.RegisterConcrete(&BlockPartMessage{}, "Demars-DMC/BlockPart", nil)
+	cdc.RegisterConcrete(&VoteMessage{}, "Demars-DMC/Vote", nil)
+	cdc.RegisterConcrete(&HasVoteMessage{}, "Demars-DMC/HasVote", nil)
+	cdc.RegisterConcrete(&VoteSetMaj23Message{}, "Demars-DMC/VoteSetMaj23", nil)
+	cdc.RegisterConcrete(&VoteSetBitsMessage{}, "Demars-DMC/VoteSetBits", nil)
+	cdc.RegisterConcrete(&ProposalHeartbeatMessage{}, "Demars-DMC/ProposalHeartbeat", nil)
 }
 
 // DecodeMessage decodes the given bytes into a ConsensusMessage.

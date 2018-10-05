@@ -8,15 +8,15 @@ import (
 	"sync"
 	"encoding/json"
 	"time"
-	"github.com/tendermint/tendermint/crypto/merkle"
-	"github.com/tendermint/tendermint/crypto/tmhash"
-	cmn "github.com/tendermint/tendermint/libs/common"
+	"github.com/Demars-DMC/Demars-DMC/crypto/merkle"
+	"github.com/Demars-DMC/Demars-DMC/crypto/tmhash"
+	cmn "github.com/Demars-DMC/Demars-DMC/libs/common"
 	"crypto/sha256"
-	"github.com/tendermint/tendermint/abci/app/dmccoin"
-	"github.com/tendermint/tendermint/libs/log"
+	"github.com/Demars-DMC/Demars-DMC/abci/app/dmccoin"
+	"github.com/Demars-DMC/Demars-DMC/libs/log"
 )
 
-// Block defines the atomic unit of a Tendermint blockchain.
+// Block defines the atomic unit of a Demars-DMC blockchain.
 // TODO: add Version byte
 type Block struct {
 	mtx        sync.Mutex
@@ -61,7 +61,7 @@ func MakeBlock(height int64, txs []Tx, commit *Commit, logger log.Logger) *Block
 }
 
 // getBucketId can return up to 2 bucket ids to which the transaction belongs
-// FIXME: Tendermint should get Txs in a bucketed format from ABCI and not be able
+// FIXME: Demars-DMC should get Txs in a bucketed format from ABCI and not be able
 // to parse them
 func getBucketId(tx Tx, height int64, logger log.Logger) [2]string {
 	utxoTx := dmccoin.TxUTXO{}
@@ -198,7 +198,7 @@ func (b *Block) StringShort() string {
 
 //-----------------------------------------------------------------------------
 
-// Header defines the structure of a Tendermint block header
+// Header defines the structure of a Demars-DMC block header
 // TODO: limit header size
 // NOTE: changes to the Header should be duplicated in the abci Header
 type Header struct {

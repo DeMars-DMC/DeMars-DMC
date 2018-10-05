@@ -6,9 +6,9 @@ import (
 	"os"
 
 	amino "github.com/tendermint/go-amino"
-	rpcserver "github.com/tendermint/tendermint/rpc/lib/server"
-	cmn "github.com/tendermint/tendermint/libs/common"
-	"github.com/tendermint/tendermint/libs/log"
+	rpcserver "github.com/Demars-DMC/Demars-DMC/rpc/lib/server"
+	cmn "github.com/Demars-DMC/Demars-DMC/libs/common"
+	"github.com/Demars-DMC/Demars-DMC/libs/log"
 )
 
 var routes = map[string]*rpcserver.RPCFunc{

@@ -5,31 +5,31 @@ Project DéMars as a platform to build various apps?
 
 ## First DéMars App
 
-As a general purpose blockchain engine, Tendermint is agnostic to the
+As a general purpose blockchain engine, Demars-DMC is agnostic to the
 application you want to run. So, to run a complete blockchain that does
-something useful, you must start two programs: one is Tendermint Core,
+something useful, you must start two programs: one is Demars-DMC Core,
 the other is your application, which can be written in any programming
 language. Recall from [the intro to
-ABCI](./introduction.md#ABCI-Overview) that Tendermint Core handles all
+ABCI](./introduction.md#ABCI-Overview) that Demars-DMC Core handles all
 the p2p and consensus stuff, and just forwards transactions to the
 application when they need to be validated, or when they're ready to be
 committed to a block.
 
 In this guide, we show you some examples of how to run an application
-using Tendermint.
+using Demars-DMC.
 
 ### Install
 
 The first apps we will work with are written in Go. To install them, you
 need to [install Go](https://golang.org/doc/install) and put
 `$GOPATH/bin` in your `$PATH`; see
-[here](https://github.com/tendermint/tendermint/wiki/Setting-GOPATH) for
+[here](https://github.com/Demars-DMC/Demars-DMC/wiki/Setting-GOPATH) for
 more info.
 
 Then run
 
-    go get github.com/tendermint/tendermint
-    cd $GOPATH/src/github.com/tendermint/tendermint
+    go get github.com/Demars-DMC/Demars-DMC
+    cd $GOPATH/src/github.com/Demars-DMC/Demars-DMC
     make get_tools
     make get_vendor_deps
     make install_abci
@@ -52,19 +52,19 @@ Let's start a kvstore application.
 
     abci-cli kvstore
 
-In another terminal, we can start Tendermint. If you have never run
-Tendermint before, use:
+In another terminal, we can start Demars-DMC. If you have never run
+Demars-DMC before, use:
 
-    tendermint init
-    tendermint node
+    Demars-DMC init
+    Demars-DMC node
 
-If you have used Tendermint, you may want to reset the data for a new
-blockchain by running `tendermint unsafe_reset_all`. Then you can run
-`tendermint node` to start Tendermint, and connect to the app. For more
-details, see [the guide on using Tendermint](./using-tendermint.md).
+If you have used Demars-DMC, you may want to reset the data for a new
+blockchain by running `Demars-DMC unsafe_reset_all`. Then you can run
+`Demars-DMC node` to start Demars-DMC, and connect to the app. For more
+details, see [the guide on using Demars-DMC](./using-Demars-DMC.md).
 
-You should see Tendermint making blocks! We can get the status of our
-Tendermint node as follows:
+You should see Demars-DMC making blocks! We can get the status of our
+Demars-DMC node as follows:
 
     curl -s localhost:26657/status
 
@@ -131,7 +131,7 @@ of the ASCII of `abcd`. You can verify this in a python 2 shell by
 running `"YWJjZA==".decode('base64')` or in python 3 shell by running
 `import codecs; codecs.decode("YWJjZA==", 'base64').decode('ascii')`.
 Stay tuned for a future release that [makes this output more
-human-readable](https://github.com/tendermint/tendermint/issues/1794).
+human-readable](https://github.com/Demars-DMC/Demars-DMC/issues/1794).
 
 Now let's try setting a different key and value:
 

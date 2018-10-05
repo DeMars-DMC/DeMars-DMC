@@ -11,8 +11,8 @@ can manage an application state running in another.
 A detailed description of the ABCI methods and message types is contained in:
 
 - [A prose specification](specification.md)
-- [A protobuf file](https://github.com/demars-dmc/abci/types/types.proto)
-- [A Go interface](https://github.com/demars-dmc/abci/types/application.go).
+- [A protobuf file](https://github.com/Demars-DMC/Demars-DMC/abci/types/types.proto)
+- [A Go interface](https://github.com/Demars-DMC/Demars-DMC/abci/types/application.go).
 
 ## Protocol Buffers
 
@@ -32,8 +32,8 @@ The `abci-cli` is a simple tool for debugging ABCI servers and running some
 example apps. To install it:
 
 ```
-go get github.com/demars-dmc/abci
-cd $GOPATH/src/github.com/demars-dmc/abci
+go get github.com/Demars-DMC/Demars-DMC/abci
+cd $GOPATH/src/github.com/Demars-DMC/Demars-DMC/abci
 make get_vendor_deps
 make install
 ```

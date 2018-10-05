@@ -26,7 +26,7 @@ with one validator.
 <!--
 For more elaborate initialization, see the tesnet command:
 
-    tendermint testnet --help
+    Demars-DMC testnet --help
 -->
 ## Run
 
@@ -36,7 +36,7 @@ To run a DéMars node, use
 
 By default, DéMars will try to connect to an ABCI application on
 [127.0.0.1:26658](127.0.0.1:26658). If you have the `dmcoin` ABCI app
-installed, run it in another window. If you don't, kill Tendermint and
+installed, run it in another window. If you don't, kill Demars-DMC and
 run an in-process version of the `dmccoin` app:
 
     demars node --proxy_app=dmccoin
@@ -46,14 +46,14 @@ blocks are produced regularly, even if there are no transactions. See
 *No Empty Blocks*, below, to modify this setting.
 
 <!--
-Tendermint supports in-process versions of the `counter`, `kvstore` and
+Demars-DMC supports in-process versions of the `counter`, `kvstore` and
 `nil` apps that ship as examples with `abci-cli`. It's easy to compile
-your own app in-process with Tendermint if it's written in Go. If your
+your own app in-process with Demars-DMC if it's written in Go. If your
 app is not written in Go, simply run it in another process, and use the
 `--proxy_app` flag to specify the address of the socket it is listening
 on, for instance:
 
-    tendermint node --proxy_app=/var/run/abci.sock
+    Demars-DMC node --proxy_app=/var/run/abci.sock
 -->
 ## Transactions
 
@@ -148,11 +148,11 @@ once per second, it is possible to disable empty blocks or set a block creation
 interval. In the former case, blocks will be
 created when there are new transactions or when the AppHash changes.
 
-To configure Tendermint to not produce empty blocks unless there are
-transactions or the app hash changes, run Tendermint with this
+To configure Demars-DMC to not produce empty blocks unless there are
+transactions or the app hash changes, run Demars-DMC with this
 additional flag:
 
-    tendermint node --consensus.create_empty_blocks=false
+    Demars-DMC node --consensus.create_empty_blocks=false
 
 or set the configuration via the `config.toml` file:
 
@@ -302,7 +302,7 @@ persistent connections with.
 
 For example,
 
-    tendermint node --p2p.seeds "f9baeaa15fedf5e1ef7448dd60f46c01f1a9e9c4@1.2.3.4:26656,0491d373a8e0fcf1023aaf18c51d6a1d0d4f31bd@5.6.7.8:26656"
+    Demars-DMC node --p2p.seeds "f9baeaa15fedf5e1ef7448dd60f46c01f1a9e9c4@1.2.3.4:26656,0491d373a8e0fcf1023aaf18c51d6a1d0d4f31bd@5.6.7.8:26656"
 
 Alternatively, you can use the `/dial_seeds` endpoint of the RPC to
 specify seeds for a running node to connect to:
@@ -312,19 +312,19 @@ specify seeds for a running node to connect to:
 Note, with PeX enabled, you
 should not need seeds after the first start.
 
-If you want Tendermint to connect to specific set of addresses and
+If you want Demars-DMC to connect to specific set of addresses and
 maintain a persistent connection with each, you can use the
 `--p2p.persistent_peers` flag or the corresponding setting in the
 `config.toml` or the `/dial_peers` RPC endpoint to do it without
-stopping Tendermint core instance.
+stopping Demars-DMC core instance.
 
-    tendermint node --p2p.persistent_peers "429fcf25974313b95673f58d77eacdd434402665@10.11.12.13:26656,96663a3dd0d7b9d17d4c8211b191af259621c693@10.11.12.14:26656"
+    Demars-DMC node --p2p.persistent_peers "429fcf25974313b95673f58d77eacdd434402665@10.11.12.13:26656,96663a3dd0d7b9d17d4c8211b191af259621c693@10.11.12.14:26656"
     curl 'localhost:26657/dial_peers?persistent=true&peers=\["429fcf25974313b95673f58d77eacdd434402665@10.11.12.13:26656","96663a3dd0d7b9d17d4c8211b191af259621c693@10.11.12.14:26656"\]'
 
 ### Adding a Non-Validator
 
 Adding a non-validator is simple. Just copy the original `genesis.json`
-to `~/.tendermint/config` on the new machine and start the node,
+to `~/.Demars-DMC/config` on the new machine and start the node,
 specifying seeds or persistent peers as necessary. If no seeds or
 persistent peers are specified, the node won't make any blocks, because
 it's not a validator, and it won't hear about any blocks, because it's
@@ -338,7 +338,7 @@ before starting the network. For instance, we could make a new
 
 We can generate a new `priv_validator.json` with the command:
 
-    tendermint gen_validator
+    Demars-DMC gen_validator
 
 Now we can update our genesis file. For instance, if the new
 `priv_validator.json` looks like:
@@ -347,11 +347,11 @@ Now we can update our genesis file. For instance, if the new
       "address" : "5AF49D2A2D4F5AD4C7C8C4CC2FB020131E9C4902",
       "pub_key" : {
         "value" : "l9X9+fjkeBzDfPGbUM7AMIRE6uJN78zN5+lk5OYotek=",
-        "type" : "tendermint/PubKeyEd25519"
+        "type" : "Demars-DMC/PubKeyEd25519"
       },
       "priv_key" : {
         "value" : "EDJY9W6zlAw+su6ITgTKg2nTZcHAH1NMTW5iwlgmNDuX1f35+OR4HMN88ZtQzsAwhETq4k3vzM3n6WTk5ii16Q==",
-        "type" : "tendermint/PrivKeyEd25519"
+        "type" : "Demars-DMC/PrivKeyEd25519"
       },
       "last_step" : 0,
       "last_round" : "0",
@@ -365,7 +365,7 @@ then the new `genesis.json` will be:
         {
           "pub_key" : {
             "value" : "h3hk+QE8c6QLTySp8TcfzclJw/BG79ziGB/pIA+DfPE=",
-            "type" : "tendermint/PubKeyEd25519"
+            "type" : "Demars-DMC/PubKeyEd25519"
           },
           "power" : 10,
           "name" : ""
@@ -373,7 +373,7 @@ then the new `genesis.json` will be:
         {
           "pub_key" : {
             "value" : "l9X9+fjkeBzDfPGbUM7AMIRE6uJN78zN5+lk5OYotek=",
-            "type" : "tendermint/PubKeyEd25519"
+            "type" : "Demars-DMC/PubKeyEd25519"
           },
           "power" : 10,
           "name" : ""
@@ -384,16 +384,16 @@ then the new `genesis.json` will be:
       "genesis_time" : "0001-01-01T00:00:00Z"
     }
 
-Update the `genesis.json` in `~/.tendermint/config`. Copy the genesis
-file and the new `priv_validator.json` to the `~/.tendermint/config` on
+Update the `genesis.json` in `~/.Demars-DMC/config`. Copy the genesis
+file and the new `priv_validator.json` to the `~/.Demars-DMC/config` on
 a new machine.
 
-Now run `tendermint node` on both machines, and use either
+Now run `Demars-DMC node` on both machines, and use either
 `--p2p.persistent_peers` or the `/dial_peers` to get them to peer up.
 They should start making blocks, and will only continue to do so as long
 as both of them are online.
 
-To make a Tendermint network that can tolerate one of the validators
+To make a Demars-DMC network that can tolerate one of the validators
 failing, you need at least four validator nodes (e.g., 2/3).
 
 Updating validators in a live network is supported but must be
@@ -406,12 +406,12 @@ To run a network locally, say on a single machine, you must change the
 `_laddr` fields in the `config.toml` (or using the flags) so that the
 listening addresses of the various sockets don't conflict. Additionally,
 you must set `addrbook_strict=false` in the `config.toml`, otherwise
-Tendermint's p2p library will deny making connections to peers with the
+Demars-DMC's p2p library will deny making connections to peers with the
 same IP address.
 
 ### Upgrading
 
-The Tendermint development cycle currently includes a lot of breaking changes.
+The Demars-DMC development cycle currently includes a lot of breaking changes.
 Upgrading from an old version to a new version usually means throwing
 away the chain data. Try out the
 [tm-migrate](https://github.com/hxzqlh/tm-tools) tool written by

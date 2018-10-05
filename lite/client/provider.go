@@ -8,12 +8,12 @@ package client
 import (
 	"bytes"
 
-	rpcclient "github.com/tendermint/tendermint/rpc/client"
-	ctypes "github.com/tendermint/tendermint/rpc/core/types"
-	"github.com/tendermint/tendermint/types"
+	rpcclient "github.com/Demars-DMC/Demars-DMC/rpc/client"
+	ctypes "github.com/Demars-DMC/Demars-DMC/rpc/core/types"
+	"github.com/Demars-DMC/Demars-DMC/types"
 
-	"github.com/tendermint/tendermint/lite"
-	liteErr "github.com/tendermint/tendermint/lite/errors"
+	"github.com/Demars-DMC/Demars-DMC/lite"
+	liteErr "github.com/Demars-DMC/Demars-DMC/lite/errors"
 )
 
 // SignStatusClient combines a SignClient and StatusClient.
@@ -33,7 +33,7 @@ func NewProvider(node SignStatusClient) lite.Provider {
 	return &provider{node: node}
 }
 
-// NewHTTPProvider can connect to a tendermint json-rpc endpoint
+// NewHTTPProvider can connect to a Demars-DMC json-rpc endpoint
 // at the given url, and uses that as a read-only provider.
 func NewHTTPProvider(remote string) lite.Provider {
 	return &provider{

@@ -7,9 +7,9 @@ import (
 	"strings"
 	"time"
 
-	cmn "github.com/tendermint/tendermint/libs/common"
-	"github.com/tendermint/tendermint/libs/log"
-	"github.com/tendermint/tendermint/p2p/upnp"
+	cmn "github.com/Demars-DMC/Demars-DMC/libs/common"
+	"github.com/Demars-DMC/Demars-DMC/libs/log"
+	"github.com/Demars-DMC/Demars-DMC/p2p/upnp"
 )
 
 // Listener is a network listener for stream-oriented protocols, providing
@@ -231,7 +231,7 @@ func getUPNPExternalAddress(externalPort, internalPort int, logger log.Logger) *
 		externalPort = defaultExternalPort
 	}
 
-	externalPort, err = nat.AddPortMapping("tcp", externalPort, internalPort, "tendermint", 0)
+	externalPort, err = nat.AddPortMapping("tcp", externalPort, internalPort, "Demars-DMC", 0)
 	if err != nil {
 		logger.Info("Could not add UPNP port mapping", "err", err)
 		return nil

@@ -46,12 +46,12 @@ func ExamplePrintRegisteredTypes() {
 	cdc.PrintTypes(os.Stdout)
 	// Output: | Type | Name | Prefix | Length | Notes |
 	//| ---- | ---- | ------ | ----- | ------ |
-	//| PubKeyEd25519 | tendermint/PubKeyEd25519 | 0x1624DE64 | 0x20 |  |
-	//| PubKeySecp256k1 | tendermint/PubKeySecp256k1 | 0xEB5AE987 | 0x21 |  |
-	//| PrivKeyEd25519 | tendermint/PrivKeyEd25519 | 0xA3288910 | 0x40 |  |
-	//| PrivKeySecp256k1 | tendermint/PrivKeySecp256k1 | 0xE1B0F79B | 0x20 |  |
-	//| SignatureEd25519 | tendermint/SignatureEd25519 | 0x2031EA53 | 0x40 |  |
-	//| SignatureSecp256k1 | tendermint/SignatureSecp256k1 | 0x7FC4A495 | variable |  |
+	//| PubKeyEd25519 | Demars-DMC/PubKeyEd25519 | 0x1624DE64 | 0x20 |  |
+	//| PubKeySecp256k1 | Demars-DMC/PubKeySecp256k1 | 0xEB5AE987 | 0x21 |  |
+	//| PrivKeyEd25519 | Demars-DMC/PrivKeyEd25519 | 0xA3288910 | 0x40 |  |
+	//| PrivKeySecp256k1 | Demars-DMC/PrivKeySecp256k1 | 0xE1B0F79B | 0x20 |  |
+	//| SignatureEd25519 | Demars-DMC/SignatureEd25519 | 0x2031EA53 | 0x40 |  |
+	//| SignatureSecp256k1 | Demars-DMC/SignatureSecp256k1 | 0x7FC4A495 | variable |  |
 }
 
 func TestKeyEncodings(t *testing.T) {

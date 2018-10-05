@@ -1,9 +1,9 @@
 FROM golang:latest
 
-RUN mkdir -p /go/src/github.com/demars-dmc/abci
-WORKDIR /go/src/github.com/demars-dmc/abci
+RUN mkdir -p /go/src/github.com/Demars-DMC/Demars-DMC/abci
+WORKDIR /go/src/github.com/Demars-DMC/Demars-DMC/abci
 
-COPY Makefile /go/src/github.com/demars-dmc/abci/
+COPY Makefile /go/src/github.com/Demars-DMC/Demars-DMC/abci/
 
 # see make protoc for details on ldconfig
 RUN make get_protoc && ldconfig
@@ -13,11 +13,11 @@ RUN apt-get update && apt-get install -y \
     psmisc \
  && rm -rf /var/lib/apt/lists/*
 
-COPY Gopkg.toml /go/src/github.com/demars-dmc/abci/
-COPY Gopkg.lock /go/src/github.com/demars-dmc/abci/
+COPY Gopkg.toml /go/src/github.com/Demars-DMC/Demars-DMC/abci/
+COPY Gopkg.lock /go/src/github.com/Demars-DMC/Demars-DMC/abci/
 RUN make get_tools
 
 # see https://github.com/golang/dep/issues/1312
 RUN dep ensure -vendor-only
 
-COPY . /go/src/github.com/demars-dmc/abci
+COPY . /go/src/github.com/Demars-DMC/Demars-DMC/abci

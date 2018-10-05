@@ -12,9 +12,9 @@ import (
 	"github.com/tendermint/ed25519"
 	"github.com/tendermint/ed25519/extra25519"
 
-	cmn "github.com/tendermint/tendermint/libs/common"
+	cmn "github.com/Demars-DMC/Demars-DMC/libs/common"
 
-	"github.com/tendermint/tendermint/crypto/tmhash"
+	"github.com/Demars-DMC/Demars-DMC/crypto/tmhash"
 )
 
 // An address is a []byte, but hex-encoded even in JSON.

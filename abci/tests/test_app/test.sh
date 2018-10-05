@@ -24,4 +24,4 @@ echo "----------------------"
 
 # test nodejs counter
 # TODO: fix node app
-#ABCI_APP="node $GOPATH/src/github.com/tendermint/js-abci/example/app.js" go test -test.run TestCounter
+#ABCI_APP="node $GOPATH/src/github.com/Demars-DMC/js-abci/example/app.js" go test -test.run TestCounter

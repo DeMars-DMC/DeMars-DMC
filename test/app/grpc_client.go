@@ -8,7 +8,7 @@ import (
 
 	"context"
 
-	"github.com/tendermint/tendermint/rpc/grpc"
+	"github.com/Demars-DMC/Demars-DMC/rpc/grpc"
 )
 
 var grpcAddr = "tcp://localhost:36656"

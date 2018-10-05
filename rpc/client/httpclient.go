@@ -7,20 +7,20 @@ import (
 	"github.com/pkg/errors"
 
 	amino "github.com/tendermint/go-amino"
-	tmpubsub "github.com/tendermint/tendermint/libs/pubsub"
-	ctypes "github.com/tendermint/tendermint/rpc/core/types"
-	rpcclient "github.com/tendermint/tendermint/rpc/lib/client"
-	"github.com/tendermint/tendermint/types"
-	cmn "github.com/tendermint/tendermint/libs/common"
+	tmpubsub "github.com/Demars-DMC/Demars-DMC/libs/pubsub"
+	ctypes "github.com/Demars-DMC/Demars-DMC/rpc/core/types"
+	rpcclient "github.com/Demars-DMC/Demars-DMC/rpc/lib/client"
+	"github.com/Demars-DMC/Demars-DMC/types"
+	cmn "github.com/Demars-DMC/Demars-DMC/libs/common"
 )
 
 /*
 HTTP is a Client implementation that communicates
-with a tendermint node over json rpc and websockets.
+with a Demars-DMC node over json rpc and websockets.
 
 This is the main implementation you probably want to use in
 production code.  There are other implementations when calling
-the tendermint node in-process (local), or when you want to mock
+the Demars-DMC node in-process (local), or when you want to mock
 out the server for test code (mock).
 */
 type HTTP struct {
@@ -286,7 +286,7 @@ func (w *WSEvents) Subscribe(ctx context.Context, subscriber string, query tmpub
 	}
 
 	w.mtx.Lock()
-	// subscriber param is ignored because Tendermint will override it with
+	// subscriber param is ignored because Demars-DMC will override it with
 	// remote IP anyway.
 	w.subscriptions[q] = out
 	w.mtx.Unlock()

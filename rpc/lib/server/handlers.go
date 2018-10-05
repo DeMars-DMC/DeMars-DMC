@@ -18,9 +18,9 @@ import (
 	"github.com/pkg/errors"
 
 	amino "github.com/tendermint/go-amino"
-	types "github.com/tendermint/tendermint/rpc/lib/types"
-	cmn "github.com/tendermint/tendermint/libs/common"
-	"github.com/tendermint/tendermint/libs/log"
+	types "github.com/Demars-DMC/Demars-DMC/rpc/lib/types"
+	cmn "github.com/Demars-DMC/Demars-DMC/libs/common"
+	"github.com/Demars-DMC/Demars-DMC/libs/log"
 )
 
 // RegisterRPCFuncs adds a route for each function in the funcMap, as well as general jsonrpc and websocket handlers for all functions.
@@ -278,7 +278,7 @@ func makeHTTPHandler(rpcFunc *RPCFunc, cdc *amino.Codec, logger log.Logger) func
 }
 
 // Covert an http query to a list of properly typed values.
-// To be properly decoded the arg must be a concrete type from tendermint (if its an interface).
+// To be properly decoded the arg must be a concrete type from Demars-DMC (if its an interface).
 func httpParamsToArgs(rpcFunc *RPCFunc, cdc *amino.Codec, r *http.Request) ([]reflect.Value, error) {
 	values := make([]reflect.Value, len(rpcFunc.args))
 
@@ -678,7 +678,7 @@ func (wsc *wsConnection) writeRoutine() {
 }
 
 // All writes to the websocket must (re)set the write deadline.
-// If some writes don't set it while others do, they may timeout incorrectly (https://github.com/tendermint/tendermint/issues/553)
+// If some writes don't set it while others do, they may timeout incorrectly (https://github.com/Demars-DMC/Demars-DMC/issues/553)
 func (wsc *wsConnection) writeMessageWithDeadline(msgType int, msg []byte) error {
 	if err := wsc.baseConn.SetWriteDeadline(time.Now().Add(wsc.writeWait)); err != nil {
 		return err

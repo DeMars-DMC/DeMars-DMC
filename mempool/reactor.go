@@ -6,13 +6,13 @@ import (
 	"time"
 
 	amino "github.com/tendermint/go-amino"
-	abci "github.com/tendermint/tendermint/abci/types"
-	"github.com/tendermint/tendermint/libs/clist"
-	"github.com/tendermint/tendermint/libs/log"
+	abci "github.com/Demars-DMC/Demars-DMC/abci/types"
+	"github.com/Demars-DMC/Demars-DMC/libs/clist"
+	"github.com/Demars-DMC/Demars-DMC/libs/log"
 
-	cfg "github.com/tendermint/tendermint/config"
-	"github.com/tendermint/tendermint/p2p"
-	"github.com/tendermint/tendermint/types"
+	cfg "github.com/Demars-DMC/Demars-DMC/config"
+	"github.com/Demars-DMC/Demars-DMC/p2p"
+	"github.com/Demars-DMC/Demars-DMC/types"
 )
 
 const (
@@ -205,7 +205,7 @@ type MempoolMessage interface{}
 
 func RegisterMempoolMessages(cdc *amino.Codec) {
 	cdc.RegisterInterface((*MempoolMessage)(nil), nil)
-	cdc.RegisterConcrete(&TxMessage{}, "tendermint/mempool/TxMessage", nil)
+	cdc.RegisterConcrete(&TxMessage{}, "Demars-DMC/mempool/TxMessage", nil)
 }
 
 // DecodeMessage decodes a byte-array into a MempoolMessage.

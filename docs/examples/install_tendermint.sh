@@ -21,7 +21,7 @@ echo "export PATH=\$PATH:\$GOPATH/bin" >> ~/.profile
 source ~/.profile
 
 ## get the code and move into it
-REPO=github.com/tendermint/tendermint
+REPO=github.com/Demars-DMC/Demars-DMC
 go get $REPO
 cd $GOPATH/src/$REPO
 

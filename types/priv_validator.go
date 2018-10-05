@@ -4,10 +4,10 @@ import (
 	"bytes"
 	"fmt"
 
-	"github.com/tendermint/tendermint/crypto"
+	"github.com/Demars-DMC/Demars-DMC/crypto"
 )
 
-// PrivValidator defines the functionality of a local Tendermint validator
+// PrivValidator defines the functionality of a local Demars-DMC validator
 // that signs votes, proposals, and heartbeats, and never double signs.
 type PrivValidator interface {
 	GetAddress() Address // redundant since .PubKey().Address()

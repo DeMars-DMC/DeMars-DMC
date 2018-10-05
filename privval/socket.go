@@ -8,12 +8,12 @@ import (
 	"time"
 
 	"github.com/tendermint/go-amino"
-	"github.com/tendermint/tendermint/crypto"
-	cmn "github.com/tendermint/tendermint/libs/common"
-	"github.com/tendermint/tendermint/libs/log"
+	"github.com/Demars-DMC/Demars-DMC/crypto"
+	cmn "github.com/Demars-DMC/Demars-DMC/libs/common"
+	"github.com/Demars-DMC/Demars-DMC/libs/log"
 
-	p2pconn "github.com/tendermint/tendermint/p2p/conn"
-	"github.com/tendermint/tendermint/types"
+	p2pconn "github.com/Demars-DMC/Demars-DMC/p2p/conn"
+	"github.com/Demars-DMC/Demars-DMC/types"
 )
 
 const (
@@ -494,10 +494,10 @@ type SocketPVMsg interface{}
 
 func RegisterSocketPVMsg(cdc *amino.Codec) {
 	cdc.RegisterInterface((*SocketPVMsg)(nil), nil)
-	cdc.RegisterConcrete(&PubKeyMsg{}, "tendermint/socketpv/PubKeyMsg", nil)
-	cdc.RegisterConcrete(&SignVoteMsg{}, "tendermint/socketpv/SignVoteMsg", nil)
-	cdc.RegisterConcrete(&SignProposalMsg{}, "tendermint/socketpv/SignProposalMsg", nil)
-	cdc.RegisterConcrete(&SignHeartbeatMsg{}, "tendermint/socketpv/SignHeartbeatMsg", nil)
+	cdc.RegisterConcrete(&PubKeyMsg{}, "Demars-DMC/socketpv/PubKeyMsg", nil)
+	cdc.RegisterConcrete(&SignVoteMsg{}, "Demars-DMC/socketpv/SignVoteMsg", nil)
+	cdc.RegisterConcrete(&SignProposalMsg{}, "Demars-DMC/socketpv/SignProposalMsg", nil)
+	cdc.RegisterConcrete(&SignHeartbeatMsg{}, "Demars-DMC/socketpv/SignHeartbeatMsg", nil)
 }
 
 // PubKeyMsg is a PrivValidatorSocket message containing the public key.

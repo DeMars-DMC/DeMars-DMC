@@ -7,7 +7,7 @@ import (
 	"testing"
 	"time"
 
-	cmn "github.com/tendermint/tendermint/libs/common"
+	cmn "github.com/Demars-DMC/Demars-DMC/libs/common"
 )
 
 func TestSIGHUP(t *testing.T) {

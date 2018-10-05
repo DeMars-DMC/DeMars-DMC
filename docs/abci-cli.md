@@ -59,7 +59,7 @@ as `abci-cli` above. The kvstore just stores transactions in a merkle
 tree.
 
 Its code can be found
-[here](https://github.com/tendermint/tendermint/blob/develop/abci/cmd/abci-cli/abci-cli.go)
+[here](https://github.com/Demars-DMC/Demars-DMC/blob/develop/abci/cmd/abci-cli/abci-cli.go)
 and looks like:
 
     func cmdKVStore(cmd *cobra.Command, args []string) error {
@@ -122,7 +122,7 @@ response.
 
 The server may be generic for a particular language, and we provide a
 [reference implementation in
-Golang](https://github.com/tendermint/tendermint/tree/develop/abci/server). See the
+Golang](https://github.com/Demars-DMC/Demars-DMC/tree/develop/abci/server). See the
 [list of other ABCI implementations](./ecosystem.html) for servers in
 other languages.
 
@@ -202,7 +202,7 @@ Now that we've got the hang of it, let's try another application, the
 "counter" app.
 
 Like the kvstore app, its code can be found
-[here](https://github.com/tendermint/tendermint/blob/master/abci/cmd/abci-cli/abci-cli.go)
+[here](https://github.com/Demars-DMC/Demars-DMC/blob/master/abci/cmd/abci-cli/abci-cli.go)
 and looks like:
 
     func cmdCounter(cmd *cobra.Command, args []string) error {
@@ -299,7 +299,7 @@ But the ultimate flexibility comes from being able to write the
 application easily in any language.
 
 We have implemented the counter in a number of languages [see the
-example directory](https://github.com/tendermint/tendermint/tree/develop/abci/example).
+example directory](https://github.com/Demars-DMC/Demars-DMC/tree/develop/abci/example).
 
 To run the Node JS version, `cd` to `example/js` and run
 
@@ -312,17 +312,17 @@ the same results as for the Go version.
 ## Bounties
 
 Want to write the counter app in your favorite language?! We'd be happy
-to add you to our [ecosystem](https://tendermint.com/ecosystem)! We're
-also offering [bounties](https://hackerone.com/tendermint/) for
+to add you to our [ecosystem](https://Demars-DMC.com/ecosystem)! We're
+also offering [bounties](https://hackerone.com/Demars-DMC/) for
 implementations in new languages!
 
 The `abci-cli` is designed strictly for testing and debugging. In a real
-deployment, the role of sending messages is taken by Tendermint, which
+deployment, the role of sending messages is taken by Demars-DMC, which
 connects to the app using three separate connections, each with its own
 pattern of messages.
 
 For more information, see the [application developers
 guide](./app-development.md). For examples of running an ABCI app with
-Tendermint, see the [getting started guide](./getting-started.md).
+Demars-DMC, see the [getting started guide](./getting-started.md).
 Next is the ABCI specification.
 -->

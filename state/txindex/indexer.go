@@ -3,8 +3,8 @@ package txindex
 import (
 	"errors"
 
-	"github.com/tendermint/tendermint/libs/pubsub/query"
-	"github.com/tendermint/tendermint/types"
+	"github.com/Demars-DMC/Demars-DMC/libs/pubsub/query"
+	"github.com/Demars-DMC/Demars-DMC/types"
 )
 
 // TxIndexer interface defines methods to index and search transactions.

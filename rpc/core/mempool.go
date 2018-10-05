@@ -7,14 +7,14 @@ import (
 
 	"github.com/pkg/errors"
 
-	abci "github.com/tendermint/tendermint/abci/types"
-	ctypes "github.com/tendermint/tendermint/rpc/core/types"
-	"github.com/tendermint/tendermint/types"
-	cmn "github.com/tendermint/tendermint/libs/common"
+	abci "github.com/Demars-DMC/Demars-DMC/abci/types"
+	ctypes "github.com/Demars-DMC/Demars-DMC/rpc/core/types"
+	"github.com/Demars-DMC/Demars-DMC/types"
+	cmn "github.com/Demars-DMC/Demars-DMC/libs/common"
 )
 
 //-----------------------------------------------------------------------------
-// NOTE: tx should be signed, but this is only checked at the app level (not by Tendermint!)
+// NOTE: tx should be signed, but this is only checked at the app level (not by Demars-DMC!)
 
 // Returns right away, with no response
 //

@@ -92,10 +92,10 @@ test_apps:
 
 test_cli:
 	# test the cli against the examples in the tutorial at:
-	# http://tendermint.readthedocs.io/projects/tools/en/master/abci-cli.html
+	# http://Demars-DMC.readthedocs.io/projects/tools/en/master/abci-cli.html
 	#
 	# XXX: if this test fails, fix it and update the docs at:
-	# https://github.com/tendermint/tendermint/blob/develop/docs/abci-cli.rst
+	# https://github.com/Demars-DMC/Demars-DMC/blob/develop/docs/abci-cli.rst
 	@ bash tests/test_cli/test.sh
 
 ########################################
@@ -144,21 +144,21 @@ metalinter_all:
 DEVDOC_SAVE = docker commit `docker ps -a -n 1 -q` devdoc:local
 
 docker_build:
-	docker build -t "tendermint/abci-dev" -f Dockerfile.develop .
+	docker build -t "Demars-DMC/abci-dev" -f Dockerfile.develop .
 
 docker_run:
-	docker run -it -v "$(CURDIR):/go/src/github.com/tendermint/abci" -w "/go/src/github.com/tendermint/abci" "tendermint/abci-dev" /bin/bash
+	docker run -it -v "$(CURDIR):/go/src/github.com/Demars-DMC/Demars-DMC/abci" -w "/go/src/github.com/Demars-DMC/Demars-DMC/abci" "Demars-DMC/abci-dev" /bin/bash
 
 docker_run_rm:
-	docker run -it --rm -v "$(CURDIR):/go/src/github.com/tendermint/abci" -w "/go/src/github.com/tendermint/abci" "tendermint/abci-dev" /bin/bash
+	docker run -it --rm -v "$(CURDIR):/go/src/github.com/Demars-DMC/Demars-DMC/abci" -w "/go/src/github.com/Demars-DMC/Demars-DMC/abci" "Demars-DMC/abci-dev" /bin/bash
 
 devdoc_init:
-	docker run -it -v "$(CURDIR):/go/src/github.com/tendermint/abci" -w "/go/src/github.com/tendermint/abci" tendermint/devdoc echo
+	docker run -it -v "$(CURDIR):/go/src/github.com/Demars-DMC/Demars-DMC/abci" -w "/go/src/github.com/Demars-DMC/Demars-DMC/abci" Demars-DMC/devdoc echo
 	# TODO make this safer
 	$(call DEVDOC_SAVE)
 
 devdoc:
-	docker run -it -v "$(CURDIR):/go/src/github.com/tendermint/abci" -w "/go/src/github.com/tendermint/abci" devdoc:local bash
+	docker run -it -v "$(CURDIR):/go/src/github.com/Demars-DMC/Demars-DMC/abci" -w "/go/src/github.com/Demars-DMC/Demars-DMC/abci" devdoc:local bash
 
 devdoc_save:
 	# TODO make this safer

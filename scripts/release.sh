@@ -27,18 +27,18 @@ sh -c "'$DIR/scripts/publish.sh'"
 
 # echo "==> Crafting a Github release"
 # today=$(date +"%B-%d-%Y")
-# ghr -b "https://github.com/tendermint/tendermint/blob/master/CHANGELOG.md#${VERSION//.}-${today,}" "v$VERSION" "$DIR/build/dist"
+# ghr -b "https://github.com/Demars-DMC/Demars-DMC/blob/master/CHANGELOG.md#${VERSION//.}-${today,}" "v$VERSION" "$DIR/build/dist"
 
 # Build and push Docker image
 
 ## Get SHA256SUM of the linux archive
-SHA256SUM=$(shasum -a256 "${DIR}/build/dist/tendermint_${VERSION}_linux_amd64.zip" | awk '{print $1;}')
+SHA256SUM=$(shasum -a256 "${DIR}/build/dist/Demars-DMC_${VERSION}_linux_amd64.zip" | awk '{print $1;}')
 
 ## Replace TM_VERSION and TM_SHA256SUM with the new values
 sed -i -e "s/TM_VERSION .*/TM_VERSION $VERSION/g" "$DIR/DOCKER/Dockerfile"
 sed -i -e "s/TM_SHA256SUM .*/TM_SHA256SUM $SHA256SUM/g" "$DIR/DOCKER/Dockerfile"
 git commit -m "update Dockerfile" -a "$DIR/DOCKER/Dockerfile"
-echo "==> TODO: update DOCKER/README.md (latest Dockerfile's hash is $(git rev-parse HEAD)) and copy it's content to https://store.docker.com/community/images/tendermint/tendermint"
+echo "==> TODO: update DOCKER/README.md (latest Dockerfile's hash is $(git rev-parse HEAD)) and copy it's content to https://store.docker.com/community/images/Demars-DMC/Demars-DMC"
 
 pushd "$DIR/DOCKER"
 

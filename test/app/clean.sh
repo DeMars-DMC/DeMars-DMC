@@ -1,3 +1,3 @@
-killall tendermint
+killall Demars-DMC
 killall abci-cli
-rm -rf ~/.tendermint_app
+rm -rf ~/.Demars-DMC_app

@@ -10,11 +10,11 @@ import (
 
 	"github.com/spf13/cobra"
 
-	cfg "github.com/tendermint/tendermint/config"
-	"github.com/tendermint/tendermint/p2p"
-	"github.com/tendermint/tendermint/privval"
-	"github.com/tendermint/tendermint/types"
-	cmn "github.com/tendermint/tendermint/libs/common"
+	cfg "github.com/Demars-DMC/Demars-DMC/config"
+	"github.com/Demars-DMC/Demars-DMC/p2p"
+	"github.com/Demars-DMC/Demars-DMC/privval"
+	"github.com/Demars-DMC/Demars-DMC/types"
+	cmn "github.com/Demars-DMC/Demars-DMC/libs/common"
 )
 
 var (
@@ -53,10 +53,10 @@ func init() {
 		"P2P Port")
 }
 
-// TestnetFilesCmd allows initialisation of files for a Tendermint testnet.
+// TestnetFilesCmd allows initialisation of files for a Demars-DMC testnet.
 var TestnetFilesCmd = &cobra.Command{
 	Use:   "testnet",
-	Short: "Initialize files for a Tendermint testnet",
+	Short: "Initialize files for a Demars-DMC testnet",
 	Long: `testnet will create "v" + "n" number of directories and populate each with
 necessary files (private validator, genesis, config, etc.).
 
@@ -66,7 +66,7 @@ Optionally, it will fill in persistent_peers list in config file using either ho
 
 Example:
 
-	tendermint testnet --v 4 --o ./output --populate-persistent-peers --starting-ip-address 192.168.10.2
+	Demars-DMC testnet --v 4 --o ./output --populate-persistent-peers --starting-ip-address 192.168.10.2
 	`,
 	RunE: testnetFiles,
 }

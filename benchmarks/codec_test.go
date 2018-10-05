@@ -6,10 +6,10 @@ import (
 
 	"github.com/tendermint/go-amino"
 
-	proto "github.com/tendermint/tendermint/benchmarks/proto"
-	"github.com/tendermint/tendermint/crypto"
-	"github.com/tendermint/tendermint/p2p"
-	ctypes "github.com/tendermint/tendermint/rpc/core/types"
+	proto "github.com/Demars-DMC/Demars-DMC/benchmarks/proto"
+	"github.com/Demars-DMC/Demars-DMC/crypto"
+	"github.com/Demars-DMC/Demars-DMC/p2p"
+	ctypes "github.com/Demars-DMC/Demars-DMC/rpc/core/types"
 	"encoding/hex"
 )
 

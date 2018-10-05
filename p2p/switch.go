@@ -7,9 +7,9 @@ import (
 	"sync"
 	"time"
 
-	"github.com/tendermint/tendermint/config"
-	"github.com/tendermint/tendermint/p2p/conn"
-	cmn "github.com/tendermint/tendermint/libs/common"
+	"github.com/Demars-DMC/Demars-DMC/config"
+	"github.com/Demars-DMC/Demars-DMC/p2p/conn"
+	cmn "github.com/Demars-DMC/Demars-DMC/libs/common"
 )
 
 const (
@@ -555,7 +555,7 @@ func (sw *Switch) addOutboundPeerWithConfig(
 	return nil
 }
 
-// addPeer performs the Tendermint P2P handshake with a peer
+// addPeer performs the Demars-DMC P2P handshake with a peer
 // that already has a SecretConnection. If all goes well,
 // it starts the peer and adds it to the switch.
 // NOTE: This performs a blocking handshake before the peer is added.

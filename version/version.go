@@ -8,9 +8,9 @@ const (
 )
 
 var (
-	// Version is the current version of Tendermint
+	// Version is the current version of Demars-DMC
 	// Must be a string because scripts like dist.sh read this file.
-	Version = "0.22.0"
+	Version = "0.0.1"
 
 	// GitCommit is the current HEAD set using ldflags.
 	GitCommit string

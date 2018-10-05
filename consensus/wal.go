@@ -11,9 +11,9 @@ import (
 	"github.com/pkg/errors"
 
 	amino "github.com/tendermint/go-amino"
-	"github.com/tendermint/tendermint/types"
-	auto "github.com/tendermint/tendermint/libs/autofile"
-	cmn "github.com/tendermint/tendermint/libs/common"
+	"github.com/Demars-DMC/Demars-DMC/types"
+	auto "github.com/Demars-DMC/Demars-DMC/libs/autofile"
+	cmn "github.com/Demars-DMC/Demars-DMC/libs/common"
 )
 
 const (
@@ -39,10 +39,10 @@ type WALMessage interface{}
 
 func RegisterWALMessages(cdc *amino.Codec) {
 	cdc.RegisterInterface((*WALMessage)(nil), nil)
-	cdc.RegisterConcrete(types.EventDataRoundState{}, "tendermint/wal/EventDataRoundState", nil)
-	cdc.RegisterConcrete(msgInfo{}, "tendermint/wal/MsgInfo", nil)
-	cdc.RegisterConcrete(timeoutInfo{}, "tendermint/wal/TimeoutInfo", nil)
-	cdc.RegisterConcrete(EndHeightMessage{}, "tendermint/wal/EndHeightMessage", nil)
+	cdc.RegisterConcrete(types.EventDataRoundState{}, "Demars-DMC/wal/EventDataRoundState", nil)
+	cdc.RegisterConcrete(msgInfo{}, "Demars-DMC/wal/MsgInfo", nil)
+	cdc.RegisterConcrete(timeoutInfo{}, "Demars-DMC/wal/TimeoutInfo", nil)
+	cdc.RegisterConcrete(EndHeightMessage{}, "Demars-DMC/wal/EndHeightMessage", nil)
 }
 
 //--------------------------------------------------------

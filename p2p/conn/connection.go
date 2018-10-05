@@ -12,9 +12,9 @@ import (
 	"time"
 
 	amino "github.com/tendermint/go-amino"
-	cmn "github.com/tendermint/tendermint/libs/common"
-	flow "github.com/tendermint/tendermint/libs/flowrate"
-	"github.com/tendermint/tendermint/libs/log"
+	cmn "github.com/Demars-DMC/Demars-DMC/libs/common"
+	flow "github.com/Demars-DMC/Demars-DMC/libs/flowrate"
+	"github.com/Demars-DMC/Demars-DMC/libs/log"
 )
 
 const (
@@ -491,7 +491,7 @@ FOR_LOOP:
 		switch pkt := packet.(type) {
 		case PacketPing:
 			// TODO: prevent abuse, as they cause flush()'s.
-			// https://github.com/tendermint/tendermint/issues/1190
+			// https://github.com/Demars-DMC/Demars-DMC/issues/1190
 			c.Logger.Debug("Receive Ping")
 			select {
 			case c.pong <- struct{}{}:
@@ -768,9 +768,9 @@ type Packet interface {
 
 func RegisterPacket(cdc *amino.Codec) {
 	cdc.RegisterInterface((*Packet)(nil), nil)
-	cdc.RegisterConcrete(PacketPing{}, "tendermint/p2p/PacketPing", nil)
-	cdc.RegisterConcrete(PacketPong{}, "tendermint/p2p/PacketPong", nil)
-	cdc.RegisterConcrete(PacketMsg{}, "tendermint/p2p/PacketMsg", nil)
+	cdc.RegisterConcrete(PacketPing{}, "Demars-DMC/p2p/PacketPing", nil)
+	cdc.RegisterConcrete(PacketPong{}, "Demars-DMC/p2p/PacketPong", nil)
+	cdc.RegisterConcrete(PacketMsg{}, "Demars-DMC/p2p/PacketMsg", nil)
 }
 
 func (_ PacketPing) AssertIsPacket() {}
