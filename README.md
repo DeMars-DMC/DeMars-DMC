@@ -1,6 +1,6 @@
 # DéMars-DMC
 
-[XOR-segmented](https://en.wikipedia.org/wiki/Kademlia) [Byzantine-Fault Tolerant](https://en.wikipedia.org/wiki/Byzantine_fault_tolerance) [Blockchain](https://en.wikipedia.org/wiki/Blockchain_(database))
+[HYpercube-based](https://en.wikipedia.org/wiki/Hypercube_internetwork_topology) [Byzantine-Fault Tolerant](https://en.wikipedia.org/wiki/Byzantine_fault_tolerance) [Blockchain](https://en.wikipedia.org/wiki/Blockchain_(database))
 
 <!---
 [![version](https://img.shields.io/github/tag/Demars-DMC/Demars-DMC.svg)](https://github.com/Demars-DMC/Demars-DMC/releases/latest)
@@ -18,7 +18,7 @@ Branch    | Tests | Coverage
 master    | [![CircleCI](https://circleci.com/gh/Demars-DMC/Demars-DMC/tree/master.svg?style=shield)](https://circleci.com/gh/Demars-DMC/Demars-DMC/tree/master) | [![codecov](https://codecov.io/gh/Demars-DMC/Demars-DMC/branch/master/graph/badge.svg)](https://codecov.io/gh/Demars-DMC/Demars-DMC)
 develop   | [![CircleCI](https://circleci.com/gh/Demars-DMC/Demars-DMC/tree/develop.svg?style=shield)](https://circleci.com/gh/Demars-DMC/Demars-DMC/tree/develop) | [![codecov](https://codecov.io/gh/Demars-DMC/Demars-DMC/branch/develop/graph/badge.svg)](https://codecov.io/gh/Demars-DMC/Demars-DMC)
 -->
-DéMars is Byzantine Fault Tolerant (BFT) blockchain which uses XOR segments to reduce the storage and network transfer costs, thereby enabling it to execute on mobile nodes.
+DéMars is Byzantine Fault Tolerant (BFT) blockchain which uses network segments in a hypercube geometry to reduce the storage and network transfer costs, thereby enabling it to execute on mobile nodes.
 
 This is only a minimal prototype which has been forked from Tendermint (https://github.com/tendermint/tendermint) and modified to use Kademlia XOR metric. The proof of concept is under development.
 
