@@ -1,6 +1,6 @@
 # DéMars-DMC
 
-[HYpercube-based](https://en.wikipedia.org/wiki/Hypercube_internetwork_topology) [Byzantine-Fault Tolerant](https://en.wikipedia.org/wiki/Byzantine_fault_tolerance) [Blockchain](https://en.wikipedia.org/wiki/Blockchain_(database))
+[Hypercube-based](https://en.wikipedia.org/wiki/Hypercube_internetwork_topology) [Byzantine-Fault Tolerant](https://en.wikipedia.org/wiki/Byzantine_fault_tolerance) [Blockchain](https://en.wikipedia.org/wiki/Blockchain_(database))
 
 <!---
 [![version](https://img.shields.io/github/tag/Demars-DMC/Demars-DMC.svg)](https://github.com/Demars-DMC/Demars-DMC/releases/latest)
