@@ -98,7 +98,7 @@ Additional information about some - and eventually all - of the sub-projects bel
 * [Master's Thesis on Demars-DMC](https://atrium.lib.uoguelph.ca/xmlui/handle/10214/9769)
 * -->
 
-* [Original Whitepaper](https://github.com/DeMars-DMC/DeMars-DMC/blob/master/whitepaper/demars.pdf)
+* [Original Whitepaper](Please contact us for more information: dmc@demars.io)
 
 <!--
 * [Demars-DMC Blog](https://blog.cosmos.network/Demars-DMC/home)
