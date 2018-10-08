@@ -18,14 +18,13 @@ Branch    | Tests | Coverage
 master    | [![CircleCI](https://circleci.com/gh/Demars-DMC/Demars-DMC/tree/master.svg?style=shield)](https://circleci.com/gh/Demars-DMC/Demars-DMC/tree/master) | [![codecov](https://codecov.io/gh/Demars-DMC/Demars-DMC/branch/master/graph/badge.svg)](https://codecov.io/gh/Demars-DMC/Demars-DMC)
 develop   | [![CircleCI](https://circleci.com/gh/Demars-DMC/Demars-DMC/tree/develop.svg?style=shield)](https://circleci.com/gh/Demars-DMC/Demars-DMC/tree/develop) | [![codecov](https://codecov.io/gh/Demars-DMC/Demars-DMC/branch/develop/graph/badge.svg)](https://codecov.io/gh/Demars-DMC/Demars-DMC)
 -->
-DéMars is Byzantine Fault Tolerant (BFT) blockchain which uses network segments in a hypercube geometry to reduce the storage and network transfer costs, thereby enabling it to execute on mobile nodes.
+DéMars is Byzantine Fault Tolerant (BFT) blockchain which uses network segments to reduce the storage and network transfer costs, thereby enabling it to execute on mobile nodes.
 
 This is only a minimal prototype which has been forked from Tendermint (https://github.com/tendermint/tendermint) and modified to use Kademlia XOR metric. The proof of concept is under development.
 
 ## Simplifications (w.r.t. the Whitepaper)
-* The prototype uses a Kademlia XOR P2P network similar to Ethereum (https://github.com/ethereum/wiki/wiki/Kademlia-Peer-Selection). We propose to implement a Hamming distance-based hypercube DHT for optimizing zone selection.
+* The prototype uses a Kademlia XOR P2P network similar to Ethereum (https://github.com/ethereum/wiki/wiki/Kademlia-Peer-Selection). 
 * The validators and proposer are chosen naively (the top 100 nodes in a zone based on account balances). The final version will be based on cryptographic sortition like Algorand.
-* The distribution condition to ensure that adversaries cannot concentrate wealth in zones is yet to be implemented.
 
 <!--
 For protocol details, see [the specification](/docs/spec).
