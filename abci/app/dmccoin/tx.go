@@ -17,6 +17,7 @@ Tx (Transaction) is an atomic operation on the ledger state.
 Account Types:
  - DMCTx         Send coins to address
  - TxUTXO        Account balance update
+ FIXME: Rename UTXO to UABC
 */
 type Tx interface {
 	AssertIsTx()
@@ -174,7 +175,7 @@ func (tx *TxUTXO) SignBytes() []byte {
 //-----------------------------------------------------------------------------
 
 type DMCTx struct {
-	Fee    uint64   `json:"DoS prevention fee"`
+	Fee    uint64   `json:"Fee"`
 	Input  TxInput  `json:"Input"`
 	Output TxOutput `json:"Output"`
 }

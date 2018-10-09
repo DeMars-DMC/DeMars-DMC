@@ -32,11 +32,12 @@ import (
 	"sync"
 	"time"
 
-	"github.com/ethereum/go-ethereum/common"
-	"github.com/Demars-DMC/Demars-DMC/libs/log"
-	"github.com/ethereum/go-ethereum/p2p/netutil"
-	"github.com/Demars-DMC/Demars-DMC/p2p"
 	"encoding/hex"
+
+	"github.com/Demars-DMC/Demars-DMC/libs/log"
+	"github.com/Demars-DMC/Demars-DMC/p2p"
+	"github.com/ethereum/go-ethereum/common"
+	"github.com/ethereum/go-ethereum/p2p/netutil"
 )
 
 const (
@@ -78,8 +79,8 @@ type Table struct {
 
 	nodeAddedHook func(*Node) // for testing
 
-	net  transport
-	self *Node // metadata of the local node
+	net    transport
+	self   *Node // metadata of the local node
 	logger log.Logger
 }
 
@@ -520,7 +521,7 @@ func (tab *Table) copyLiveNodes() {
 
 // closest returns the n nodes in the table that are closest to the
 // given id. The caller must hold tab.mutex.
-func (tab *Table) closest(target [NodeIDBits / 8] byte, nresults int) *nodesByDistance {
+func (tab *Table) closest(target [NodeIDBits / 8]byte, nresults int) *nodesByDistance {
 	// This is a very wasteful way to find the closest nodes but
 	// obviously correct. I believe that tree-based buckets would make
 	// this easier to implement efficiently.
@@ -543,6 +544,7 @@ func (tab *Table) len() (n int) {
 // bucket returns the bucket for the given node ID hash.
 func (tab *Table) bucket(id [NodeIDBits / 8]byte) *bucket {
 	d := logdist(tab.self.ID.ID, id)
+	tab.logger.Debug("d = ", d, "bucketMinDistance = ", bucketMinDistance)
 	if d <= bucketMinDistance {
 		return tab.buckets[0]
 	}

@@ -215,7 +215,7 @@ func (s *SocketServer) handleResponses(closeConn chan error, conn net.Conn, resp
 		var res = <-responses
 		err := types.WriteMessage(res, bufWriter)
 		if err != nil {
-			closeConn <- fmt.Errorf("Error writing message: %v", err.Error())
+			closeConn <- fmt.Errorf("Error writing message: %v %v", err.Error(), res)
 			return
 		}
 		if _, ok := res.Value.(*types.Response_Flush); ok {

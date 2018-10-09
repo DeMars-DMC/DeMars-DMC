@@ -98,7 +98,7 @@ func (app *DMCCoinApplication) DeliverBucketedTx(txBytes []byte, height int64, b
 }
 
 func (app *DMCCoinApplication) CheckTx(txBytes []byte, height int64) types.ResponseCheckTx {
-	app.logger.Debug("Checking transaction")
+	app.logger.Debug("Checking transaction, height = ", height)
 	if len(txBytes) > maxTxSize {
 		app.logger.Debug("Max transaction size exceeded")
 		return types.ResponseCheckTx{Code: 1}
@@ -107,7 +107,7 @@ func (app *DMCCoinApplication) CheckTx(txBytes []byte, height int64) types.Respo
 
 	trx := TxUTXO{}
 	trs := DMCTx{}
-	if height%100 == 1 {
+	if height%100 == 1 && height > 1 {
 		json.Unmarshal(txBytes, &trx)
 		if app.GetState().GetAccount(trx.Address).Height != (int)(height-1) {
 			// get bucketIDs from address and return
@@ -118,15 +118,25 @@ func (app *DMCCoinApplication) CheckTx(txBytes []byte, height int64) types.Respo
 		json.Unmarshal(txBytes, &trs)
 		s := string(txBytes[:])
 		app.logger.Debug(fmt.Sprintf("String %s", s))
+		app.logger.Debug(fmt.Sprintf("Input %s", trs.Input))
+		app.logger.Debug(fmt.Sprintf("Output %s", trs.Output))
+		app.logger.Debug(fmt.Sprintf("Fee %d", trs.Fee))
 		app.logger.Debug(fmt.Sprintf("Sequence %d", trs.Input.Sequence))
-		app.logger.Debug(fmt.Sprintf("Address %s", trs.Input.Address))
+		app.logger.Debug(fmt.Sprintf("Input Address %s", trs.Input.Address))
 		if int64(trs.Input.Sequence) != height {
 			app.logger.Debug(fmt.Sprintf("Wrong sequence. Expected: %d Got: %d", height, trs.Input.Sequence))
 			return types.ResponseCheckTx{Code: 1}
 		}
 		bucketIDs := make([]string, 1)
 		// We only need to check input address, the output address does not need to be validated
-		bucketIDs[0] = string(trs.Input.Address[:2])
+		InputAddressString := fmt.Sprintf("%s", trs.Input.Address)
+
+		bucketIDs[0] = InputAddressString[:2]
+		//InputAddressString := string(trs.Input.Address[:])
+		//InputAddressString2 := fmt.Sprintf("%s", trs.Input.Address)
+		//app.logger.Debug(fmt.Sprintf("Input address string = %s", InputAddressString))
+		//app.logger.Debug(fmt.Sprintf("Input address string2 = %s", InputAddressString2))
+		app.logger.Debug(fmt.Sprintf("BucketIDs %v", bucketIDs[0]))
 		return types.ResponseCheckTx{BucketIDs: bucketIDs}
 	}
 	return types.ResponseCheckTx{Code: code.CodeTypeOK}
