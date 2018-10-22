@@ -81,7 +81,7 @@ func (app *DMCCoinApplication) DeliverBucketedTx(txBytes []byte, height int64, b
 
 	var trs DMCTx
 	var trx TxUTXO
-	if height%100 == 1 {
+	if height%100 == 1 && height > 1{
 		var acc Account
 		acc.Height = int(height)
 		acc.Balance = trx.Balance

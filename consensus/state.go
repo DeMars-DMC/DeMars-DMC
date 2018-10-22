@@ -926,7 +926,7 @@ func (cs *ConsensusState) createProposalBlock() (block *types.Block, blockParts 
 	}
 
 	utxoTxs := make(types.Txs, 0)
-	if cs.Height % 100 == 1 {
+	if cs.Height % 100 == 1 && cs.Height > 1 {
 		cs.Logger.Debug("Need to propose UTXO block")
 		abciResponses := sm.ABCIResponses{GetValidatorSet: &abci.ResponseGetValidatorSet{}}
 

@@ -2,27 +2,28 @@ package types
 
 import (
 	"bytes"
+	"crypto/sha256"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"strings"
 	"sync"
-	"encoding/json"
 	"time"
+
+	"github.com/Demars-DMC/Demars-DMC/abci/app/dmccoin"
 	"github.com/Demars-DMC/Demars-DMC/crypto/merkle"
 	"github.com/Demars-DMC/Demars-DMC/crypto/tmhash"
 	cmn "github.com/Demars-DMC/Demars-DMC/libs/common"
-	"crypto/sha256"
-	"github.com/Demars-DMC/Demars-DMC/abci/app/dmccoin"
 	"github.com/Demars-DMC/Demars-DMC/libs/log"
 )
 
 // Block defines the atomic unit of a Demars-DMC blockchain.
 // TODO: add Version byte
 type Block struct {
-	mtx        sync.Mutex
-	*Header    `json:"header"`
-	*Data      `json:"data"`
-	Commit *Commit      `json:"commit"`
+	mtx     sync.Mutex
+	*Header `json:"header"`
+	*Data   `json:"data"`
+	Commit  *Commit `json:"commit"`
 }
 
 // MakeBlock returns a new block with an empty header, except what can be computed from itself.
@@ -65,9 +66,9 @@ func MakeBlock(height int64, txs []Tx, commit *Commit, logger log.Logger) *Block
 // to parse them
 func getBucketId(tx Tx, height int64, logger log.Logger) [2]string {
 	utxoTx := dmccoin.TxUTXO{}
-	dmcTx :=  dmccoin.DMCTx{}
+	dmcTx := dmccoin.DMCTx{}
 
-	if height % 100 == 1 {
+	if height%100 == 1 && height > 1 {
 		// Parse UTXO tx
 		json.Unmarshal(tx, &utxoTx)
 		segment := string(utxoTx.Address)[:2]
@@ -209,12 +210,12 @@ type Header struct {
 	NumTxs  int64     `json:"num_txs"`
 
 	// prev block info
-	LastBlockID BlockID `json:"last_block_id"`
-	TotalTxs    int64   `json:"total_txs"`
+	LastBlockID      BlockID           `json:"last_block_id"`
+	TotalTxs         int64             `json:"total_txs"`
 	LastBucketHashes *LastBucketHashes `json:"last_bucket_hashes"`
 
 	// hashes of block data
-	DataHash       cmn.HexBytes `json:"data_hash"`        // transactions
+	DataHash cmn.HexBytes `json:"data_hash"` // transactions
 
 	// hashes from the app output from the prev block
 	ValidatorsHash  cmn.HexBytes `json:"validators_hash"`   // validators for the current block
@@ -476,7 +477,7 @@ func (buckets TxBuckets) Hash() cmn.HexBytes {
 // Txs is a slice of Tx.
 type TxBucket struct {
 	BucketId string `json: bucket_id`
-	Txs Txs `json: "txs"`
+	Txs      Txs    `json: "txs"`
 }
 
 type BucketHash cmn.HexBytes
@@ -521,6 +522,7 @@ func (data *Data) StringIndented(indent string) string {
 		indent, strings.Join(txStrings, "\n"+indent+"  "),
 		indent, data.hash)
 }
+
 // TotalTxsInBuckets returns the total number of transactions in all the buckets in this block
 func (data *Data) TotalTxsInBuckets() int64 {
 	if data == nil {

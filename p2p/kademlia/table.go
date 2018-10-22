@@ -545,8 +545,13 @@ func (tab *Table) len() (n int) {
 func (tab *Table) bucket(id [NodeIDBits / 8]byte) *bucket {
 	d := logdist(tab.self.ID.ID, id)
 	tab.logger.Debug("d = ", d, "bucketMinDistance = ", bucketMinDistance)
+	tab.logger.Debug("Bucket len = ", len(tab.buckets))
+	tab.logger.Debug("Index = ", d-bucketMinDistance-1)
 	if d <= bucketMinDistance {
 		return tab.buckets[0]
+	}
+	if (d-bucketMinDistance-1 > len(tab.buckets) - 1) {
+		return tab.buckets[len(tab.buckets) - 1]
 	}
 	return tab.buckets[d-bucketMinDistance-1]
 }
