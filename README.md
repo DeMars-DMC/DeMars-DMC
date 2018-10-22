@@ -1,6 +1,6 @@
 # DéMars-DMC
 
-Segmented [Byzantine-Fault Tolerant](https://en.wikipedia.org/wiki/Byzantine_fault_tolerance) [Blockchain](https://en.wikipedia.org/wiki/Blockchain_(database))
+[Hypercube-based](https://en.wikipedia.org/wiki/Hypercube_internetwork_topology) [Byzantine-Fault Tolerant](https://en.wikipedia.org/wiki/Byzantine_fault_tolerance) [Blockchain](https://en.wikipedia.org/wiki/Blockchain_(database))
 
 <!---
 [![version](https://img.shields.io/github/tag/Demars-DMC/Demars-DMC.svg)](https://github.com/Demars-DMC/Demars-DMC/releases/latest)
@@ -97,7 +97,7 @@ Additional information about some - and eventually all - of the sub-projects bel
 * [Master's Thesis on Demars-DMC](https://atrium.lib.uoguelph.ca/xmlui/handle/10214/9769)
 * -->
 
-* [Original Whitepaper](Please contact us for more information: dmc@demars.io)
+* [Original Whitepaper](https://github.com/DeMars-DMC/DeMars-DMC/blob/master/whitepaper/whitepaper.pdf)
 
 <!--
 * [Demars-DMC Blog](https://blog.cosmos.network/Demars-DMC/home)
