@@ -9,7 +9,7 @@ You'll need `go` [installed](https://golang.org/doc/install) and the required
 
 ```
 mkdir -p $GOPATH/src/github.com/Demars-DMC
-cd $GOPATH/src/github.com/Demars-Dmc
+cd $GOPATH/src/github.com/Demars-DMC
 git clone https://github.com/Demars-DMC/Demars-DMC.git
 cd Demars-DMC
 ```
