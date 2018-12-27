@@ -20,7 +20,7 @@ develop   | [![CircleCI](https://circleci.com/gh/Demars-DMC/Demars-DMC/tree/deve
 -->
 DéMars is Byzantine Fault Tolerant (BFT) blockchain which uses network segments to reduce the storage and network transfer costs, thereby enabling it to execute on mobile nodes.
 
-This is only a minimal prototype which has been forked from Tendermint (https://github.com/tendermint/tendermint) and modified to use Kademlia XOR metric. The proof of concept is under development.
+This is only a minimal prototype which has been forked from Tendermint (https://github.com/tendermint/tendermint) and modified to use Kademlia XOR metric. The network we are currently building is based on a Hypercube DHT.
 
 ## Simplifications (w.r.t. the Whitepaper)
 * The prototype uses a Kademlia XOR P2P network similar to Ethereum (https://github.com/ethereum/wiki/wiki/Kademlia-Peer-Selection). 
